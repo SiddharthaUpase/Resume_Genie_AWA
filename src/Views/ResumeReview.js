@@ -279,12 +279,18 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                             <span>{personalInfo.location}</span>
                             <span className="border-l border-black h-3 mx-1"></span>
                             {Object.entries(socials).map(([platform, url], index, arr) => (
-                                <React.Fragment key={platform}>
+                                url &&
+                                (
+                                    <React.Fragment key={platform}>
+                                    
                                     <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                         {platform}
                                     </a>
-                                    {index !== arr.length - 1 && <span className="border-l border-black h-3 mx-1"></span>}
-                                </React.Fragment>
+                                    {index !== arr.length - 1 && arr[index + 1][1] && <span className="border-l border-black h-3 mx-1"></span>}
+                                    </React.Fragment>
+
+                                )
+                                
                             ))}
                         </div>
 
