@@ -26,7 +26,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
   useEffect(() => {
     //set collapsed state based on the length of the projects to true
     setCollapsed(projects.map(() => true));
-  }, [projects]);
+  }, []);
 
   const handleAddProject = () => {
     if (projects.length < 3) {
@@ -49,7 +49,6 @@ const ProjectForm = ({ projects_data, onChange }) => {
         : project
     );
     setProjects(newProjects);
-    console.log(newProjects);
   };
 
   const handleDeleteProject = (index) => {
