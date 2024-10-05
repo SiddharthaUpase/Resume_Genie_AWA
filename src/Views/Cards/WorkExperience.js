@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { rewriteWorkDescription } from '../../Models/addInfoModels';
+import { Plus, Trash2, Edit2, GripVertical } from 'lucide-react';
 
 const WorkExperienceForm = ({ workExperience, onChange }) => {
 
@@ -8,7 +10,8 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
   const [holdInputBox, setHoldInputBox] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [expandedSections, setExpandedSections] = useState({});
-  
+  const [draggedItem, setDraggedItem] = useState(null);
+
   const [experiences, setExperiences] = useState(() => {
     if (workExperience && workExperience.length > 0) {
       return workExperience;
@@ -21,7 +24,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
 
   useEffect(() => {
     // Initialize the first section as expanded
-    setExpandedSections({ 0: true });
+    setExpandedSections({ 0: false });
   }, []);
 
   useEffect(() => {
@@ -75,24 +78,15 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
 
     setHoldInputBox(true);
     try {
-      const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/rewrite_description', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          description: description,
-          prompt: customPrompt || undefined, // Send custom prompt if provided
-        }),
-      });
-      const data = await response.json();
+      const response = await rewriteWorkDescription(description, customPrompt);
+      const data = response;
 
-      if (!data.bullet_points) {
+      if (!data) {
         console.error('No bullet points returned from AI');
         return;
       }
 
-      const formattedBulletPoints = data.bullet_points.split('\n\n').map(point => `• ${point.trim()}`).join('\n');
+      const formattedBulletPoints = data.split('\n\n').map(point => `• ${point.trim()}`).join('\n');
 
       setAiRewriteState(prev => ({
         ...prev,
@@ -130,7 +124,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
       i === index ? { ...exp, description: aiRewriteState[index].original } : exp
     );
     setExperiences(newExperiences);
-    setCustomPrompt('');
+
   };
 
   const handleDescriptionKeyDown = (index, event) => {
@@ -153,24 +147,54 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
     setCustomPrompt(event.target.value);
   };
 
+  const handleDragStart = (e, index) => {
+    setDraggedItem(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.target.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1';
+    setDraggedItem(null);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedItem === null) return;
+
+    const items = [...experiences];
+    const draggedItemContent = items[draggedItem];
+    items.splice(draggedItem, 1);
+    items.splice(index, 0, draggedItemContent);
+
+    setDraggedItem(index);
+    setExperiences(items);
+  };
+
   return (
     <div className="flex flex-col items-start space-y-4 max-w-3xl mx-auto bg-white">
       {experiences.map((exp, index) => (
-        <div key={index} className="w-full border border-gray-200 rounded-lg overflow-hidden">
-          <div 
-            className="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
-            onClick={() => toggleSection(index)}
-          >
+        <div
+          key={index}
+          className="w-full border border-gray-200 rounded-lg overflow-hidden"
+          draggable={true}
+          onDragStart={(e) => handleDragStart(e, index)}
+          onDragEnd={handleDragEnd}
+          onDragOver={(e) => handleDragOver(e, index)}
+        >          <div
+          className="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
+          onClick={() => toggleSection(index)}
+        >
             <div className="flex items-center space-x-2">
+              <GripVertical className="w-5 h-5 cursor-grab" />
               {expandedSections[index] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
               <h3 className="font-medium">
-                {exp.company || exp.jobTitle ? 
-                  `${exp.company}${exp.jobTitle ? ` - ${exp.jobTitle}` : ''}` : 
+                {exp.company || exp.jobTitle ?
+                  `${exp.company}${exp.jobTitle ? ` - ${exp.jobTitle}` : ''}` :
                   `Work Experience ${index + 1}`
                 }
               </h3>
             </div>
-            {experiences.length > 1 && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -181,13 +205,14 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
               >
                 <X className="h-5 w-5" />
               </button>
-            )}
+            
           </div>
-          
+
           {expandedSections[index] && (
             <div className="p-4 space-y-4">
               <div>
                 <label htmlFor={`company-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Company</label>
+
                 <input
                   type="text"
                   id={`company-${index}`}
@@ -199,7 +224,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label htmlFor={`jobTitle-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Job Title</label>
                 <input
@@ -214,31 +239,53 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor={`startDate-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Start Date</label>
+                  <label htmlFor={`startDate-0`} className="block mb-2 text-sm font-medium text-gray-900">
+                    Start Month
+                  </label>
                   <input
-                    type="date"
-                    id={`startDate-${index}`}
+                    type="month"
+                    id={`startDate-0`}
                     name="startDate"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value={exp.startDate}
-                    onChange={(e) => handleInputChange(index, e)}
+                    value={experiences[0].startDate}
+                    onChange={(e) => handleInputChange(0, e)}
                     required
                   />
                 </div>
-                
-                <div>
-                  <label htmlFor={`endDate-${index}`} className="block mb-2 text-sm font-medium text-gray-900">End Date</label>
+
+                <div className="flex flex-col">
+                  <label htmlFor={`endDate-0`} className="block mb-2 text-sm font-medium text-gray-900">
+                    End Month
+                  </label>
                   <input
-                    type="date"
-                    id={`endDate-${index}`}
+                    type="month"
+                    id={`endDate-0`}
                     name="endDate"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value={exp.endDate}
-                    onChange={(e) => handleInputChange(index, e)}
+                    value={experiences[0].endDate}
+                    onChange={(e) => handleInputChange(0, e)}
+                    disabled={experiences[0].endDate === "Present"}
                     required
                   />
+                  <div className="flex items-center mt-2">
+                    <input
+                      type="checkbox"
+                      id={`present-0`}
+                      name="present"
+                      className="mr-2"
+                      checked={experiences[0].endDate === "Present"}
+                      onChange={(e) => {
+                        const newExperiences = [...experiences];
+                        newExperiences[0].endDate = e.target.checked ? "Present" : "";
+                        setExperiences(newExperiences);
+                      }}
+                    />
+                    <label htmlFor={`present-0`} className="text-sm font-medium text-gray-900">
+                      Present
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -257,7 +304,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                 />
               </div>
 
-              
+
               <div>
                 <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Description (Bullet Points)</label>
                 <textarea
@@ -268,14 +315,14 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                   value={aiRewriteState[index]?.rewritten || exp.description}
                   onChange={(e) => handleInputChange(index, e)}
                   onKeyDown={(e) => handleDescriptionKeyDown(index, e)}
-                  style={{ 
-                    minHeight: '150px', 
+                  style={{
+                    minHeight: '150px',
                     backgroundColor: aiRewriteState[index]?.rewritten ? '#A2FFA7' : 'white'
                   }}
                   disabled={holdInputBox}
                   required
                 />
-                
+
                 <div className="flex justify-start space-x-4 text-sm text-gray-500 mt-2">
                   <input
                     type="text"
@@ -290,7 +337,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                     disabled={loading[index] || aiRewriteState[index]}
                   >
                     {loading[index] ? (
-                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"/>
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
                     ) : (
                       'AI Rewrite'
                     )}
@@ -303,13 +350,13 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                       onClick={() => handleAcceptRewrite(index)}
                       className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
                     >
-                      Accept
+                      ✓ Accept
                     </button>
                     <button
                       onClick={() => handleRejectRewrite(index)}
                       className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                     >
-                      Reject
+                      ✗ Reject
                     </button>
                   </div>
                 )}
@@ -318,7 +365,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
           )}
         </div>
       ))}
-      
+
       <button
         onClick={handleAddExperience}
         className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"

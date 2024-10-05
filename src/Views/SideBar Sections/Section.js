@@ -3,8 +3,13 @@ import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, u
 import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import SectionItem from './SectionItem';
+import { useState } from 'react';
 
 const Section = ({ sections, currentSection, setCurrentSection, setReorderedSections }) => {
+
+    
+
+
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -51,6 +56,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                                 section={section}
                                 currentSection={currentSection}
                                 setCurrentSection={setCurrentSection}
+
                             />
                         ))}
                     </ul>

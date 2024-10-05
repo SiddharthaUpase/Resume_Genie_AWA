@@ -16,12 +16,15 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
     const { personalInfo, socials, education, workExperience, projects, skills, achievements, sections } = data;
 
+    // useEffect(() => {
+    //     console.log(workExperience);
+    // }, [workExperience]);
 
     // Modify your styles for preview mode
     const previewStyles = previewMode ? {
 
 
-        
+
     } : {};
 
 
@@ -47,7 +50,10 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const formatDate = (dateString) => {
         if (!dateString) return 'Present';
         if (dateString === 'Present') return dateString;
+
         const date = new Date(dateString);
+        date.setDate(1); // Set the day to the first day of the month
+        date.setMonth(date.getMonth() + 1); // Increment the month by 1
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
     };
 
@@ -106,7 +112,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const renderSection = (sectionType) => {
         switch (sectionType) {
             case 'Education':
-                return education.length >0 &&  (
+                return education.length > 0 && (
                     <section className="mb-2">
                         <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>EDUCATION</h2>
                         {education.map((edu, index) => (
@@ -119,8 +125,27 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                                     <DateComponent startDate={edu.startDate} endDate={edu.endDate} />
                                 </div>
 
-
-                                <p style={{ fontSize: '12px' }}>{edu.degree}</p>
+                                <div className="flex space-x-1 items-center">
+                                    {edu.degree && (
+                                        <>
+                                            <p style={{ fontSize: '12px' }}>{edu.degree}</p>
+                                            <span className="border-l border-black h-3 mx-1"></span>
+                                        </>
+                                    )}
+                                    {edu.major && (
+                                        <>
+                                            <p style={{ fontSize: '12px' }}>{edu.major}</p>
+                                            <span className="border-l border-black h-3 mx-1"></span>
+                                        </>
+                                    )}
+                                    {edu.minor && (
+                                        <>
+                                            <p style={{ fontSize: '12px' }}>{edu.minor}</p>
+                                            <span className="border-l border-black h-3 mx-1"></span>
+                                        </>
+                                    )}
+                                    {edu.gpa && <p style={{ fontSize: '12px' }}>GPA: {edu.gpa}</p>}
+                                </div>
                                 <p style={{ fontSize: '12px' }}> {edu.courses.join(', ')}</p>
 
                             </div>
@@ -128,7 +153,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     </section>
                 );
             case 'Work Exp.':
-                return workExperience.length >0 && (
+                return workExperience.length > 0 && (
                     <section className="mb-2">
                         <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>WORK EXPERIENCE</h2>
                         {processedWorkExperience.map((exp, index) => (
@@ -160,13 +185,19 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     </section>
                 );
             case 'Projects':
-                return projects.length >0 && (
+                return projects.length > 0 && (
                     <section className="mb-2">
                         <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>PROJECTS</h2>
                         {processedProjects.map((project, index) => (
                             <div key={index} className="mb-1">
-                                <div className="flex flex-col justify-between">
+                                <div className="flex flex-col">
+                                    <div className="flex justify-between">
                                     <strong style={subHeaderStyle}>{project.title}</strong>
+                                    <div className="flex space-x-1">
+                                        <DateComponent startDate={project.startMonth} endDate={project.endMonth} />
+
+                                    </div>
+                                    </div>
                                     <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline" style={{ fontSize: '13px' }}>
                                         {project.link}
                                     </a>
@@ -185,7 +216,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     </section>
                 );
             case 'Skills':
-                return skills.length >0 && (
+                return skills.length > 0 && (
                     <section className="mb-2">
                         <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>SKILLS</h2>
                         <ul className="list-disc pl-4" style={descriptionStyle}>
@@ -198,7 +229,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     </section>
                 );
             case 'Achievements':
-                return achievements.length >0 && (
+                return achievements.length > 0 && (
                     <section className="mb-2">
                         <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>ACHIEVEMENTS</h2>
                         {achievements.map((achievement, index) => (
@@ -229,11 +260,11 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
         return (
             <div className="text-center mt-4">
-    <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none flex items-center justify-center space-x-2">
-        <Download size={16} />
-        <span>Download</span>
-    </button>
-</div>
+                <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none flex items-center justify-center space-x-2">
+                    <Download size={16} />
+                    <span>Download</span>
+                </button>
+            </div>
         );
     };
 
@@ -251,7 +282,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     }, []);
 
     return (
-        <div className='flex flex-col justify-start items-center' style={{ margin: 0, padding: 8}}>
+        <div className='flex flex-col justify-start items-center' style={{ margin: 0, padding: 8 }}>
             <div className="w-full h-full relative">
                 <div
                     className="w-[21.59cm] mx-auto bg-white pl-4 pr-4 pt-2 shadow-lg relative"
@@ -263,67 +294,70 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     }}
                     ref={resumeRef}
                 >
-                
-                {/* Header */}
-                <header>
 
-                    <h1 className="font-bold text-center" style={{ fontSize: '16px' }}>{`${personalInfo.first_name.toUpperCase()} ${personalInfo.last_name.toUpperCase()}`}</h1>
+                    {/* Header */}
+                    <header>
 
-                    <div className="flex justify-center items-center text-sm" style={{ fontSize: '13px' }}>
+                        <h1 className="font-bold text-center" style={{ fontSize: '16px' }}>{`${personalInfo.first_name.toUpperCase()} ${personalInfo.last_name.toUpperCase()}`}</h1>
 
-                        <div className="flex space-x-2 items-center">
-                            <span>{personalInfo.email}</span>
-                            <span className="border-l border-black h-3 mx-1"></span>
-                            <span>{personalInfo.phone}</span>
-                            <span className="border-l border-black h-3 mx-1"></span>
-                            <span>{personalInfo.location}</span>
-                            <span className="border-l border-black h-3 mx-1"></span>
-                            {Object.entries(socials).map(([platform, url], index, arr) => (
-                                url &&
-                                (
-                                    <React.Fragment key={platform}>
-                                    
-                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                        {platform}
-                                    </a>
-                                    {index !== arr.length - 1 && arr[index + 1][1] && <span className="border-l border-black h-3 mx-1"></span>}
-                                    </React.Fragment>
+                        <div className="flex justify-center items-center text-sm" style={{ fontSize: '13px' }}>
 
-                                )
-                                
-                            ))}
+                            <div className="flex space-x-2 items-center">
+                                <span>{personalInfo.email}</span>
+                                <span className="border-l border-black h-3 mx-1"></span>
+                                <span>{personalInfo.phone}</span>
+                                <span className="border-l border-black h-3 mx-1"></span>
+                                <span>{personalInfo.location}</span>
+                                <span className="border-l border-black h-3 mx-1"></span>
+                                {socials.map((social, index) => (
+                                    social.url && (
+                                        <React.Fragment key={index}>
+                                            <a
+                                                href={social.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 hover:underline"
+                                                style={{ cursor: 'pointer' }} // Ensure cursor changes to pointer
+                                                onClick={() => console.log(`Opening link: ${social.url}`)} // Debugging log
+                                            >
+                                                {social.platform}
+                                            </a>
+                                            {index < socials.length - 1 && <span className="border-l border-black h-3 mx-1"></span>}
+                                        </React.Fragment>
+                                    )
+                                ))}
+                            </div>
+
                         </div>
-
-                    </div>
-                </header>
+                    </header>
 
 
-                {/* Flexible Sections */}
-                {flexibleSections.map((section, index) => (
-                    <React.Fragment key={index}>
-                        {renderSection(section.name)}
-                    </React.Fragment>
-                ))}
+                    {/* Flexible Sections */}
+                    {flexibleSections.map((section, index) => (
+                        <React.Fragment key={index}>
+                            {renderSection(section.name)}
+                        </React.Fragment>
+                    ))}
 
-                {/* Overflow Warning */}
-                {isOverflowing && (
-                    <div className="absolute top-0 left-0 right-0 bottom-0 bg-red-500 bg-opacity-50 flex items-center justify-center">
-                        <div className="bg-white p-4 rounded-lg shadow-lg">
-                            <p className="text-red-500 font-bold text-lg">Warning: Content is overflowing.</p>
-                            <p className="text-gray-700">Please adjust the content to fit within the page.</p>
+                    {/* Overflow Warning */}
+                    {isOverflowing && (
+                        <div className="absolute top-0 left-0 right-0 bottom-0 bg-red-500 bg-opacity-50 flex items-center justify-center">
+                            <div className="bg-white p-4 rounded-lg shadow-lg">
+                                <p className="text-red-500 font-bold text-lg">Warning: Content is overflowing.</p>
+                                <p className="text-gray-700">Please adjust the content to fit within the page.</p>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                
-                
+
+
+                </div>
+
+
             </div>
 
-            
-                </div>
-            
 
-            
+
 
 
 

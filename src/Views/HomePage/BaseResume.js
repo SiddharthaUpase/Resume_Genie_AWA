@@ -6,6 +6,7 @@ import { getResumes } from '../../Models/resumeModel';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { motion } from 'framer-motion';
 import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu } from 'lucide-react';
+import { getJsonResume, deleteResume } from '../../Models/resumeModel';
 
 const BaseResume = () => {
   const [resume_data, setResume_data] = useState([]);
@@ -105,40 +106,23 @@ const BaseResume = () => {
   }, [file]);
 
   useEffect(() => {
-    //remove the dialog pop up
     setIsDialogOpen(false);
-    const callApi = async () => {
+    console.log(pdfText);
+    const fetchJsonResume = async () => {
       if (pdfText) {
+        setIsLoading(true);
         try {
-          setIsLoading(true);
-          const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/get_json_resume', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ resume_text: pdfText }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-
-          const data = await response.json();
-
-          if (data.json_resume) {
-            setJsonString(data.json_resume);
-          } else {
-            throw new Error('JSON resume data not found in API response');
-          }
+          const jsonResume = await getJsonResume(pdfText);
+          setJsonString(jsonResume);
         } catch (error) {
-          console.error('There was a problem with the fetch operation:', error);
+          console.error('Error fetching JSON resume:', error);
         } finally {
           setIsLoading(false);
         }
       }
     };
 
-    callApi();
+    fetchJsonResume();
   }, [pdfText]);
 
   const onExtract = async (file) => {
@@ -176,25 +160,18 @@ const BaseResume = () => {
   const handleDeleteResume = async (resumeId) => {
     
     setOpen(false);
-    try {
-      const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/delete_resume', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: resume_data[resumeId]._id }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const updatedResumes = await getResumes();
-        setResume_data(updatedResumes);
-        console.log(updatedResumes);
+    try{
+      const response = await deleteResume(resume_data[resumeId]._id);
+      if(response){
+        const newResumes = resume_data.filter((_, index) => index !== resumeId);
+        setResume_data(newResumes);
       }
-    } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
+
     }
+    catch(error){
+      console.error('Error deleting resume:', error);
+    }
+
   };
 
   return (

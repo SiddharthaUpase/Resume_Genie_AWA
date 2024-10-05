@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ChevronFirst, ChevronLast, MoreVertical } from 'lucide-react';
+import { hover } from '@testing-library/user-event/dist/hover';
 
 const SidebarContext = createContext();
 
@@ -33,13 +34,14 @@ export const Sidebar = ({ children, setSelectedOption }) => {
 
     return (
         <aside className="h-screen">
-            <nav className="h-full flex flex-col bg-gray-800 text-white border-r shadow-sm">
+            <nav className="h-full flex flex-col bg-white text-blue-900 border-r shadow-sm">
                 <div className="p-4 pb-2 flex justify-between items-center">
-                    <h1 className={`text-xl font-semibold overflow-hidden transition-all  ${expanded ? "w-40" : "w-0"
-                        }`}>🧞ResumeGenie</h1>
+                    <h1 className={`text-xl font-semibold overflow-hidden transition-all ${expanded ? "w-40" : "w-0"}`}>
+                        🧞ResumeGenie
+                    </h1>
                     <button
                         onClick={() => setExpanded((curr) => !curr)}
-                        className="p-1.5 rounded-lg bg-gray-700 hover:bg-gray-600"
+                        className="p-1.5 rounded-lg bg-blue-200 hover:bg-blue-300"
                     >
                         {expanded ? <ChevronFirst /> : <ChevronLast />}
                     </button>
@@ -49,20 +51,15 @@ export const Sidebar = ({ children, setSelectedOption }) => {
                     <ul className="flex-1 px-3">{children}</ul>
                 </SidebarContext.Provider>
 
-                <div className="border-t border-gray-700 flex p-3">
-                    <div
-                        className="w-10 h-10 rounded-md bg-indigo-200 text-indigo-900 flex items-center justify-center font-bold"
-                    >
+                <div className="border-t border-blue-200 flex p-3">
+                    <div className="w-10 h-10 rounded-md bg-blue-200 text-blue-900 flex items-center justify-center font-bold">
                         {userDetails.name ? getInitials(userDetails.name) : ''}
                     </div>
-                    <div
-                        className={`flex justify-between items-center overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}`}
-                    >
+                    <div className={`flex justify-between items-center overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}`}>
                         <div className="leading-4">
                             <h4 className="font-semibold">{userDetails.name}</h4>
-                            <span className="text-xs text-gray-400">{userDetails.email}</span>
+                            <span className="text-xs text-blue-400">{userDetails.email}</span>
                         </div>
-
                     </div>
                 </div>
             </nav>
@@ -80,31 +77,28 @@ export const SidebarItem = ({ icon, text, option, active }) => {
         <li
             onClick={() => setSelectedOption(option)}
             className={`
-        relative flex items-center py-2 px-3 my-1
-        font-medium rounded-md cursor-pointer
-        transition-colors group
-        ${active
-                    ? "bg-gray-700 text-white"
-                    : "hover:bg-gray-700 text-gray-400"
+                relative flex items-center py-2 px-3 my-1
+                font-medium rounded-md cursor-pointer
+                transition-colors group
+                ${active
+                    ? "bg-blue-700 text-white"
+                    : "hover:bg-blue-700 text-blue-400"
                 }
-    `}
+            `}
         >
             {icon}
-            <span
-                className={`overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"
-                    }`}
-            >
+            <span className={`ml-3 transition-all ${expanded ? "block" : "hidden"} ${active ? "text-light-blue" : "text-blue-900"} hover:text-light-blue`}>
                 {text}
             </span>
 
             {!expanded && (
                 <div
                     className={`
-          absolute left-full rounded-md px-2 py-1 ml-6
-          bg-gray-100 text-gray-800 text-sm
-          invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-      `}
+                        absolute left-full rounded-md px-2 py-1 ml-6
+                        bg-yellow text-blue-800 text-sm
+                        invisible opacity-20 -translate-x-3 transition-all
+                        group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+                    `}
                 >
                     {text}
                 </div>

@@ -158,9 +158,9 @@ const EducationForm = ({ education, setEducation }) => {
 
             {/* Start Date input */}
             <div className="mb-4">
-              <label htmlFor={`startDate-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Start Date</label>
+              <label htmlFor={`startDate-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Start Month</label>
               <input
-                type="date"
+                type="month"
                 id={`startDate-${index}`}
                 name="startDate"
                 value={edu.startDate}
@@ -170,9 +170,9 @@ const EducationForm = ({ education, setEducation }) => {
             </div>
 
             <div className="mb-4">
-              <label htmlFor={`endDate-${index}`} className="block mb-2 text-sm font-medium text-gray-900">End Date</label>
+              <label htmlFor={`endDate-${index}`} className="block mb-2 text-sm font-medium text-gray-900">End Month</label>
               <input
-                type="date"
+                type="month"
                 id={`endDate-${index}`}
                 name="endDate"
                 value={edu.endDate}

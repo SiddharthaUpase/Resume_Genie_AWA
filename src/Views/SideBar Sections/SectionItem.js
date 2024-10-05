@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 const SectionItem = ({ section, currentSection, setCurrentSection }) => {
+
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: section.id });
 
     const style = {

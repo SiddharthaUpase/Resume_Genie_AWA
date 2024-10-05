@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
+import { sendFeedback } from '../Models/feedback';
 
 export const FeedbackForm = () => {
     const [formData, setFormData] = useState({
@@ -31,13 +32,9 @@ export const FeedbackForm = () => {
                 user_id: user_id
             };
 
-            const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/store_suggestions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+            const response = await sendFeedback(payload);
+
+            
 
             if (response.ok) {
                 setSubmitStatus('success');

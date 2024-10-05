@@ -4,9 +4,10 @@ import { isAuthenticated, logout } from '../Models/authModel';
 import BaseResume from './HomePage/BaseResume';
 import CustomResume from './HomePage/CustomResume';
 import { Sidebar, SidebarItem } from './SideBar';
-import { Layout, FileText, LogOut } from 'lucide-react';
+import { Layout, FileText, LogOut, Brain } from 'lucide-react';
 import LogOutPage from './HomePage/LogOut';
 import FeedbackForm from './FeedbackForm';
+
 
 const Home = () => {
   const [auth, setAuth] = useState(isAuthenticated());
@@ -64,7 +65,7 @@ const Home = () => {
           active={selectedOption === 'base'}
         />
         <SidebarItem
-          icon={<FileText size={20} />}
+          icon={<Brain size={20} />}
           text="Customize Resume"
           option="customize"
           active={selectedOption === 'customize'}

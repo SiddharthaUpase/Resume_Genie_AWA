@@ -1,9 +1,11 @@
 
+import currentApiUrl from "./apiUrl";
 
 export const login = async (username, password) =>{
 
     try {
-        const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/login_user', {
+
+        const response = await fetch(`${currentApiUrl}/login_user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

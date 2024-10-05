@@ -17,7 +17,8 @@ import {closestCorners, DndContext} from '@dnd-kit/core';
 import { useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Section from './SideBar Sections/Section';
 import ResumePreview from './ResumePreviewWrapper';
-import { Resizable } from 're-resizable';
+import { storeResume } from '../Models/addInfoModels';
+import { data } from 'autoprefixer';
 
 
 
@@ -30,8 +31,12 @@ const AddInfoPage = ({ }) => {
     const location = useLocation();
     const [currentSection, setCurrentSection] = useState(0);
     const [personalInfo, setPersonalInfo] = useState({ first_name: '', last_name: '', email: '', phone: '', location: '' });
-    const [socials, setSocials] = useState({ linkedin: '', github: '', portfolio: '' });
-    const [education, setEducation] = useState([{ college: '', degree: '', startDate: '', endDate: '', courses: [], gpa: '', major: '', minor: '', location: '' }]);
+    const [socials, setSocials] = useState([
+        { platform: 'linkedin', url: '' },
+        { platform: 'github', url: '' },
+        { platform: 'portfolio', url: '' }
+    ]);
+        const [education, setEducation] = useState([{ college: '', degree: '', startDate: '', endDate: '', courses: [], gpa: '', major: '', minor: '', location: '' }]);
     const [workExperience, setWorkExperience] = useState([{ jobTitle: '', company: '', startDate: '', endDate: '', description: '', location: '' }]);
     const [projects, setProjects] = useState([{ title: '', description: '', link: '' }]);
     const [skills, setSkills] = useState([]);
@@ -81,23 +86,8 @@ const AddInfoPage = ({ }) => {
         console.log('User ID:', storedSession.user_id);
         
         try {
-            const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/store_resume', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newResume)
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const result = await response.json();
-            if(result.id){
-                set_id(result.id);
-            }
-
+            const response = await storeResume(newResume,set_id);
+            
 
 
         } catch (error) {
@@ -112,7 +102,11 @@ const AddInfoPage = ({ }) => {
         if (currentData) {
             const data = JSON.parse(currentData);
             setPersonalInfo(data.personalInfo);
-            setSocials(data.socials);
+            setSocials(Array.isArray(data.socials) ? data.socials : [
+                { platform: 'linkedin', url: '' },
+                { platform: 'github', url: '' },
+                { platform: 'portfolio', url: '' }
+            ]);
             setEducation(data.education);
             setWorkExperience(data.workExperience);
             setProjects(data.projects);
@@ -125,7 +119,11 @@ const AddInfoPage = ({ }) => {
             console.log('Location state:', location.state.data);
             const data = location.state.data;
             setPersonalInfo(data.personalInfo);
-            setSocials(data.socials);
+            setSocials(Array.isArray(data.socials) ? data.socials : [
+                { platform: 'linkedin', url: '' },
+                { platform: 'github', url: '' },
+                { platform: 'portfolio', url: '' }
+            ]);
             setEducation(data.education);
             setWorkExperience(data.workExperience);
             setProjects(data.projects);
@@ -166,7 +164,11 @@ const AddInfoPage = ({ }) => {
             }
         } else {
             setPersonalInfo({ first_name: '', last_name: '', email: '', phone: '', location: '' });
-            setSocials({ linkedin: '', github: '', portfolio: '' });
+            setSocials([
+                { platform: 'linkedin', url: '' },
+                { platform: 'github', url: '' },
+                { platform: 'portfolio', url: '' }
+            ]);
             setEducation([{ college: '', degree: '', startDate: '', endDate: '', courses: [], gpa: '', major: '', minor: '', location: '' }]);
             setWorkExperience([{ jobTitle: '', company: '', startDate: '', endDate: '', description: '', location: '' }]);
             setProjects([{ title: '', description: '', link: '' }]);
@@ -241,9 +243,7 @@ const AddInfoPage = ({ }) => {
                     personalInfo.email !== '' ||
                     personalInfo.phone !== '' ||
                     personalInfo.location !== '' ||
-                    socials.linkedin !== '' ||
-                    socials.github !== '' ||
-                    socials.portfolio !== '' ||
+                    socials.some(social => social.platform !== '' || social.url !== '') ||
                     education.some(edu => edu.college !== '' || edu.degree !== '' || edu.startDate !== '' || edu.endDate !== '' || edu.courses.length > 0 || edu.gpa !== '' || edu.major !== '' || edu.minor !== '' || edu.location !== '') ||
                     workExperience.some(work => work.jobTitle !== '' || work.company !== '' || work.startDate !== '' || work.endDate !== '' || work.description !== '' || work.location !== '') ||
                     projects.some(project => project.title !== '' || project.description !== '' || project.link !== '') ||

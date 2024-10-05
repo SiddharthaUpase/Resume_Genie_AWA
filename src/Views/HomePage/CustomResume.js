@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getResumeWithJobDescription, getAllResumes } from '../../Models/resumeModel';
 
 const CustomResume = () => {
     const [baseResume, setBaseResume] = useState({ id: '', name: '' });
@@ -16,17 +17,8 @@ const CustomResume = () => {
             const user_id = localStorage.getItem('session') ? JSON.parse(localStorage.getItem('session')).user_id : null;
 
             try {
-                const url = `https://flask-hello-world-two-dusky.vercel.app/get_all_resumes?user_id=${user_id}`;
-
-                const response = await fetch(url);
-                const data = await response.json();
-                console.log(data.resumes);
-                const resumeArray = data.resumes.map((resume) => ({
-                    name: resume.name,
-                    id: resume._id.toString()
-                }));
-                console.log(resumeArray);
-                setResumeData(resumeArray);
+                const resumes = await getAllResumes(user_id);
+                setResumeData(resumes);
             } catch (error) {
                 console.error('Error fetching resumes:', error);
             }
@@ -55,21 +47,14 @@ const CustomResume = () => {
     const getResume = async (resume_id) => {
         console.log("Resume ID:", resume_id);
         try {
-            console.log(jobDescription);
-            console.log(resume_id);
-            const url = `https://flask-hello-world-two-dusky.vercel.app/get_resume?id=${resume_id}&job_description=${jobDescription}`;
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            //remove the id from the resume object
-            delete data.resume.id;
-            data.resume.name = '';
-            console.log(data.resume);
+            const data = await getResumeWithJobDescription(resume_id, jobDescription);
+
+
+
             setIsLoading(false);
-            setResume(data.resume);
-            navigate('/addInfo', { state: { data: data.resume } });
-            return data;
+            setResume(data);
+            navigate('/addInfo', { state: { data: data } });
+
         }
         catch (error) {
             console.error('Error fetching resume:', error);
