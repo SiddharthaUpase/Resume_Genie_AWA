@@ -66,10 +66,10 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
   };
 
   const handleDeleteExperience = (index) => {
-    if (experiences.length > 1) {
+    
       const newExperiences = experiences.filter((_, i) => i !== index);
       setExperiences(newExperiences);
-    }
+    
   };
 
   const handleAIrewrite = async (index, description) => {

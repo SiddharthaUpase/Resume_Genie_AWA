@@ -53,11 +53,11 @@ const ProjectForm = ({ projects_data, onChange }) => {
   };
 
   const handleDeleteProject = (index) => {
-    if (projects.length > 1) {
+
       const newProjects = projects.filter((_, i) => i !== index);
       setProjects(newProjects);
       setCollapsed(collapsed.filter((_, i) => i !== index));
-    }
+    
     setCustomPrompt('');
   };
 
