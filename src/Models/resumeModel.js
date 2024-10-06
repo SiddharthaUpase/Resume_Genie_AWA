@@ -1,3 +1,4 @@
+import { json } from "react-router-dom";
 import currentApiUrl from "./apiUrl";
 
 export const getResumes = async ( ) => {
@@ -92,14 +93,63 @@ export const deleteResume = async (resumeId) => {
 };
 
 
-export const getResumeWithJobDescription = async (resume_id, jobDescription) => {
-    if (!resume_id || !jobDescription) {
-        throw new Error('Resume ID and job description are required');
+//write a function to get keywords from only a job description
+export const getKeywords = async (jobDescription) => {
+    if (!jobDescription) {
+        throw new Error('Job description is required');
+    }
+
+    console.log(jobDescription);
+
+    try {
+        const response = await fetch(`${currentApiUrl}/get_keywords`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ job_description: jobDescription }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        
+        const keywords = JSON.parse(data.keywords);
+        for (let i = 0; i < keywords.length; i++) {
+            keywords[i] = keywords[i].toLowerCase();
+        }
+        
+
+        if (keywords) {
+            return keywords;
+        } else {
+            throw new Error('Keywords not found in API response');
+        }
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+        throw error;
+    }
+};
+
+export const injectKeywords = async (resumeId, keywords) => {
+    if (!resumeId) {
+        throw new Error('Resume ID is required');
+    }
+
+    if (!keywords) {
+        throw new Error('Keywords are required');
     }
 
     try {
-        const url = `${currentApiUrl}/get_resume?id=${resume_id}&job_description=${jobDescription}`;
-        const response = await fetch(url);
+        const response = await fetch(`${currentApiUrl}/inject_keywords`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ resume_id: resumeId, keywords: keywords }),
+        });
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -107,16 +157,16 @@ export const getResumeWithJobDescription = async (resume_id, jobDescription) => 
 
         const data = await response.json();
 
-        // Remove the id from the resume object
-        delete data.resume.id;
-        data.resume.name = '';
-
-        return data.resume;
+        if (data.success) {
+            return data.resume;
+        } else {
+            throw new Error('Failed to inject keywords');
+        }
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
         throw error;
     }
-};
+}
 
 
 export const getAllResumes = async (user_id) => {

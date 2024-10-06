@@ -18,7 +18,7 @@ import { useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Section from './SideBar Sections/Section';
 import ResumePreview from './ResumePreviewWrapper';
 import { storeResume } from '../Models/addInfoModels';
-import { data } from 'autoprefixer';
+import KeywordsDialog from './KeywordsDialog';
 
 
 
@@ -59,7 +59,16 @@ const AddInfoPage = ({ }) => {
     { id: 5, name: 'Skills', emoji: '🔧' },
     { id: 6, name: 'Achievements', emoji: '🏆' }]);
     const currentSectionData = sections[currentSection];
-    const currentEmoji = currentSectionData ? currentSectionData.emoji : '';
+    
+    const [keywords, setKeywords] = useState([]);
+    const [jobDescription, setJobDescription] = useState('');
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const openDialog = () => setIsDialogOpen(true);
+    const closeDialog = () => setIsDialogOpen(false);
+
+
+    
 
         
     // Initial state combining filledStatus and progressPercentage
@@ -164,20 +173,11 @@ useEffect(() => {
         }));
     }, [skills]);
 
-    useEffect(() => {
-        console.log('Full View:',fullView);
 
-    }, [fullView]);
 
-    useEffect(() => {   
-        console.log('Resume ID:',id);
-    }, [id]);
 
-    
-//debug useeffect to check the data
-    useEffect(() => {
-        console.log('ProgessInfo:', progressInfo);
-    }, [progressInfo]);
+
+
 
 
     
@@ -193,9 +193,6 @@ useEffect(() => {
             status: 'draft',
             name: name
         };
-        console.log('ResumeID',newResume.resume_data.id);
-        //user_id, 
-        console.log('User ID:', storedSession.user_id);
         
         try {
             const response = await storeResume(newResume,set_id);
@@ -213,6 +210,8 @@ useEffect(() => {
 
         if (currentData) {
             const data = JSON.parse(currentData);
+            setKeywords(data.keywords);
+            setJobDescription(data.jobDescription);
             setPersonalInfo(data.personalInfo);
             setSocials(Array.isArray(data.socials) ? data.socials : [
                 { platform: 'linkedin', url: '' },
@@ -227,9 +226,12 @@ useEffect(() => {
             setName(data.name);
             setSections(data.sections);
             set_id(data.id);
+            
         } else if (location.state && location.state.data) {
-            console.log('Location state:', location.state.data);
+            
             const data = location.state.data;
+            setKeywords(data.keywords);
+            setJobDescription(data.jobDescription);
             setPersonalInfo(data.personalInfo);
             setSocials(Array.isArray(data.socials) ? data.socials : [
                 { platform: 'linkedin', url: '' },
@@ -275,6 +277,8 @@ useEffect(() => {
                 setName('');
             }
         } else {
+            setJobDescription('');
+            setKeywords([]);
             setPersonalInfo({ first_name: '', last_name: '', email: '', phone: '', location: '' });
             setSocials([
                 { platform: 'linkedin', url: '' },
@@ -386,10 +390,9 @@ useEffect(() => {
 
 
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills, achievements, name, sections, id
+            personalInfo, socials, education, workExperience, projects, skills, achievements, name, sections, id, keywords,jobDescription
         };
 
-        console.log('Data:', data);
 
 
         //saved to the database
@@ -443,7 +446,41 @@ useEffect(() => {
                         onChange={(e) => setName(e.target.value)}
                     />
                 </div>
+
+                    {keywords && keywords.length > 0 && (
+                        <button
+                            onClick={openDialog}
+                            className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                            View Keywords
+                        </button>
+                    )}
+
+                    {jobDescription &&  (
+                        <button
+                            onClick={() => alert(`Job Description: ${jobDescription}`)}
+                            className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                            View Job Description
+                        </button>
+                    )}
+
+
+
+
+
             </header>
+            {keywords && keywords.length > 0 && (
+                <KeywordsDialog
+                isOpen={isDialogOpen}
+                onClose={closeDialog}
+                keywords={keywords}
+                resumeKeywords={keywords}
+            />
+            )
+            }
+
+            
 
             {/* Main content */}
             <div className="flex-grow flex flex-col items-start md:flex-row p-4 space-y-4 md:space-y-0 md:space-x-4 overflow-hidden">
@@ -500,7 +537,7 @@ useEffect(() => {
                 </main>
 
                {/* Real-time preview */}
-                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} name={name} sections={sections} />
+                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} name={name} sections={sections} keywords={keywords} />
 
                 
             </div>
@@ -538,9 +575,11 @@ useEffect(() => {
                             skills,
                             achievements,
                             name,
-                            sections
+                            sections,
+                            keywords
                         }
                        }
+                       
                     />
                     <button 
                         className="fixed top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded" 

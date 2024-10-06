@@ -5,28 +5,23 @@ import { Download } from 'lucide-react';
 
 
 
-const Resume = ({ previewMode = false, previewData = null }) => {
+const Resume = ({ previewMode = false, previewData = null}) => {
 
     //get data from local storage
     const resumeRef = useRef();
     const [isOverflowing, setIsOverflowing] = useState(false);
     const location = useLocation();
 
+    //check if previewData has key words
+
+
+
+
     const data = previewData || location.state.data;
 
-    const { personalInfo, socials, education, workExperience, projects, skills, achievements, sections } = data;
+    const { personalInfo, socials, education, workExperience, projects, skills, achievements, sections, keywords } = data;
 
-    // useEffect(() => {
-    //     console.log(workExperience);
-    // }, [workExperience]);
-
-    // Modify your styles for preview mode
-    const previewStyles = previewMode ? {
-
-
-
-    } : {};
-
+    
 
 
     // Flexible sections
@@ -108,6 +103,126 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         );
     };
 
+    const highlightText = (text, keywords) => {
+        if (!keywords || keywords.length === 0) return text;
+        if(!previewMode) return text;
+
+        // Create a regex pattern from keywords
+        const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
+
+        // Split the text into parts that should be highlighted and those that shouldn't
+        const parts = text.split(pattern);
+
+        return parts.map((part, index) => {
+            // Check if this part matches any keyword (case-insensitive)
+            const isKeyword = keywords.some(keyword =>
+                part.toLowerCase() === keyword.toLowerCase()
+            );
+
+            return isKeyword ? (
+                <span
+                    key={index}
+                    className="bg-yellow-200 px-0.5 rounded"
+                >
+                    {part}
+                </span>
+            ) : part;
+        });
+    };
+
+    const renderWorkExperience = (experience, keywords) => (
+        <section className="mb-2">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
+                WORK EXPERIENCE
+            </h2>
+            {experience.map((exp, index) => (
+                <div key={index} className="mb">
+                    <div className="flex justify-between">
+                        <strong style={subHeaderStyle}>{exp.jobTitle}</strong>
+                        <DateComponent startDate={exp.startDate} endDate={exp.endDate} />
+                    </div>
+                    <div className='flex space-x-1'>
+                        <p style={{ fontSize: '13px' }}>{exp.company}</p>
+                        {exp.location && <p style={{ fontSize: '13px' }}>({exp.location})</p>}
+                    </div>
+                    <ul className="list-disc pl-4" style={descriptionStyle}>
+                        {typeof exp.description === 'string' &&
+                            exp.description.split('\n').map((point, index) => (
+                                <li key={index}>{highlightText(point, keywords)}</li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            ))}
+        </section>
+    );
+
+    // Similar implementation for Skills section:
+    const renderSkills = (skills, keywords) => (
+        <section className="mb-2">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
+                SKILLS
+            </h2>
+            <ul className="list-disc pl-4" style={descriptionStyle}>
+                {skills.map(([category, skillList], index) => (
+                    <li key={index} className="mb">
+                        <strong>{category}:</strong>{' '}
+                        {highlightText(skillList.join(', '), keywords)}
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+
+    // Example for Projects section:
+    const renderProjects = (projects, keywords) => (
+        <section className="mb-2">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
+                PROJECTS
+            </h2>
+            {projects.map((project, index) => (
+                <div key={index} className="mb-1">
+                    <div className="flex flex-col">
+                        <div className="flex justify-between">
+                            <strong style={subHeaderStyle}>{project.title}</strong>
+                            <DateComponent startDate={project.startMonth} endDate={project.endMonth} />
+                        </div>
+                        <a href={project.link} className="text-blue-600 hover:underline" style={{ fontSize: '13px' }}>
+                            {project.link}
+                        </a>
+                    </div>
+                    <ul className="list-disc pl-4" style={descriptionStyle}>
+                        {typeof project.description === 'string' &&
+                            project.description.split('\n').map((point, index) => (
+                                <li key={index}>{highlightText(point.trim(), keywords)}</li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            ))}
+        </section>
+    );
+
+    const renderAchievements = (achievements, keywords) => (
+        <section className="mb-2">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>ACHIEVEMENTS</h2>
+            {achievements.map((achievement, index) => (
+                <div key={index} className="">
+                    <p style={{ fontSize: '12px' }}>
+                        <strong style={{ fontSize: '12.5px' }}>{achievement.title}</strong>
+                        {achievement.date && <span className="ml-2" >({formatDate(achievement.date)}) </span>}
+                        <span style={descriptionStyle}>  {highlightText(achievement.description, keywords)}</span>
+                        
+                    </p>
+                </div>
+            ))}
+        </section>
+
+    )
+
+
+
+
     // Function to render a section based on its type
     const renderSection = (sectionType) => {
         switch (sectionType) {
@@ -153,96 +268,13 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     </section>
                 );
             case 'Work Exp.':
-                return workExperience.length > 0 && (
-                    <section className="mb-2">
-                        <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>WORK EXPERIENCE</h2>
-                        {processedWorkExperience.map((exp, index) => (
-                            <div key={index} className="mb">
-                                <div className="flex justify-between">
-
-                                    <strong style={subHeaderStyle}>{exp.jobTitle}</strong>
-                                    <DateComponent startDate={exp.startDate} endDate={exp.endDate} />
-                                </div>
-                                <div className='flex space-x-1'>
-                                    <p style={{ fontSize: '13px' }}>{exp.company}</p>
-
-                                    {
-                                        exp.location && <p style={{ fontSize: '13px' }}>({exp.location})</p>
-                                    }
-                                </div>
-
-                                <ul className="list-disc pl-4" style={descriptionStyle}>
-                                    {typeof exp.description === 'string' ? (
-                                        exp.description.split('\n').map((point, index) => (
-                                            <li key={index}>{point}</li>
-                                        ))
-                                    ) : (
-                                        <li>{exp.description}</li>
-                                    )}
-                                </ul>
-                            </div>
-                        ))}
-                    </section>
-                );
+                return workExperience.length > 0 && renderWorkExperience(processedWorkExperience, keywords);
             case 'Projects':
-                return projects.length > 0 && (
-                    <section className="mb-2">
-                        <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>PROJECTS</h2>
-                        {processedProjects.map((project, index) => (
-                            <div key={index} className="mb-1">
-                                <div className="flex flex-col">
-                                    <div className="flex justify-between">
-                                    <strong style={subHeaderStyle}>{project.title}</strong>
-                                    <div className="flex space-x-1">
-                                        <DateComponent startDate={project.startMonth} endDate={project.endMonth} />
-
-                                    </div>
-                                    </div>
-                                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline" style={{ fontSize: '13px' }}>
-                                        {project.link}
-                                    </a>
-                                </div>
-                                <ul className="list-disc pl-4" style={descriptionStyle}>
-                                    {typeof project.description === 'string' ? (
-                                        project.description.split('\n').map((point, index) => (
-                                            <li key={index}>{point}</li>
-                                        ))
-                                    ) : (
-                                        <li>{project.description}</li>
-                                    )}
-                                </ul>
-                            </div>
-                        ))}
-                    </section>
-                );
+                return projects.length > 0 && renderProjects(projects, keywords);
             case 'Skills':
-                return skills.length > 0 && (
-                    <section className="mb-2">
-                        <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>SKILLS</h2>
-                        <ul className="list-disc pl-4" style={descriptionStyle}>
-                            {skills.map(([category, skillList], index) => (
-                                <li key={index} className="mb">
-                                    <strong>{category}:</strong> {skillList.join(', ')}
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-                );
+                return skills.length > 0 && renderSkills(skills, keywords);
             case 'Achievements':
-                return achievements.length > 0 && (
-                    <section className="mb-2">
-                        <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>ACHIEVEMENTS</h2>
-                        {achievements.map((achievement, index) => (
-                            <div key={index} className="">
-                                <p style={{ fontSize: '12px' }}>
-                                    <strong style={{ fontSize: '12.5px' }}>{achievement.title}</strong>
-                                    {achievement.date && <span className="ml-2" >({formatDate(achievement.date)})</span>}
-                                    <span style={descriptionStyle}> {achievement.description}</span>
-                                </p>
-                            </div>
-                        ))}
-                    </section>
-                );
+                return achievements.length > 0 && renderAchievements(achievements, keywords);
             default:
                 return null;
         }
@@ -355,13 +387,6 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
 
             </div>
-
-
-
-
-
-
-
             {/* Download Button */}
             <PrintButton />
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import React  from 'react';
 import { signUp } from '../Models/authModel';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -14,6 +15,7 @@ const SignUpView = ()=>{
     const [email,setEmail] = useState('');
     const [name,setName] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         
@@ -102,7 +104,7 @@ const SignUpView = ()=>{
 
                     <button
                         type="button"
-                        onClick={() => window.location.href = '/login'}
+                        onClick={() => navigate('/login')}
                         className="w-full px-4 py-2 font-bold text-indigo-600 bg-white border border-indigo-600 rounded hover:bg-indigo-100 focus:outline-none focus:ring focus:ring-indigo-200"
                     >
                         Go to Login

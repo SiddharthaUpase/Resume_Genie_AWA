@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import Resume from './ResumeReview';
 
-const ResumePreview = (  {setfullView, personalInfo, socials, education, workExperience, projects, skills, achievements, name, sections }) => {
+const ResumePreview = (  {setfullView, personalInfo, socials, education, workExperience, projects, skills, achievements, name, sections, keywords}) => {
   const [zoom, setZoom] = useState(80);
 
   const handleZoomIn = () => {
@@ -18,7 +18,7 @@ const ResumePreview = (  {setfullView, personalInfo, socials, education, workExp
   return (
     <div className="md:w-2/3 h-[80vh] overflow-hidden border border-gray-300 rounded-lg shadow-md relative">
       
-      <div className="absolute top-2 right-2 flex space-x-2 z-10">
+      <div className="absolute top-2 right-2 flex space-x-2">
         <button 
           onClick={handleZoomOut}
           className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
@@ -34,7 +34,7 @@ const ResumePreview = (  {setfullView, personalInfo, socials, education, workExp
           <Plus size={16} />
         </button>
       </div>
-      <div className="absolute top-2 left-2 z-10">
+      <div className="absolute top-2 left-2 ">
         <button 
           onClick={() => setfullView(true)}
           className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
@@ -60,7 +60,8 @@ const ResumePreview = (  {setfullView, personalInfo, socials, education, workExp
               skills,
               achievements,
               name,
-              sections
+              sections,
+              keywords
             }}
           />
         </div>

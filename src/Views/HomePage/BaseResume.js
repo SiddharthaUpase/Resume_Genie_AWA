@@ -145,6 +145,7 @@ const BaseResume = () => {
 
   const handleViewResume = (resumeId) => {
     const data = resume_data[resumeId];
+    console.log(data);
     navigate('/resume-review', { state: { data } });
   };
 

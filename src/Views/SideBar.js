@@ -98,6 +98,7 @@ export const SidebarItem = ({ icon, text, option, active }) => {
                         bg-yellow text-blue-800 text-sm
                         invisible opacity-20 -translate-x-3 transition-all
                         group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+                        z-10
                     `}
                 >
                     {text}

@@ -26,7 +26,7 @@ const AchievementsForm = ({ achievements_parent, onChange }) => {
     });
 
     setCollapsed(initialCollapsed);
-  }, [achievements]);
+  }, [ ]);
 
 
 
