@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from './Card';
 import PersonalInfo from './Cards/PersonalInfo';
@@ -19,7 +19,7 @@ import Section from './SideBar Sections/Section';
 import ResumePreview from './ResumePreviewWrapper';
 import { storeResume } from '../Models/addInfoModels';
 import { data } from 'autoprefixer';
-
+import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
 
 
 
@@ -45,7 +45,7 @@ const AddInfoPage = ({ }) => {
     const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', '😎','🤩'];
     const [leftWidth, setLeftWidth] = useState(300);
     const [middleWidth, setMiddleWidth] = useState(1000);
-    
+    const {progressInfo, setProgressInfo}= useContext(ProgressInfoContext);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [saved, setSaved] = useState(false);
     const [name, setName] = useState('');
@@ -61,20 +61,7 @@ const AddInfoPage = ({ }) => {
     const currentSectionData = sections[currentSection];
     const currentEmoji = currentSectionData ? currentSectionData.emoji : '';
 
-        
-    // Initial state combining filledStatus and progressPercentage
-    const [progressInfo, setProgressInfo] = useState({
-        filledStatus: {
-            personalInfo: false,
-            socials: false,
-            education: false,
-            workExperience: false,
-            projects: false,
-            skills: false
-        },
-        progressPercentage: 0,
-        sectionsfilled:0
-    });
+
 
 // Effect to calculate and update the progress percentage
 useEffect(() => {
