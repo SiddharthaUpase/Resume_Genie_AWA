@@ -42,7 +42,7 @@ const AddInfoPage = ({ }) => {
     const [skills, setSkills] = useState([]);
     const [id, set_id] = useState('');
     const [achievements, setAchievements] = useState([{ title: '', description: '', date: '' }]);
-    const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', ' 😎', '🤩'];
+    const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', '😎','🤩'];
     const [leftWidth, setLeftWidth] = useState(300);
     const [middleWidth, setMiddleWidth] = useState(1000);
     
@@ -61,6 +61,109 @@ const AddInfoPage = ({ }) => {
     const currentSectionData = sections[currentSection];
     const currentEmoji = currentSectionData ? currentSectionData.emoji : '';
 
+        
+    // Initial state combining filledStatus and progressPercentage
+    const [progressInfo, setProgressInfo] = useState({
+        filledStatus: {
+            personalInfo: false,
+            socials: false,
+            education: false,
+            workExperience: false,
+            projects: false,
+            skills: false
+        },
+        progressPercentage: 0,
+        sectionsfilled:0
+    });
+
+// Effect to calculate and update the progress percentage
+useEffect(() => {
+    const totalFields = Object.keys(progressInfo.filledStatus).length;
+    const filledFields = Object.values(progressInfo.filledStatus).filter(value => value).length;
+    const percentage = Math.round((filledFields / totalFields) * 100);
+    setProgressInfo(prevState => ({
+        ...prevState,
+        progressPercentage: percentage,
+        sectionsfilled: filledFields
+    }));
+}, [progressInfo.filledStatus]);
+
+    useEffect(() => {
+        const isPersonalInfoFilled = personalInfo.first_name !== '' ||
+            personalInfo.last_name !== '' ||
+            personalInfo.email !== '' ||
+            personalInfo.phone !== '' ||
+            personalInfo.location !== '';
+
+        setProgressInfo(prevState => ({
+            ...prevState,
+            filledStatus: {
+                ...prevState.filledStatus,
+                personalInfo: isPersonalInfoFilled
+            }
+        }));
+    }, [personalInfo]);
+
+    useEffect(() => {
+        const isSocialsFilled = socials.some(social =>  social.url !== '');
+
+        setProgressInfo(prevState => ({
+            ...prevState,
+            filledStatus: {
+                ...prevState.filledStatus,
+                socials: isSocialsFilled
+            }
+        }));
+    }, [socials]);
+
+    useEffect(() => {
+        const isEducationFilled = education.some(edu => edu.college !== '' || edu.degree !== '' || edu.startDate !== '' || edu.endDate !== '' || edu.courses.length > 0 || edu.gpa !== '' || edu.major !== '' || edu.minor !== '' || edu.location !== '');
+
+        setProgressInfo(prevState => ({
+            ...prevState,
+            filledStatus: {
+                ...prevState.filledStatus,
+                education: isEducationFilled
+            }
+        }));
+    }, [education]);
+
+    useEffect(() => {
+        const isWorkExperienceFilled = workExperience.some(work => work.jobTitle !== '' || work.company !== '' || work.startDate !== '' || work.endDate !== '' || work.description !== '' || work.location !== '');
+
+        setProgressInfo(prevState => ({
+            ...prevState,
+            filledStatus: {
+                ...prevState.filledStatus,
+                workExperience: isWorkExperienceFilled
+            }
+        }));
+    }, [workExperience]);
+
+    useEffect(() => {
+        const isProjectsFilled = projects.some(project => project.title !== '' || project.description !== '' || project.link !== '');
+
+        setProgressInfo(prevState => ({
+            ...prevState,
+            filledStatus: {
+                ...prevState.filledStatus,
+                projects: isProjectsFilled
+            }
+        }));
+    }, [projects]);
+
+    useEffect(() => {
+        const isSkillsFilled = skills.length > 0;
+
+        setProgressInfo(prevState => ({
+            ...prevState,
+            filledStatus: {
+                ...prevState.filledStatus,
+                skills: isSkillsFilled
+            }
+        }));
+    }, [skills]);
+
     useEffect(() => {
         console.log('Full View:',fullView);
 
@@ -70,6 +173,15 @@ const AddInfoPage = ({ }) => {
         console.log('Resume ID:',id);
     }, [id]);
 
+    
+//debug useeffect to check the data
+    useEffect(() => {
+        console.log('ProgessInfo:', progressInfo);
+    }, [progressInfo]);
+
+
+    
+    
 
     //create an endpoin to post the resume data
     const postResume = async (data) => {
@@ -303,14 +415,14 @@ const AddInfoPage = ({ }) => {
                     <span className="text-2xl cursor-pointer" onClick={checkIfSaved}>🔙</span> {/* Back icon */}
                 </div>
                 <div className="flex-grow flex items-center bg-white rounded p-2 max-w-md">
-                    <span className="text-2xl mr-2">{currentEmoji}</span>
+                    <span className="text-2xl mr-2">{emojis[progressInfo.sectionsfilled]}</span>
                     <div className="w-full bg-gray-300 rounded-full h-2.5">
                         <div
                             className="bg-blue-500 h-2.5 rounded-full transition-all duration-300 ease-in-out"
-                            style={{ width: `${((currentSection + 1) / emojis.length) * 100}%` }}
+                            style={{ width: `${progressInfo.progressPercentage}%` }}
                         ></div>
                     </div>
-                    <span className="ml-2 font-bold">{`${Math.round(((currentSection + 1) / emojis.length) * 100)}%`}</span>
+                    <span className="ml-2 font-bold">{`${progressInfo.progressPercentage}%`}</span>
                 </div>
                 <button
                     onClick={() => {
