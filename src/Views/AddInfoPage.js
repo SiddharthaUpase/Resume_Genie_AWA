@@ -61,6 +61,75 @@ const AddInfoPage = ({ }) => {
     const currentSectionData = sections[currentSection];
     const currentEmoji = currentSectionData ? currentSectionData.emoji : '';
 
+        
+   //the state to keep track of filled status of the required section
+    const [filledStatus, setFilledStatus] = useState({
+        personalInfo: false,
+        socials: false,
+        education: false,
+        workExperience: false,
+        projects: false,
+        skills: false
+    });
+
+    useEffect(() => {
+        const isPersonalInfoFilled = personalInfo.first_name !== '' ||
+            personalInfo.last_name !== '' ||
+            personalInfo.email !== '' ||
+            personalInfo.phone !== '' ||
+            personalInfo.location !== '';
+
+        setFilledStatus(prevStatus => ({
+            ...prevStatus,
+            personalInfo: isPersonalInfoFilled
+        }));
+    }, [personalInfo]);
+
+    useEffect(() => {
+        const isSocialsFilled = socials.some(social =>  social.url !== '');
+
+        setFilledStatus(prevStatus => ({
+            ...prevStatus,
+            socials: isSocialsFilled
+        }));
+    }, [socials]);
+
+    useEffect(() => {
+        const isEducationFilled = education.some(edu => edu.college !== '' || edu.degree !== '' || edu.startDate !== '' || edu.endDate !== '' || edu.courses.length > 0 || edu.gpa !== '' || edu.major !== '' || edu.minor !== '' || edu.location !== '');
+
+        setFilledStatus(prevStatus => ({
+            ...prevStatus,
+            education: isEducationFilled
+        }));
+    }, [education]);
+
+    useEffect(() => {
+        const isWorkExperienceFilled = workExperience.some(work => work.jobTitle !== '' || work.company !== '' || work.startDate !== '' || work.endDate !== '' || work.description !== '' || work.location !== '');
+
+        setFilledStatus(prevStatus => ({
+            ...prevStatus,
+            workExperience: isWorkExperienceFilled
+        }));
+    }, [workExperience]);
+
+    useEffect(() => {
+        const isProjectsFilled = projects.some(project => project.title !== '' || project.description !== '' || project.link !== '');
+
+        setFilledStatus(prevStatus => ({
+            ...prevStatus,
+            projects: isProjectsFilled
+        }));
+    }, [projects]);
+
+    useEffect(() => {
+        const isSkillsFilled = skills.length > 0;
+
+        setFilledStatus(prevStatus => ({
+            ...prevStatus,
+            skills: isSkillsFilled
+        }));
+    }, [skills]);
+
     useEffect(() => {
         console.log('Full View:',fullView);
 
@@ -70,6 +139,15 @@ const AddInfoPage = ({ }) => {
         console.log('Resume ID:',id);
     }, [id]);
 
+    
+//debug useeffect to check the data
+    useEffect(() => {
+        console.log('filledStatus:', filledStatus);
+    }, [filledStatus]);
+
+
+    
+    
 
     //create an endpoin to post the resume data
     const postResume = async (data) => {
