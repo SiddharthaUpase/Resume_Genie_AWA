@@ -142,33 +142,50 @@ const MultiFieldSkillsForm = ({ skill_sets = [], onChange }) => {
   
   const handleDragOverSet = (e, index) => {
     e.preventDefault();
-    if (draggedSetIndex !== index) {
-      // Add visual feedback if needed
-      e.currentTarget.classList.add('drag-over');
-    }
+
   };
 
-  const handleDropSet = (e, targetIndex) => {
-    e.preventDefault();
-    const sourceIndex = draggedSetIndex;
-    
-    if (sourceIndex !== null && sourceIndex !== targetIndex) {
-      setSkillSets(prevSets => {
-        const newSets = [...prevSets];
-        // Store the sets that will be swapped
-        const sourceSet = { ...newSets[sourceIndex] };
-        const targetSet = { ...newSets[targetIndex] };
-        
-        // Perform the swap
-        newSets[targetIndex] = sourceSet;
-        newSets[sourceIndex] = targetSet;
-        
-        return newSets;
-      });
-    }
-    
+const handleDropSet = (e, targetIndex) => {
+  e.preventDefault();
+  const sourceIndex = draggedSetIndex;
+
+  // Remove visual feedback
+  e.currentTarget.classList.remove('drag-over');
+
+  // Return null if targetIndex is not set
+  if (targetIndex === null || targetIndex === undefined) {
     setDraggedSetIndex(null);
-  };
+    return null;
+  }
+
+  if (sourceIndex !== null && sourceIndex !== targetIndex) {
+    setSkillSets(prevSets => {
+      const newSets = [...prevSets];
+      // Store the sets that will be swapped
+      const sourceSet = { ...newSets[sourceIndex] };
+      const targetSet = { ...newSets[targetIndex] };
+
+      // Perform the swap
+      newSets[targetIndex] = sourceSet;
+      newSets[sourceIndex] = targetSet;
+
+      return newSets;
+    });
+  }
+
+  setDraggedSetIndex(null);
+};
+
+const handleDragEndSet = () => {
+  // Clear any visual feedback
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  setDraggedSetIndex(null);
+};
+
+const handleDragLeaveSet = (e) => {
+  // Remove visual feedback
+  e.currentTarget.classList.remove('drag-over');
+};
   
   
 
@@ -243,7 +260,9 @@ const MultiFieldSkillsForm = ({ skill_sets = [], onChange }) => {
   draggable
   onDragStart={(e) => handleDragStartSet(e, index)}
   onDragOver={(e) => handleDragOverSet(e, index)}
+  onDragLeave={handleDragLeaveSet}
   onDrop={(e) => handleDropSet(e, index)} // Pass index directly
+  onDragEnd={handleDragEndSet}
   className={`relative p-4 border border-gray-200 rounded-lg ${
     draggedSetIndex === index ? 'opacity-40' : ''
   } ${
