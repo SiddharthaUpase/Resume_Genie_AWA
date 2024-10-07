@@ -18,6 +18,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
   const [holdInputBox, setHoldInputBox] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [collapsed, setCollapsed] = useState([]);
+  const [draggedItem, setDraggedItem] = useState(null);
 
   useEffect(() => {
     onChange(projects);
@@ -88,6 +89,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
         i === index ? { ...project, description: formattedBulletPoints } : project
       );
       setProjects(newProjects);
+      console.log(projects);
 
       return data;
     } catch (error) {
@@ -140,20 +142,30 @@ const ProjectForm = ({ projects_data, onChange }) => {
   };
 
   const handleDragStart = (index) => (event) => {
+    setDraggedItem(index);
     event.dataTransfer.setData('text/plain', index);
   };
 
   const handleDrop = (index) => (event) => {
     event.preventDefault();
-    const draggedIndex = event.dataTransfer.getData('text/plain');
-    const newProjects = [...projects];
-    const [draggedProject] = newProjects.splice(draggedIndex, 1);
-    newProjects.splice(index, 0, draggedProject);
-    setProjects(newProjects);
+    setDraggedItem(null);
   };
 
-  const handleDragOver = (event) => {
+  const handleDragOver = (index) => (event) => {
     event.preventDefault();
+
+    if (draggedItem == null) {
+      return;
+    }
+
+    const newProjects = [...projects];
+    const [draggedProject] = newProjects.splice(draggedItem, 1);
+    newProjects.splice(index, 0, draggedProject);
+    setProjects(newProjects);
+    setDraggedItem(index);
+    
+
+
   };
 
   return (
@@ -162,13 +174,13 @@ const ProjectForm = ({ projects_data, onChange }) => {
         <div
           key={index}
           className="space-y-4 p-4 border border-gray-200 rounded-lg relative w-full"
-          draggable
-          onDragStart={handleDragStart(index)}
-          onDrop={handleDrop(index)}
-          onDragOver={handleDragOver}
+          
         >
           <div className="flex items-center space-x-2">
+            <div className="cursor-grab" draggable onDragStart={handleDragStart(index)} onDrop={handleDrop(index)} onDragOver={handleDragOver(index)} >
+
             <GripVertical className="cursor-grab" />
+            </div>
             <button
               onClick={() => handleCollapseToggle(index)}
               className="text-gray-500 hover:text-gray-700 focus:outline-none"

@@ -531,18 +531,18 @@ useEffect(() => {
 
             {showConfirmDialog && (
                 <AlertDialog.Root open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                    <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-50" />
-                    <AlertDialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded shadow-lg">
+                    <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-50 z-20" />
+                    <AlertDialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded shadow-lg z-20">
                         <AlertDialog.Title className="text-lg font-bold">Confirm Action</AlertDialog.Title>
                         <AlertDialog.Description className="mt-2 text-sm">
-                            Are you sure you want to proceed with this action?
+                            Are you sure you want to proceed without saving your changes?
                         </AlertDialog.Description>
                         <div className="mt-4 flex justify-end space-x-2">
                             <AlertDialog.Cancel asChild>
-                                <button className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Cancel</button>
+                                <button className="px-4 py-2 bg-blue-600 hover:bg-gray-400 rounded text-white">No</button>
                             </AlertDialog.Cancel>
                             <AlertDialog.Action asChild>
-                                <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded" onClick={handleBack}>Confirm</button>
+                                <button className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded" onClick={handleBack}>Yes</button>
                             </AlertDialog.Action>
                         </div>
                     </AlertDialog.Content>

@@ -28,15 +28,17 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
         >
             <div 
                 className={`flex items-center space-x-2 w- p-2 transition-colors duration-200 ${
-                    isSelected ? 'bg-blue-500 text-white' : 
-                    (filledStatusArray[section.id] || section.name=== 'Achievements')?'hover:bg-blue-100' : 'bg-gray-300'
+                    isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
                 }`}
             >
-                <span className="cursor-pointer" onClick={() => setCurrentSection(section.id)}>
+                <span 
+                    className={`cursor-pointer ${!isSelected && !(filledStatusArray[section.id] || section.name === 'Achievements') ? 'text-gray-500' : ''}`} 
+                    onClick={() => setCurrentSection(section.id)}
+                >
                     {section.emoji}
                 </span>
                 <span 
-                    className="flex-grow cursor-pointer"
+                    className={`flex-grow cursor-pointer ${!isSelected && !(filledStatusArray[section.id] || section.name === 'Achievements') ? 'text-gray-500' : ''}`}
                     onClick={() => setCurrentSection(section.id)}
                 >
                     {section.name}

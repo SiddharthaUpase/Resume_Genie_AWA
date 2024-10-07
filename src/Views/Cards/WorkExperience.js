@@ -179,16 +179,19 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
         <div
           key={index}
           className="w-full border border-gray-200 rounded-lg overflow-hidden"
-          draggable={true}
-          onDragStart={(e) => handleDragStart(e, index)}
-          onDragEnd={handleDragEnd}
-          onDragOver={(e) => handleDragOver(e, index)}
         >          <div
           className="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
           onClick={() => toggleSection(index)}
         >
             <div className="flex items-center space-x-2">
-              <GripVertical className="w-5 h-5 cursor-grab" />
+            <div
+        draggable={true}
+        onDragStart={(e) => handleDragStart(e, index)}
+        onDragEnd={handleDragEnd}
+        onDragOver={(e) => handleDragOver(e, index)}
+      >
+        <GripVertical className="w-5 h-5 cursor-grab" />
+      </div>
               {expandedSections[index] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
               <h3 className="font-medium">
                 {exp.company || exp.jobTitle ?

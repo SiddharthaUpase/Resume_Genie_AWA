@@ -194,7 +194,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
                     <ul className="list-disc pl-4" style={descriptionStyle}>
                         {typeof project.description === 'string' &&
                             project.description.split('\n').map((point, index) => (
-                                <li key={index}>{highlightText(point.trim(), keywords)}</li>
+                                <li key={index}>{highlightText(point, keywords)}</li>
                             ))
                         }
                     </ul>
@@ -270,7 +270,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
             case 'Work Exp.':
                 return workExperience.length > 0 && renderWorkExperience(processedWorkExperience, keywords);
             case 'Projects':
-                return projects.length > 0 && renderProjects(projects, keywords);
+                return projects.length > 0 && renderProjects(processedProjects, keywords);
             case 'Skills':
                 return skills.length > 0 && renderSkills(skills, keywords);
             case 'Achievements':
@@ -354,7 +354,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
                                             >
                                                 {social.platform}
                                             </a>
-                                            {index < socials.length - 1 && <span className="border-l border-black h-3 mx-1"></span>}
+                                        {index < socials.length - 1 && socials[index + 1].url && <span className="border-l border-black h-3 mx-1"></span>}
                                         </React.Fragment>
                                     )
                                 ))}

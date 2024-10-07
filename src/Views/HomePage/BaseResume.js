@@ -5,7 +5,7 @@ import pdfToText from 'react-pdftotext';
 import { getResumes } from '../../Models/resumeModel';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { motion } from 'framer-motion';
-import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu } from 'lucide-react';
+import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu, Brain, FileArchive } from 'lucide-react';
 import { getJsonResume, deleteResume } from '../../Models/resumeModel';
 
 const BaseResume = () => {
@@ -187,17 +187,40 @@ const BaseResume = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">{resume.name}</h2>
+              
+              <div className='flex justify-between'>
+                <h2 className="text-xl font-semibold mb-4 text-gray-800">{resume.name}</h2>
+                {resume.keywords && (
+                  <motion.div
+                    initial={{ scale: 1 }}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
+                    title="Keyword optimized"
+                  >
+                    <Brain size={24} className="ml-2 text-yellow-500" />
+                  </motion.div>
+                )}
+                {!resume.keywords && (
+                  <div title="Base Resume">
+                  
+                  <FileArchive size={24} className="ml-2 text-gray-500" />
+                  </div>
+                  
+                )}
+
+              </div>
               <div className="flex justify-start space-x-4 ">
                 <button
                   onClick={() => handleViewResume(index)}
                   className="flex items-center px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-200"
+                  title='View Resume'
                 >
                   <Eye size={18}  />
                 </button>
                 <button
                   onClick={() => handleEditResume(index)}
                   className="flex items-center px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-200"
+                  title='Edit Resume'
                 >
                   <Edit size={18} />
                 </button>
@@ -207,6 +230,7 @@ const BaseResume = () => {
                     setCurrentIndex(index);
                   }}
                   className="flex items-center px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-200"
+                  title='Delete Resume'
                 >
                   <Trash2 size={18}  />
                 </button>

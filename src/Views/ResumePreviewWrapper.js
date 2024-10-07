@@ -21,23 +21,23 @@ const ResumePreview = (  {setfullView, personalInfo, socials, education, workExp
       <div className="absolute top-2 right-2 flex space-x-2">
         <button 
           onClick={handleZoomOut}
-          className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+          className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors z-10"
           aria-label="Zoom out"
         >
           <Minus size={16} />
         </button>
         <button 
           onClick={handleZoomIn}
-          className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+          className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors z-10"
           aria-label="Zoom in"
         >
           <Plus size={16} />
         </button>
       </div>
-      <div className="absolute top-2 left-2 ">
+      <div className="absolute top-2 left-2 z-10">
         <button 
           onClick={() => setfullView(true)}
-          className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+          className="p-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors "
           aria-label="Full view"
         >
           Full View
