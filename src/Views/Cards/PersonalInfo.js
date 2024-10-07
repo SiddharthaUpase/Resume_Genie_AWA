@@ -26,7 +26,7 @@ const PersonalInfo = ({ personal_info,onChange }) => {
         type="text" 
         id="first_name" 
         name="first_name" 
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " 
         placeholder="John" 
         value={personalInfo.first_name}
         onChange={handleChange} 
@@ -39,7 +39,7 @@ const PersonalInfo = ({ personal_info,onChange }) => {
         type="text" 
         id="last_name" 
         name="last_name" 
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " 
         placeholder="Doe" 
         value={personalInfo.last_name}
         onChange={handleChange} 
@@ -52,7 +52,7 @@ const PersonalInfo = ({ personal_info,onChange }) => {
         type="email" 
         id="email" 
         name="email" 
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " 
         placeholder="john@example.com" 
         value={personalInfo.email}
         onChange={handleChange} 
@@ -65,7 +65,7 @@ const PersonalInfo = ({ personal_info,onChange }) => {
         type="tel" 
         id="phone" 
         name="phone" 
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" 
         placeholder="123-45-678" 
         pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" 
         value={personalInfo.phone}
@@ -79,7 +79,7 @@ const PersonalInfo = ({ personal_info,onChange }) => {
         type="text" 
         id="location" 
         name="location" 
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " 
         placeholder="City, Country" 
         value={personalInfo.location}
         onChange={handleChange} 
