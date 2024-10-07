@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { rewriteProjectDescription } from '../../Models/addInfoModels';
-import { GripVertical } from 'lucide-react'; // Assuming you have lucide-react installed
+import { GripVertical,ChevronDownIcon,ChevronUpIcon } from 'lucide-react'; // Assuming you have lucide-react installed
 
 const ProjectForm = ({ projects_data, onChange }) => {
   const [projects, setProjects] = useState(() => {
@@ -44,18 +44,64 @@ const ProjectForm = ({ projects_data, onChange }) => {
   };
 
   const formatToBulletPoints = (text) => {
-    const lines = text.split('\n').filter(line => line.trim() !== '');
-    return lines.map(line => line.trim().startsWith('•') ? line : `• ${line}`).join('\n');
+    // Remove existing bullet points
+    text = text.replace(/•/g, '');
+  
+    // Regular expression that matches periods that are:
+    // 1. Not preceded by a number (?<!\d)
+    // 2. Not followed by a number (?!\d)
+    // 3. Not part of common abbreviations like Mr., Dr., etc.
+    const sentenceEndRegex = /(?<!\d)\.(?!\d)(?!\s*[A-Z][a-z]\.)/g;
+  
+    // Split by the regex and filter out empty sentences
+    const sentences = text.split(sentenceEndRegex)
+      .map(sentence => sentence.trim())
+      .filter(sentence => sentence !== '');
+  
+    // Add a period to the end of each sentence and map to bullet points
+    return sentences
+      .map(sentence => `• ${sentence.trim()}${sentence.endsWith('.') ? '' : '.'}`)
+      .join('\n');
   };
 
   const handleInputChange = (index, event) => {
-    const { name, value } = event.target;
-    const newProjects = projects.map((project, i) =>
-      i === index
-        ? { ...project, [name]: name === 'description' ? formatToBulletPoints(value) : value }
-        : project
-    );
-    setProjects(newProjects);
+    const { name, value, selectionStart } = event.target;
+    
+    if (name === 'description') {
+      // Only reformat if a period was added
+      const periods = value.match(/\./g)?.length || 0;
+      const oldPeriods = projects[index].description.match(/\./g)?.length || 0;
+      
+      let newValue = value;
+      if (periods > oldPeriods) {
+        newValue = formatToBulletPoints(value);
+      }
+      
+      const newProjects = [...projects];
+      newProjects[index] = {
+        ...newProjects[index],
+        [name]: newValue
+      };
+      setProjects(newProjects);
+      
+      // If we reformatted, we need to defer setting the cursor position
+      if (periods > oldPeriods) {
+        setTimeout(() => {
+          const textarea = document.getElementById(`description-${index}`);
+          if (textarea) {
+            textarea.selectionStart = selectionStart;
+            textarea.selectionEnd = selectionStart;
+          }
+        }, 0);
+      }
+    } else {
+      const newProjects = [...projects];
+      newProjects[index] = {
+        ...newProjects[index],
+        [name]: value
+      };
+      setProjects(newProjects);
+    }
   };
 
   const handleDeleteProject = (index) => {
@@ -105,7 +151,6 @@ const ProjectForm = ({ projects_data, onChange }) => {
     );
     setProjects(newProjects);
     setAiRewriteState(prev => ({ ...prev, [index]: null }));
-    setCustomPrompt('');
   };
 
   const handleRejectRewrite = (index) => {
@@ -114,21 +159,40 @@ const ProjectForm = ({ projects_data, onChange }) => {
       i === index ? { ...project, description: aiRewriteState[index].original } : project
     );
     setProjects(newProjects);
-    setCustomPrompt('');
   };
 
   const handleDescriptionKeyDown = (index, event) => {
     if (event.key === 'Enter' && event.target.selectionStart === event.target.value.length) {
       event.preventDefault();
-      const newValue = event.target.value + '\n• ';
+      
+      // Get the current value and split it into lines
+      let currentValue = event.target.value;
+      const lines = currentValue.split('\n');
+      
+      // Check if the last line needs a period
+      if (lines.length > 0) {
+        const lastLine = lines[lines.length - 1].trim();
+        if (lastLine && !lastLine.endsWith('.')) {
+          lines[lines.length - 1] = lastLine + '.';
+          currentValue = lines.join('\n');
+        }
+      }
+      
+      // Add new bullet point
+      const newValue = currentValue + '\n• ';
+      
       const newProjects = projects.map((project, i) =>
         i === index ? { ...project, description: newValue } : project
       );
       setProjects(newProjects);
-
+  
+      // Set cursor position
       setTimeout(() => {
-        event.target.selectionStart = newValue.length;
-        event.target.selectionEnd = newValue.length;
+        const textarea = document.getElementById(`description-${index}`);
+        if (textarea) {
+          textarea.selectionStart = newValue.length;
+          textarea.selectionEnd = newValue.length;
+        }
       }, 0);
     }
   };
@@ -167,6 +231,26 @@ const ProjectForm = ({ projects_data, onChange }) => {
 
 
   };
+  const handleReformat = (index, description) => {
+    //just clear the description and paste it back to trigger the reformat
+    const newProjects = [...projects];
+    newProjects[index] = {
+      ...newProjects[index],
+      description: ''
+    };
+
+    setProjects(newProjects);
+
+    setTimeout(() => {
+      const newProjects = [...projects];
+      newProjects[index] = {
+        ...newProjects[index],
+        description
+      };
+      setProjects(newProjects);
+    }
+    );
+  }
 
   return (
     <div className="flex flex-col items-start space-y-4 max-w-3xl mx-auto bg-white">
@@ -186,12 +270,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
               className="text-gray-500 hover:text-gray-700 focus:outline-none"
               aria-label="Collapse project entry"
             >
-              <div className="h-6 w-6">
-
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
+              {collapsed[index] ? <ChevronDownIcon size={24} /> : <ChevronUpIcon size={24} />}
             </button>
             {collapsed[index] && (
               <h3 className='font-medium'>
@@ -205,12 +284,12 @@ const ProjectForm = ({ projects_data, onChange }) => {
           {!collapsed[index] && (
             <>
               <div>
-                <label htmlFor={`title-${index}`} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Project Title</label>
+                <label htmlFor={`title-${index}`} className="block mb-2 text-sm font-medium text-gray-900 ">Project Title</label>
                 <input
                   type="text"
                   id={`title-${index}`}
                   name="title"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5   "
                   placeholder="Project Title"
                   value={project.title}
                   onChange={(e) => handleInputChange(index, e)}
@@ -218,12 +297,12 @@ const ProjectForm = ({ projects_data, onChange }) => {
                 />
               </div>
               <div>
-                <label htmlFor={`link-${index}`} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Project Link</label>
+                <label htmlFor={`link-${index}`} className="block mb-2 text-sm font-medium text-gray-900 ">Project Link</label>
                 <input
                   type="url"
                   id={`link-${index}`}
                   name="link"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5   "
                   placeholder="https://..."
                   value={project.link}
                   onChange={(e) => handleInputChange(index, e)}
@@ -233,12 +312,12 @@ const ProjectForm = ({ projects_data, onChange }) => {
 
               <div className="flex space-x-4">
                 <div>
-                  <label htmlFor={`start-month-${index}`} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Start Month</label>
+                  <label htmlFor={`start-month-${index}`} className="block mb-2 text-sm font-medium text-gray-900 ">Start Month</label>
                   <input
                     type="month"
                     id={`start-month-${index}`}
                     name="startMonth"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  "
                     value={project.startMonth || ''}
                     onChange={(e) => handleInputChange(index, e)}
                     required
@@ -246,12 +325,12 @@ const ProjectForm = ({ projects_data, onChange }) => {
                 </div>
                 <div className="flex flex-col">
                   <div>
-                    <label htmlFor={`end-month-${index}`} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">End Month</label>
+                    <label htmlFor={`end-month-${index}`} className="block mb-2 text-sm font-medium text-gray-900 ">End Month</label>
                     <input
                       type="month"
                       id={`end-month-${index}`}
                       name="endMonth"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  "
                       value={project.endMonth || ''}
                       onChange={(e) => handleInputChange(index, e)}
                       //if the end month is present, disable the input
@@ -273,18 +352,28 @@ const ProjectForm = ({ projects_data, onChange }) => {
                         setProjects(newProjects);
                       }}
                     />
-                    <label htmlFor={`present-${index}`} className="text-sm font-medium text-gray-900 dark:text-white">Present</label>
+                    <label htmlFor={`present-${index}`} className="text-sm font-medium text-gray-900 ">Present</label>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description (Bullet Points)</label>
+                <div className="flex items-center justify-between">
+                <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900 ">Description (Period Seperated)</label>
+
+                {/* <button
+                  onClick={() => handleReformat(index, project.description)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  Reformat
+                </button> */}
+
+                </div>
                 <textarea
                   id={`description-${index}`}
                   onKeyDown={(e) => handleDescriptionKeyDown(index, e)}
                   name="description"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  "
                   placeholder="• Enter your bullet points here"
                   value={aiRewriteState[index]?.rewritten || project.description}
                   onChange={(e) => handleInputChange(index, e)}

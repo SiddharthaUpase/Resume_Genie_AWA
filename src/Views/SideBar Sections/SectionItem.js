@@ -38,7 +38,7 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
                     {section.emoji}
                 </span>
                 <span 
-                    className={`flex-grow cursor-pointer ${!isSelected && !(filledStatusArray[section.id] || section.name === 'Achievements') ? 'text-gray-500' : ''}`}
+                    className={`flex-grow cursor-pointer ${!isSelected && !(filledStatusArray[section.id] || section.name === 'Achievements') ? 'text-gray-300' : ''}`}
                     onClick={() => setCurrentSection(section.id)}
                 >
                     {section.name}

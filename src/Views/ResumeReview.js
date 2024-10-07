@@ -5,7 +5,7 @@ import { Download } from 'lucide-react';
 
 
 
-const Resume = ({ previewMode = false, previewData = null}) => {
+const Resume = ({ previewMode = false, previewData = null }) => {
 
     //get data from local storage
     const resumeRef = useRef();
@@ -21,7 +21,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
 
     const { personalInfo, socials, education, workExperience, projects, skills, achievements, sections, keywords } = data;
 
-    
+
 
 
     // Flexible sections
@@ -105,7 +105,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
 
     const highlightText = (text, keywords) => {
         if (!keywords || keywords.length === 0) return text;
-        if(!previewMode) return text;
+        if (!previewMode) return text;
 
         // Create a regex pattern from keywords
         const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
@@ -146,11 +146,24 @@ const Resume = ({ previewMode = false, previewData = null}) => {
                         {exp.location && <p style={{ fontSize: '13px' }}>({exp.location})</p>}
                     </div>
                     <ul className="list-disc pl-4" style={descriptionStyle}>
-                        {typeof exp.description === 'string' &&
-                            exp.description.split('\n').map((point, index) => (
-                                <li key={index}>{highlightText(point, keywords)}</li>
-                            ))
-                        }
+                    {typeof exp.description === 'string' && (
+                            // Define the regex for sentence splitting
+                            (() => {
+                                const sentenceEndRegex = /(?<!\d)\.(?!\d)(?!\s*[A-Z][a-z]\.)/g;
+
+                                // Split the text and process it
+                                const points = exp.description
+                                    .split(sentenceEndRegex)
+                                    .map(point => point.trim())
+                                    .filter(point => point !== '');
+
+                                return points.map((point, index) => (
+                                    <li key={index}>
+                                        {highlightText(point.endsWith('.') ? point : `${point}.`, keywords)}
+                                    </li>
+                                ));
+                            })()
+                        )}
                     </ul>
                 </div>
             ))}
@@ -192,11 +205,24 @@ const Resume = ({ previewMode = false, previewData = null}) => {
                         </a>
                     </div>
                     <ul className="list-disc pl-4" style={descriptionStyle}>
-                        {typeof project.description === 'string' &&
-                            project.description.split('\n').map((point, index) => (
-                                <li key={index}>{highlightText(point, keywords)}</li>
-                            ))
-                        }
+                        {typeof project.description === 'string' && (
+                            // Define the regex for sentence splitting
+                            (() => {
+                                const sentenceEndRegex = /(?<!\d)\.(?!\d)(?!\s*[A-Z][a-z]\.)/g;
+
+                                // Split the text and process it
+                                const points = project.description
+                                    .split(sentenceEndRegex)
+                                    .map(point => point.trim())
+                                    .filter(point => point !== '');
+
+                                return points.map((point, index) => (
+                                    <li key={index}>
+                                        {highlightText(point.endsWith('.') ? point : `${point}.`, keywords)}
+                                    </li>
+                                ));
+                            })()
+                        )}
                     </ul>
                 </div>
             ))}
@@ -212,7 +238,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
                         <strong style={{ fontSize: '12.5px' }}>{achievement.title}</strong>
                         {achievement.date && <span className="ml-2" >({formatDate(achievement.date)}) </span>}
                         <span style={descriptionStyle}>  {highlightText(achievement.description, keywords)}</span>
-                        
+
                     </p>
                 </div>
             ))}
@@ -354,7 +380,7 @@ const Resume = ({ previewMode = false, previewData = null}) => {
                                             >
                                                 {social.platform}
                                             </a>
-                                        {index < socials.length - 1 && socials[index + 1].url && <span className="border-l border-black h-3 mx-1"></span>}
+                                            {index < socials.length - 1 && socials[index + 1].url && <span className="border-l border-black h-3 mx-1"></span>}
                                         </React.Fragment>
                                     )
                                 ))}

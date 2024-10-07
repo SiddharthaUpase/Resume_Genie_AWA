@@ -53,18 +53,50 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
   };
 
   const formatToBulletPoints = (text) => {
-    const lines = text.split('\n').filter(line => line.trim() !== '');
-    return lines.map(line => line.trim().startsWith('•') ? line : `• ${line}`).join('\n');
+    // Remove existing bullet points
+    text = text.replace(/•/g, '');
+  
+    // Regular expression that matches periods that are:
+    // 1. Not preceded by a number (?<!\d)
+    // 2. Not followed by a number (?!\d)
+    // 3. Not part of common abbreviations like Mr., Dr., etc.
+    const sentenceEndRegex = /(?<!\d)\.(?!\d)(?!\s*[A-Z][a-z]\.)/g;
+  
+    // Split by the regex and filter out empty sentences
+    const sentences = text.split(sentenceEndRegex)
+      .map(sentence => sentence.trim())
+      .filter(sentence => sentence !== '');
+  
+    // Add a period to the end of each sentence and map to bullet points
+    return sentences
+      .map(sentence => `• ${sentence.trim()}${sentence.endsWith('.') ? '' : '.'}`)
+      .join('\n');
   };
 
   const handleInputChange = (index, event) => {
-    const { name, value } = event.target;
-    const newExperiences = experiences.map((exp, i) =>
-      i === index
-        ? { ...exp, [name]: name === 'description' ? formatToBulletPoints(value) : value }
-        : exp
-    );
-    setExperiences(newExperiences);
+    const { name, value, selectionStart } = event.target;
+
+    if(name === 'description' ) {
+      const periods = (value.match(/\./g) || []).length || 0;
+      const oldPeriods = experiences[index].description.match(/\./g)?.length || 0;
+      
+      let newValue = value;
+      if (periods > oldPeriods) {
+        newValue = formatToBulletPoints(value);
+      }
+      const newExperiences = experiences.map((exp, i) =>
+        i === index ? { ...exp, [name]: newValue } : exp
+      );
+      setExperiences(newExperiences);
+
+    }
+    else {
+      const newExperiences = experiences.map((exp, i) =>
+        i === index ? { ...exp, [name]: value } : exp
+      );
+      setExperiences(newExperiences);
+    }
+
   };
 
   const handleDeleteExperience = (index) => {
@@ -116,7 +148,6 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
     );
     setExperiences(newExperiences);
     setAiRewriteState(prev => ({ ...prev, [index]: null }));
-    setCustomPrompt('');
   };
 
   const handleRejectRewrite = (index) => {
@@ -132,15 +163,35 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
   const handleDescriptionKeyDown = (index, event) => {
     if (event.key === 'Enter' && event.target.selectionStart === event.target.value.length) {
       event.preventDefault();
-      const newValue = event.target.value + '\n• ';
+      
+      // Get the current value and split it into lines
+      let currentValue = event.target.value;
+      const lines = currentValue.split('\n');
+      
+      // Check if the last line needs a period
+      if (lines.length > 0) {
+        const lastLine = lines[lines.length - 1].trim();
+        if (lastLine && !lastLine.endsWith('.')) {
+          lines[lines.length - 1] = lastLine + '.';
+          currentValue = lines.join('\n');
+        }
+      }
+      
+      // Add new bullet point
+      const newValue = currentValue + '\n• ';
+      
       const newExperiences = experiences.map((exp, i) =>
         i === index ? { ...exp, description: newValue } : exp
       );
       setExperiences(newExperiences);
-
+  
+      // Set cursor position
       setTimeout(() => {
-        event.target.selectionStart = newValue.length;
-        event.target.selectionEnd = newValue.length;
+        const textarea = document.getElementById(`experience-description-${index}`);
+        if (textarea) {
+          textarea.selectionStart = newValue.length;
+          textarea.selectionEnd = newValue.length;
+        }
       }, 0);
     }
   };
@@ -311,7 +362,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
 
 
               <div>
-                <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Description (Bullet Points)</label>
+                <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Description (Period Seperated)</label>
                 <textarea
                   id={`description-${index}`}
                   name="description"
