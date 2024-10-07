@@ -42,6 +42,8 @@ const LoginView = ()=>{
         <div className="text-center mb-6">
             <h1 className="text-4xl font-bold text-gray-800 archivo-black-regular">🧞ResumeGenie</h1>
         </div>
+        <p className="text-center text-gray-600">Streamline your Resume Generation experience with the power of AI.</p>
+
             <h2 className="text-2xl font-bold text-center">Login</h2>
             
             {error && <p className="text-red-500 text-center">{error}</p>}
