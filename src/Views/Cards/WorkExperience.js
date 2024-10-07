@@ -17,14 +17,16 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
       return workExperience;
     } else {
       return [{
-        company: '', jobTitle: '', startDate: '', endDate: '', location: '', description: '• '
+        company: '', jobTitle: '', startDate: '', endDate: '', location: '', description: ''
       }];
     }
   });
 
   useEffect(() => {
-    // Initialize the first section as expanded
-    setExpandedSections({ 0: false });
+    if(workExperience.length == 1)
+    {
+      setExpandedSections({0:true});
+    }
   }, []);
 
   useEffect(() => {

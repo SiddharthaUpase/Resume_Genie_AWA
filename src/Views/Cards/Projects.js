@@ -8,7 +8,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
       return projects_data;
     } else {
       return [
-        { title: '', description: '• ', link: '' }
+        { title: '', description: '', link: '' }
       ];
     }
   });
@@ -24,8 +24,14 @@ const ProjectForm = ({ projects_data, onChange }) => {
   }, [projects, onChange]);
 
   useEffect(() => {
-    //set collapsed state based on the length of the projects to true
-    setCollapsed(projects.map(() => true));
+    //if there is only 1 project, do not collapse it
+    if (projects.length === 1) {
+      setCollapsed([false]);
+    } else {
+      setCollapsed(new Array(projects.length).fill(true));
+    }
+
+    
   }, []);
 
   const handleAddProject = () => {
