@@ -1,7 +1,7 @@
 
 import currentApiUrl from "./apiUrl";
 
-export const login = async (username, password) =>{
+export const login = async (username, password,google_signin,name) =>{
 
     try {
 
@@ -12,7 +12,9 @@ export const login = async (username, password) =>{
             },
             body: JSON.stringify({ 
                 user_name: username,
-                password: password
+                password: password,
+                google_signin: google_signin,
+                name: name
              })
         });
 
@@ -60,7 +62,7 @@ export const isAuthenticated = ()=>{
 
 export const signUp = async (name,email,username, password) => {
     try {
-        const response = await fetch('https://flask-hello-world-two-dusky.vercel.app/create_user', {
+        const response = await fetch(`${currentApiUrl}/create_user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -73,9 +75,6 @@ export const signUp = async (name,email,username, password) => {
              })
         });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
 
         const data = await response.json();
 
@@ -90,7 +89,7 @@ export const signUp = async (name,email,username, password) => {
         localStorage.setItem("isAuthenticated", true);
             return { success: true };
         } else {
-            return { success: false, message: data.message || 'Signup failed' };
+            return { success: false, message: data.error || 'Signup failed' };
         }
     } catch (error) {
         return { success: false, message: error.message || 'An error occurred' };

@@ -7,43 +7,27 @@ import { login, logout } from '../Models/authModel'; // Assuming login and logou
 import AddInfoPage from '../Views/AddInfoPage';
 import Resume from '../Views/ResumeReview';
 import { ProgressInfoProvider } from '../Context/ProgressInfoContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
   const [auth, setAuth] = useState(false);
 
-  const handleLogin = async (credentials) => {
-    const result = await login(credentials); // Replace with actual login logic
-    if (result.success) {
-      setAuth(true);
-    }
-    return result;
-  };
-
-  const handleLogout = () => {
-    logout(); // Replace with actual logout logic
-    setAuth(false);
-  };
-
-  useEffect(() => {
-    if (auth) {
-      console.log("User is logged in");
-      // You can navigate to a protected route or dashboard here
-    }
-  }, [auth]);
 
   return (
+    <GoogleOAuthProvider clientId="787439220358-5b3j7h7k5hglclbr150ii4pq38lo5r8k.apps.googleusercontent.com">
     <ProgressInfoProvider>
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LoginView />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/login" element={<LoginView onLogin={handleLogin} />} />
+        <Route path="/login" element={<LoginView />} />
         <Route path="/signup" element={<SignUpView />} />
         <Route path= "/addInfo" element={<AddInfoPage />} />
         <Route path= "/resume-review" element={<Resume />} />
       </Routes>
     </Router>
     </ProgressInfoProvider> 
+    </GoogleOAuthProvider>
   );
 }
 
