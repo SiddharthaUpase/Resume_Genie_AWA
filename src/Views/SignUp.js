@@ -70,11 +70,11 @@ const SignUpView = ()=>{
                     Continue with Google
                 </button> */}
                 
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                     <hr className="w-full border-gray-300" />
                     <span className="px-2 text-gray-500">or</span>
                     <hr className="w-full border-gray-300" />
-                </div>
+                </div> */}
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
