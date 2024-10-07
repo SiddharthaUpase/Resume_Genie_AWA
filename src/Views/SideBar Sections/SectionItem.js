@@ -1,6 +1,7 @@
-import React from 'react';
+import React ,{useContext} from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
 
 const SectionItem = ({ section, currentSection, setCurrentSection }) => {
 
@@ -13,6 +14,11 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
 
     const isSelected = currentSection === section.id;
 
+    const { progressInfo, setProgressInfo } = useContext(ProgressInfoContext);
+
+    //temporary implemantation only
+    const filledStatusArray = Object.values(progressInfo.filledStatus);
+
     return (
         <li 
             ref={setNodeRef} 
@@ -22,7 +28,8 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
         >
             <div 
                 className={`flex items-center space-x-2 w- p-2 transition-colors duration-200 ${
-                    isSelected ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'
+                    isSelected ? 'bg-blue-500 text-white' : 
+                    (filledStatusArray[section.id] || section.name=== 'Achievements')?'hover:bg-blue-100' : 'bg-gray-300'
                 }`}
             >
                 <span className="cursor-pointer" onClick={() => setCurrentSection(section.id)}>
