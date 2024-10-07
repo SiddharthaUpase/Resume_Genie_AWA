@@ -38,6 +38,10 @@ const LoginView = ()=>{
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md">
+
+        <div className="text-center mb-6">
+            <h1 className="text-4xl font-bold text-gray-800 archivo-black-regular">🧞ResumeGenie</h1>
+        </div>
             <h2 className="text-2xl font-bold text-center">Login</h2>
             
             {error && <p className="text-red-500 text-center">{error}</p>}
