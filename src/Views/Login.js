@@ -48,7 +48,7 @@ const LoginView = ()=>{
             
             {error && <p className="text-red-500 text-center">{error}</p>}
             
-            <button 
+            {/* <button 
                 onClick={handleGoogleLogin}
                 className="w-full py-2 px-4 border flex justify-center items-center text-gray-700 rounded-md hover:bg-gray-100 transition duration-150"
             >
@@ -72,7 +72,7 @@ const LoginView = ()=>{
                     <path fill="none" d="M1 1h22v22H1z" />
                 </svg>
                 Continue with Google
-            </button>
+            </button> */}
             
             <div className="flex items-center justify-between">
                 <hr className="w-full border-gray-300" />
