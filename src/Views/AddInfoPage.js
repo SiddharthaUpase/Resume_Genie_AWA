@@ -8,6 +8,9 @@ import Socials from './Cards/Socials';
 import Education from './Cards/Education';
 import MultiFieldSkillsForm from './Cards/Skills';
 import AchievementsForm from './Cards/Achievements';
+import Certifications from './Cards/Certifications';
+import Extracurriculars from './Cards/Extracurriculars';
+import Leadership from './Cards/Leadership';
 import Resume from './ResumeReview';
 import { useLocation } from 'react-router-dom';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
@@ -21,7 +24,6 @@ import { storeResume } from '../Models/addInfoModels';
 import KeywordsDialog from './KeywordsDialog';
 import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
 //import a json file with the resume data
-
 
 
 
@@ -525,6 +527,9 @@ useEffect(() => {
                         {sections[currentSection].name === 'Projects' && <Projects projects_data={projects} onChange={setProjects} />}
                         {sections[currentSection].name === 'Skills' && <MultiFieldSkillsForm skill_sets={skills} onChange={setSkills} />}
                         {sections[currentSection].name === 'Achievements' && <AchievementsForm achievements_parent={achievements} onChange={setAchievements} />}
+                        {sections[currentSection].name === 'Certifications' && <Certifications />}
+                        {sections[currentSection].name === 'Extracurriculars' && <Extracurriculars />}
+                        {sections[currentSection].name === 'Leadership' && <Leadership />}
                     </Card>
 
                     <div className="flex justify-between space-x-8">

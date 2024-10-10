@@ -1,15 +1,35 @@
-import React from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import SectionItem from './SectionItem';
-import { useState } from 'react';
-import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
-import { s } from 'framer-motion/client';
-import { useContext } from 'react';
+import { SectionsListContext } from '../../Context/SectionsListContext';
+import { PlusCircle } from 'lucide-react';
+
+const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+            <div className="py-1">
+                {availableSections.map((section) => (
+                    <button
+                        key={section.name}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        onClick={() => onAddSection(section)}
+                    >
+                        {section.name}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const Section = ({ sections, currentSection, setCurrentSection, setReorderedSections }) => {
-    
-    const { progressInfo, setProgressInfo } = useContext(ProgressInfoContext);
+    const allAvailableSections = useContext(SectionsListContext);
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const popoverRef = useRef(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -27,7 +47,6 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
 
             const newSections = arrayMove(sections, oldIndex, newIndex);
 
-            // Update section IDs to match their new positions
             const updatedSections = newSections.map((section, index) => ({
                 ...section,
                 id: index
@@ -41,29 +60,71 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         }
     };
 
-    return (
-        <nav className="md:w-full rounded-lg shadow-md p-2 space-y-2 h-96">
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCorners}
-                onDragEnd={handleDragEnd}
-                modifiers={[restrictToVerticalAxis]}
-            >
-                <SortableContext items={sections.map((section) => section.id)} strategy={verticalListSortingStrategy}>
-                    <ul className="space-y-2">
-                        {sections.map((section) => (
-                            <SectionItem
-                                key={section.id}
-                                section={section}
-                                currentSection={currentSection}
-                                setCurrentSection={setCurrentSection}
+    const handleAddSection = (newSection) => {
+        const updatedSections = [...sections, { ...newSection, id: sections.length, isActive: true }];
+        setReorderedSections(updatedSections);
+        setCurrentSection(updatedSections.length - 1);
+        setIsPopoverOpen(false);
+    };
 
-                            />
-                        ))}
-                    </ul>
-                </SortableContext>
-            </DndContext>
-        </nav>
+    const availableSectionsToAdd = allAvailableSections.filter(
+        section => !sections.some(s => s.name === section.name)
+    );
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+                setIsPopoverOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="md:w-full space-y-2 relative">
+            <nav className="rounded-lg shadow-md p-2 min-h-96 max-h-[calc(100vh-4rem)] overflow-y-auto bg-white">
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCorners}
+                    onDragEnd={handleDragEnd}
+                    modifiers={[restrictToVerticalAxis]}
+                >
+                    <SortableContext items={sections.map((section) => section.id)} strategy={verticalListSortingStrategy}>
+                        <ul className="space-y-2">
+                            {sections.map((section, index) => (
+                                <SectionItem
+                                    key={section.id}
+                                    section={section}
+                                    currentSection={currentSection}
+                                    setCurrentSection={() => setCurrentSection(index)}
+                                    isActive={section.isActive !== false}
+                                />
+                            ))}
+                        </ul>
+                    </SortableContext>
+                </DndContext>
+            </nav>
+            
+            <div className="relative" ref={popoverRef}>
+                <button
+                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                >
+                    <PlusCircle className="h-6 w-6 text-indigo-600" />
+                </button>
+                
+                <Popover
+                    isOpen={isPopoverOpen}
+                    onClose={() => setIsPopoverOpen(false)}
+                    availableSections={availableSectionsToAdd}
+                    onAddSection={handleAddSection}
+                />
+            </div>
+        </div>
     );
 };
 
