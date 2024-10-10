@@ -40,7 +40,7 @@ const MultiFieldSkillsForm = ({ skill_sets = [], onChange }) => {
     'Cybersecurity',
   ]);
 
-  const [skillsByField] = useState({
+  const [skillsByField, setSkillsByField] = useState({
     'Front-end Development': ['HTML', 'CSS', 'JavaScript', 'React', 'Vue.js', 'Angular', 'TypeScript', 'Sass', 'Webpack'],
     'Back-end Development': ['Node.js', 'Python', 'Java', 'C#', 'Ruby', 'PHP', 'Go', 'SQL', 'NoSQL'],
     'Full-stack Development': ['JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'Ruby', 'PHP', 'MEAN Stack', 'MERN Stack'],
@@ -51,6 +51,8 @@ const MultiFieldSkillsForm = ({ skill_sets = [], onChange }) => {
     'Cloud Computing': ['AWS', 'Azure', 'Google Cloud', 'Serverless', 'Microservices', 'Containerization', 'IaC'],
     'Cybersecurity': ['Network Security', 'Cryptography', 'Ethical Hacking', 'Penetration Testing', 'SIEM', 'Firewall Configuration'],
   });
+
+  const [newSkill, setNewSkill] = useState('');
 
   const handleFieldChange = (event) => {
     setCurrentField(event.target.value);
@@ -83,8 +85,22 @@ const MultiFieldSkillsForm = ({ skill_sets = [], onChange }) => {
   const handleAddNewField = () => {
     if (newField && !fields.includes(newField)) {
       setFields(prevFields => [...prevFields, newField]);
+      setSkillsByField(prev => ({
+        ...prev,
+        [newField]: [] // Initialize empty skills array for new field
+      }));
       setCurrentField(newField);
       setNewField('');
+    }
+  };
+
+  const handleAddCustomSkill = () => {
+    if (currentField && newSkill && !skillsByField[currentField]?.includes(newSkill)) {
+      setSkillsByField(prev => ({
+        ...prev,
+        [currentField]: [...(prev[currentField] || []), newSkill]
+      }));
+      setNewSkill('');
     }
   };
 
@@ -139,93 +155,97 @@ const MultiFieldSkillsForm = ({ skill_sets = [], onChange }) => {
     setDraggedSetIndex(index);
     e.dataTransfer.setData('application/x-skill-set', index.toString());
   };
-  
+
   const handleDragOverSet = (e, index) => {
     e.preventDefault();
 
   };
 
-const handleDropSet = (e, targetIndex) => {
-  e.preventDefault();
-  const sourceIndex = draggedSetIndex;
+  const handleDropSet = (e, targetIndex) => {
+    e.preventDefault();
+    const sourceIndex = draggedSetIndex;
 
-  // Remove visual feedback
-  e.currentTarget.classList.remove('drag-over');
+    // Remove visual feedback
+    e.currentTarget.classList.remove('drag-over');
 
-  // Return null if targetIndex is not set
-  if (targetIndex === null || targetIndex === undefined) {
+    // Return null if targetIndex is not set
+    if (targetIndex === null || targetIndex === undefined) {
+      setDraggedSetIndex(null);
+      return null;
+    }
+
+    if (sourceIndex !== null && sourceIndex !== targetIndex) {
+      setSkillSets(prevSets => {
+        const newSets = [...prevSets];
+        // Store the sets that will be swapped
+        const sourceSet = { ...newSets[sourceIndex] };
+        const targetSet = { ...newSets[targetIndex] };
+
+        // Perform the swap
+        newSets[targetIndex] = sourceSet;
+        newSets[sourceIndex] = targetSet;
+
+        return newSets;
+      });
+    }
+
     setDraggedSetIndex(null);
-    return null;
-  }
+  };
 
-  if (sourceIndex !== null && sourceIndex !== targetIndex) {
-    setSkillSets(prevSets => {
-      const newSets = [...prevSets];
-      // Store the sets that will be swapped
-      const sourceSet = { ...newSets[sourceIndex] };
-      const targetSet = { ...newSets[targetIndex] };
+  const handleDragEndSet = () => {
+    // Clear any visual feedback
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    setDraggedSetIndex(null);
+  };
 
-      // Perform the swap
-      newSets[targetIndex] = sourceSet;
-      newSets[sourceIndex] = targetSet;
+  const handleDragLeaveSet = (e) => {
+    // Remove visual feedback
+    e.currentTarget.classList.remove('drag-over');
+  };
 
-      return newSets;
-    });
-  }
 
-  setDraggedSetIndex(null);
-};
-
-const handleDragEndSet = () => {
-  // Clear any visual feedback
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-  setDraggedSetIndex(null);
-};
-
-const handleDragLeaveSet = (e) => {
-  // Remove visual feedback
-  e.currentTarget.classList.remove('drag-over');
-};
-  
-  
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg border border-gray-200">
       <div className="mb-6">
-        <label htmlFor="field" className="block mb-2 text-sm font-medium text-gray-900">Select or Add a New Field</label>
+        <label htmlFor="field" className="block mb-2 text-sm font-medium text-gray-900">Select or Add a New Skillset</label>
         <select
           id="field"
           value={currentField}
           onChange={handleFieldChange}
           className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="">Select a field</option>
+          <option value="">Select a Skillset</option>
           {fields.map(field => (
             <option key={field} value={field}>{field}</option>
           ))}
+
         </select>
       </div>
 
+      <span className="block mb-2 text-sm font-medium text-gray-900">Or</span>
+      
+        
       <div className="mb-6">
         <input
           type="text"
           value={newField}
           onChange={(e) => setNewField(e.target.value)}
-          placeholder="Enter new field"
+          placeholder="Enter new Skillset"
           className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
         />
         <button
           onClick={handleAddNewField}
           className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
         >
-          Add New Field
+          Add Skillset
         </button>
       </div>
 
       {currentField && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-2">Select Skills for {currentField}</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             {skillsByField[currentField]?.map(skill => (
               <div key={skill} className="flex items-center">
                 <input
@@ -241,6 +261,22 @@ const handleDragLeaveSet = (e) => {
               </div>
             ))}
           </div>
+
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              placeholder="Add a custom skill"
+              className="block flex-1 p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button
+              onClick={handleAddCustomSkill}
+              className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+            >
+              Add
+            </button>
+          </div>
         </div>
       )}
 
@@ -253,114 +289,112 @@ const handleDragLeaveSet = (e) => {
         </button>
       )}
 
-{skillSets.map((set, index) => (
-  <div 
-  key={index}
-  data-index={index} // Add data attribute for index
-  draggable
-  onDragStart={(e) => handleDragStartSet(e, index)}
-  onDragOver={(e) => handleDragOverSet(e, index)}
-  onDragLeave={handleDragLeaveSet}
-  onDrop={(e) => handleDropSet(e, index)} // Pass index directly
-  onDragEnd={handleDragEndSet}
-  className={`relative p-4 border border-gray-200 rounded-lg ${
-    draggedSetIndex === index ? 'opacity-40' : ''
-  } ${
-    draggedSetIndex !== null && draggedSetIndex !== index ? 'drag-target' : ''
-  }`}
->
-    <div className="flex justify-start items-center space-x-4">
-      <GripVerticalIcon 
-        className="h-5 w-5 text-gray-500 ml-2 cursor-move" 
-      />
-      <button
-        onClick={() => toggleSkillSet(index)}
-        className="text-gray-500 hover:text-gray-700 focus:outline-none"
-        aria-label="Toggle skill set"
-      >
-        {set.isOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
-      </button>
-      <h4 className="font-medium">{set.field}</h4>
-    </div>
-    
-    {set.isOpen && (
-      <>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {set.skills.map((skill, skillIndex) => (
-            <div
-              key={skill}
-              draggable
-              onDragStart={(e) => {
-                e.stopPropagation(); // Prevent parent set drag
-                handleDragStart(e, skillIndex);
-                // Set a data transfer type to identify skill dragging
-                e.dataTransfer.setData('application/x-skill', 'true');
-              }}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation(); // Prevent parent set drag over
-                // Only handle skill drag if we're dragging a skill
-                if (e.dataTransfer.types.includes('application/x-skill')) {
-                  handleDragOver(e, skillIndex);
-                }
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.stopPropagation(); // Prevent parent set drop
-                // Only handle skill drop if we're dropping a skill
-                if (e.dataTransfer.types.includes('application/x-skill')) {
-                  handleDrop(e, index);
-                }
-              }}
-              className="flex items-center bg-gradient-to-l from-blue-400 to-blue-600 text-white px-3 py-1 rounded-full shadow-md cursor-grab transition-transform transform hover:scale-105"
+      {skillSets.map((set, index) => (
+        <div
+          key={index}
+          data-index={index} // Add data attribute for index
+          draggable
+          onDragStart={(e) => handleDragStartSet(e, index)}
+          onDragOver={(e) => handleDragOverSet(e, index)}
+          onDragLeave={handleDragLeaveSet}
+          onDrop={(e) => handleDropSet(e, index)} // Pass index directly
+          onDragEnd={handleDragEndSet}
+          className={`relative p-4 border border-gray-200 rounded-lg ${draggedSetIndex === index ? 'opacity-40' : ''
+            } ${draggedSetIndex !== null && draggedSetIndex !== index ? 'drag-target' : ''
+            }`}
+        >
+          <div className="flex justify-start items-center space-x-4">
+            <GripVerticalIcon
+              className="h-5 w-5 text-gray-500 ml-2 cursor-move"
+            />
+            <button
+              onClick={() => toggleSkillSet(index)}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              aria-label="Toggle skill set"
             >
-              <span className="text-sm font-semibold">{skill}</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent event bubbling
-                  setSkillSets(prevSets => prevSets.map((s, i) =>
-                    i === index ? { ...s, skills: s.skills.filter((_, si) => si !== skillIndex) } : s
-                  ));
-                }}
-                className="ml-2 text-red-200 hover:text-red-400 focus:outline-none"
-                aria-label="Remove skill"
-              >
-                <span style={{ fontSize: '0.75rem' }}>❌</span>
-              </button>
-            </div>
-          ))}
-        </div>
+              {set.isOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+            </button>
+            <h4 className="font-medium">{set.field}</h4>
+          </div>
 
-        <div className="mt-4 flex">
-          <input
-            type="text"
-            value={newSkills[index] || ''}
-            onChange={(e) => setNewSkills(prev => ({ ...prev, [index]: e.target.value }))}
-            placeholder="Enter new skill"
-            className="block w-1/2 p-1.5 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
-          />
+          {set.isOpen && (
+            <>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {set.skills.map((skill, skillIndex) => (
+                  <div
+                    key={skill}
+                    draggable
+                    onDragStart={(e) => {
+                      e.stopPropagation(); // Prevent parent set drag
+                      handleDragStart(e, skillIndex);
+                      // Set a data transfer type to identify skill dragging
+                      e.dataTransfer.setData('application/x-skill', 'true');
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation(); // Prevent parent set drag over
+                      // Only handle skill drag if we're dragging a skill
+                      if (e.dataTransfer.types.includes('application/x-skill')) {
+                        handleDragOver(e, skillIndex);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation(); // Prevent parent set drop
+                      // Only handle skill drop if we're dropping a skill
+                      if (e.dataTransfer.types.includes('application/x-skill')) {
+                        handleDrop(e, index);
+                      }
+                    }}
+                    className="flex items-center bg-gradient-to-l from-blue-400 to-blue-600 text-white px-3 py-1 rounded-full shadow-md cursor-grab transition-transform transform hover:scale-105"
+                  >
+                    <span className="text-sm font-semibold">{skill}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent event bubbling
+                        setSkillSets(prevSets => prevSets.map((s, i) =>
+                          i === index ? { ...s, skills: s.skills.filter((_, si) => si !== skillIndex) } : s
+                        ));
+                      }}
+                      className="ml-2 text-red-200 hover:text-red-400 focus:outline-none"
+                      aria-label="Remove skill"
+                    >
+                      <span style={{ fontSize: '0.75rem' }}>❌</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex">
+                <input
+                  type="text"
+                  value={newSkills[index] || ''}
+                  onChange={(e) => setNewSkills(prev => ({ ...prev, [index]: e.target.value }))}
+                  placeholder="Enter new skill"
+                  className="block w-1/2 p-1.5 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button
+                  onClick={() => handleAddNewSkill(index)}
+                  className="ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                >
+                  Add Skill
+                </button>
+              </div>
+            </>
+          )}
+
           <button
-            onClick={() => handleAddNewSkill(index)}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event bubbling
+              handleRemoveSkillSet(index);
+            }}
+            className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
+            aria-label="Remove skill set"
           >
-            Add Skill
+            <span style={{ fontSize: '0.75rem' }}>❌</span>
           </button>
         </div>
-      </>
-    )}
-    
-    <button
-      onClick={(e) => {
-        e.stopPropagation(); // Prevent event bubbling
-        handleRemoveSkillSet(index);
-      }}
-      className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
-      aria-label="Remove skill set"
-    >
-      <span style={{ fontSize: '0.75rem' }}>❌</span>
-    </button>
-  </div>
-))}
+      ))}
     </div>
   );
 };

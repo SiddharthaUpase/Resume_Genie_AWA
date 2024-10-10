@@ -1,4 +1,4 @@
-import React ,{useContext} from 'react';
+import React ,{useContext,useEffect} from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
@@ -19,6 +19,7 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
     //temporary implemantation only
     const filledStatusArray = Object.values(progressInfo.filledStatus);
 
+
     return (
         <li 
             ref={setNodeRef} 
@@ -32,13 +33,13 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
                 }`}
             >
                 <span 
-                    className={`cursor-pointer ${!isSelected && !(filledStatusArray[section.id] || section.name === 'Achievements') ? 'text-gray-500' : ''}`} 
+                    className={`cursor-pointer }`} 
                     onClick={() => setCurrentSection(section.id)}
                 >
                     {section.emoji}
                 </span>
                 <span 
-                    className={`flex-grow cursor-pointer ${!isSelected && !(filledStatusArray[section.id] || section.name === 'Achievements') ? 'text-gray-300' : ''}`}
+                    className={`flex-grow cursor-pointer }`}
                     onClick={() => setCurrentSection(section.id)}
                 >
                     {section.name}

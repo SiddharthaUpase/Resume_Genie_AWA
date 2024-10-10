@@ -2,6 +2,7 @@ import React, { useEffect, useState,useRef } from 'react';
 import { rewriteDescription,rewriteSpecificLine,addPointToDescription } from '../../Models/addInfoModels';
 import { GripVertical,ChevronDownIcon,ChevronUpIcon,Pencil,X } from 'lucide-react'; // Assuming you have lucide-react installed
 import { s } from 'framer-motion/client';
+import gif from '../../Content/In-line editing.gif';
 
 const ProjectForm = ({ projects_data, onChange }) => {
   const [projects, setProjects] = useState(() => {
@@ -34,9 +35,12 @@ const ProjectForm = ({ projects_data, onChange }) => {
     const [lineRewriteState, setLineRewriteState] = useState({});
 
 
+      // State for GIF visibility
+    const [showGif, setShowGif] = useState(false);
+
+
 
     //set the show overlay to false initially
-
     useEffect(() => {
       setShowOverlay(new Array(projects.length).fill(false));
     }, [projects.length]);
@@ -51,6 +55,9 @@ const ProjectForm = ({ projects_data, onChange }) => {
         setInitialDescriptions([false]);
       }
     }, []);
+
+
+    
 
     //useffect to keep a track of changes in the description and if any one goes to 0, then set its initial description to false
     useEffect(() => {
@@ -317,31 +324,29 @@ const ProjectForm = ({ projects_data, onChange }) => {
     setCollapsed(collapsed.map((state, i) => i === index ? !state : state));
   };
 
-  const handleDragStart = (index) => (event) => {
+  const handleDragStart = (e, index) => {
+    console.log('Drag start:', index);
     setDraggedItem(index);
-    event.dataTransfer.setData('text/plain', index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.target.style.opacity = '0.5';
   };
 
-  const handleDrop = (index) => (event) => {
-    event.preventDefault();
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1';
     setDraggedItem(null);
   };
 
-  const handleDragOver = (index) => (event) => {
-    event.preventDefault();
-
+  const handleDragOver = (e,index) => {
+    e.preventDefault();
     if (draggedItem == null) {
       return;
     }
-
     const newProjects = [...projects];
-    const [draggedProject] = newProjects.splice(draggedItem, 1);
-    newProjects.splice(index, 0, draggedProject);
-    setProjects(newProjects);
+    const draggedItemContent = newProjects[draggedItem];
+    newProjects.splice(draggedItem, 1);
+    newProjects.splice(index, 0, draggedItemContent);
     setDraggedItem(index);
-    
-
-
+    setProjects(newProjects);
   };
   const handleAddpoint = async (index) => {
       try {
@@ -378,6 +383,24 @@ const ProjectForm = ({ projects_data, onChange }) => {
   };
 
   return (
+    <div>
+
+      {showGif && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg relative">
+            <button
+              onClick={() => setShowGif(false)}
+              className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
+              aria-label="Close GIF"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h2 className="text-lg font-semibold mb-4">In-line Editing Guide</h2>
+            <img src={gif} alt="In-line editing GIF" className="max-w-full h-auto p-8" />
+          </div>
+        </div>
+      )}
+    
     <div className="flex flex-col items-start space-y-4 max-w-3xl mx-auto bg-white">
       {projects.map((project, index) => (
         <div
@@ -391,14 +414,13 @@ const ProjectForm = ({ projects_data, onChange }) => {
             <div className="flex items-center space-x-2">
               <div
                 draggable={true}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragEnd={() => setDraggedItem(null)}
+                onDragStart={(e) => handleDragStart(e,index)}
+                onDragEnd={handleDragEnd}
                 onDragOver={(e) => handleDragOver(e, index)}
               >
                 <GripVertical className="w-5 h-5 cursor-grab" />
               </div>
-              <ChevronUpIcon className={`w-5 h-5 ${collapsed[index] ? 'block' : 'hidden'}`} />
-              <ChevronDownIcon className={`w-5 h-5 ${collapsed[index] ? 'hidden' : 'block'}`} />
+              {collapsed[index] ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
               <h3 className="font-medium">
                 {project.title || project.link ?
                   `${project.title}${project.link ? ` - ${project.link}` : ''}` :
@@ -495,9 +517,19 @@ const ProjectForm = ({ projects_data, onChange }) => {
               <div>
                 <div className="relative">
                   <div className='flex justify-between space-x-4'>
+                    <div className='flex space-x-2 items-start justify-center'>
                     <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">
                       Description (Press Enter for New Point)
                     </label>
+                      <button
+                        onClick={() => setShowGif(true)}
+                        className="text-yellow-500 hover:text-yellow-700 focus:outline-none mt-0 rounded-full shadow-lg text-l"
+                        aria-label="Show GIF"
+                      >
+                        💡
+                      </button>
+
+                    </div>
                     {showOverlay[index] && (
                       isRewriting ? (
                         <div
@@ -661,6 +693,8 @@ const ProjectForm = ({ projects_data, onChange }) => {
       >
         Add Project
       </button>
+    </div>
+
     </div>
   );
 };

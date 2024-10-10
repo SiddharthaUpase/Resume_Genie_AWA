@@ -4,11 +4,12 @@ import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinat
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import SectionItem from './SectionItem';
 import { useState } from 'react';
-
+import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
+import { s } from 'framer-motion/client';
+import { useContext } from 'react';
 const Section = ({ sections, currentSection, setCurrentSection, setReorderedSections }) => {
-
     
-
+    const { progressInfo, setProgressInfo } = useContext(ProgressInfoContext);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -21,7 +22,6 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         const { active, over } = event;
 
         if (active.id !== over.id && over.id >= 2) {
-            console.log(active.id, over.id);
             const oldIndex = sections.findIndex(section => section.id === active.id);
             const newIndex = sections.findIndex(section => section.id === over.id);
 
@@ -33,10 +33,11 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                 id: index
             }));
 
-
-
             setReorderedSections(updatedSections);
             setCurrentSection(newIndex);
+
+
+            
         }
     };
 

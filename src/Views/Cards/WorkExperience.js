@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { rewriteDescription, rewriteSpecificLine,addPointToDescription } from '../../Models/addInfoModels';
 import { Plus, Trash2, Edit2, GripVertical, Pencil } from 'lucide-react';
+import gif from '../../Content/In-line editing.gif';
 
 const WorkExperienceForm = ({ workExperience, onChange }) => {
 
@@ -23,6 +24,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
     } else {
       setInitialDescriptions([false]);
     }
+    
   }, []);
 
   useEffect(() => {
@@ -38,6 +40,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
       setInitialDescriptions(updatedDescriptions);
     }
 
+    console.log(updatedDescriptions); // Log the updated descriptions array
   }, [workExperience]);
 
 
@@ -51,6 +54,10 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
   const textareaRef = useRef(null);
   const [selectedLineIndex, setSelectedLineIndex] = useState(null);
   const [isRewriting, setIsRewriting] = useState(false);
+
+
+        // State for GIF visibility
+  const [showGif, setShowGif] = useState(false);
 
   useEffect(() => {
     setShowOverlay(new Array(workExperience.length).fill(false));
@@ -409,6 +416,23 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
 
 
   return (
+    <div>
+       {showGif && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg relative">
+            <button
+              onClick={() => setShowGif(false)}
+              className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
+              aria-label="Close GIF"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h2 className="text-lg font-semibold mb-4">In-line Editing Guide</h2>
+            <img src={gif} alt="In-line editing GIF" className="max-w-full h-auto p-8" />
+          </div>
+        </div>
+      )}
+    
     <div className="flex flex-col items-start space-y-4 max-w-3xl mx-auto bg-white">
       {experiences.map((exp, index) => (
         <div
@@ -554,9 +578,19 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                 <div className="relative">
 
                   <div className='flex justify-spacebetween space-x-4'>
+                  <div className='flex space-x-2 items-start justify-center'>
                     <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">
                       Description (Press Enter for New Point)
                     </label>
+                      <button
+                        onClick={() => setShowGif(true)}
+                        className="text-yellow-500 hover:text-yellow-700 focus:outline-none mt-0 rounded-full shadow-lg text-l"
+                        aria-label="Show GIF"
+                      >
+                        💡
+                      </button>
+
+                    </div>
                     {showOverlay[index] && (
                       isRewriting ? (
                         // Show a loading spinner
@@ -688,7 +722,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                     <>
                       <input
                         type="text"
-                        placeholder="Enter custom prompt"
+                        placeholder="In simple words, what's the point?"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 flex-grow"
                         value={customPrompt}
                         onChange={handleCustomPromptChange}
@@ -744,6 +778,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
       >
         Add Experience
       </button>
+    </div>
     </div>
   );
 };
