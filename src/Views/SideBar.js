@@ -9,16 +9,17 @@ const SidebarContext = createContext();
 export const Sidebar = ({ children, setSelectedOption }) => {
     const [expanded, setExpanded] = useState(true);
     const [userDetails, setUserDetails] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
     const getUserDetails = async () => {
         const user = JSON.parse(localStorage.getItem('session'));
-
+        
         try {
             const url = `https://flask-hello-world-two-dusky.vercel.app/get_user?user_id=${user.user_id}`;
             const response = await fetch(url);
             const data = await response.json();
             setUserDetails(data.user);
-            console.log(data.user);
+            setIsLoading(false);
         } catch (error) {
             console.error('Error fetching user details:', error);
         }
@@ -53,7 +54,13 @@ export const Sidebar = ({ children, setSelectedOption }) => {
 
                 <div className="border-t border-blue-200 flex p-3">
                     <div className="w-10 h-10 rounded-md bg-blue-200 text-blue-900 flex items-center justify-center font-bold">
-                        {userDetails.name ? getInitials(userDetails.name) : ''}
+                        {isLoading ? (
+                            <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
+                                <span className="visually-hidden">🔄️</span>
+                            </div>
+                        ) : (
+                            userDetails.name ? getInitials(userDetails.name) : ''
+                        )}
                     </div>
                     <div className={`flex justify-between items-center overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}`}>
                         <div className="leading-4">

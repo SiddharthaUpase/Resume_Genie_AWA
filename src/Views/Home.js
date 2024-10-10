@@ -14,6 +14,7 @@ const Home = () => {
   const [selectedOption, setSelectedOption] = useState('base');
   const navigate = useNavigate();
 
+
   useEffect(() => {
     if (!auth) {
       navigate('/login');
