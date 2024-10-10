@@ -1,0 +1,99 @@
+{
+    "personalInfo": {
+      "first_name": "Siddharth",
+      "last_name": "Upase",
+      "email": "supase@hawk.iit.edu",
+      "phone": "+1 312 7219920",
+      "location": "Chicago, IL, USA"
+    },
+    "socials": {
+      "linkedin": "https://www.linkedin.com/in/siddharthaupase",
+      "github": "",
+      "portfolio": ""
+    },
+    "education": [
+      {
+        "college": "Illinois Institute of Technology",
+        "degree": "Masters in Computer Science",
+        "startDate": "Jan 2023",
+        "endDate": "Dec 2024",
+        "courses": [
+          "Advanced Artificial Intelligence",
+          "Design and Analysis of Algorithms",
+          "Software Engineering",
+          "Advanced Database Organization"
+        ],
+        "gpa": "4.0",
+        "major": "Computer Science",
+        "minor": "",
+        "location": "Chicago, USA"
+      },
+      {
+        "college": "Maharashtra Institute of Technology WPU",
+        "degree": "Bachelor of Technology in Robotics Engineering",
+        "startDate": "Jun 2018",
+        "endDate": "Jul 2022",
+        "courses": [],
+        "gpa": "3.73",
+        "major": "Robotics Engineering",
+        "minor": "",
+        "location": "Pune, India"
+      }
+    ],
+    "workExperience": [
+      {
+        "company": "Illinois Institute of Technology",
+        "startDate": "Mar 2023",
+        "endDate": "Present",
+        "description": "• Worked as a Research Assistant, focusing on developing a ground-up Mixed Reality application tailored for Microsoft's Hololens platform. • Designed and implemented an innovative application that enables construction supervisors to efficiently navigate through complex construction sites, all within confined physical spaces. • Utilized the Mixed Reality Toolkit within the Unity development environment, employing the C# programming language to create an immersive and functional solution.",
+        "jobTitle": "Research Assistant – Mixed Reality Developer",
+        "location": "Chicago, USA"
+      },
+      {
+        "company": "Funzy Kids Educational Gaming App",
+        "startDate": "Jan 2023",
+        "endDate": "Present",
+        "description": "• Conceptualized, designed, and developed Funzy, a Kids Educational app aimed at fostering problem-solving skills in kids. • Received the prestigious Teacher’s Approval Batch on Play Store from Google for the application. • Crossed 4000+ organic downloads. • Developed over 15 games from scratch using Unity game engine and C#, implementing various gameplay mechanics and interactive features. • Collaborated with parents and educators to ensure the alignment of educational content.",
+        "jobTitle": "Founder",
+        "location": "Remote"
+      },
+      {
+        "company": "Virtuality Pvt. Ltd",
+        "startDate": "Dec 2020",
+        "endDate": "Feb 2021",
+        "description": "• Contributed to the development of an edtech application focused on Augmented Reality elements. • Rewrote the entire application using C#, NodeJS, and AWS S3. • Developed engaging games and interactive content for children's learning. • Optimized the application's performance and user experience. • Successfully implemented AR technology to enhance the app's features and functionality.",
+        "jobTitle": "C# Programmer & Game Designer",
+        "location": "Pune, India"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Funzy Kids Educational App",
+        "description": "• As a solo developer conceptualized, designed, and developed Funzy, a Kids Educational app aimed at fostering problem-solving skills in kids.",
+        "link": "https://linktr.ee/supase.funzy"
+      }
+    ],
+    "skills": [
+      ["Programming Languages", ["C#", "C++", "Java"]],
+      ["Programming Concepts", ["Object-Oriented Programming", "Design Patterns", "SOLID principles"]],
+      ["Databases", ["MongoDB", "AWS", "MySQL", "MS SQL Server"]],
+      ["Frameworks and Technologies", ["Unity", "Unreal", ".NET", "WPF", "ReactJS", "NodeJS", "Flutter"]]
+    ],
+    "achievements": [
+      {
+        "title": "$7K Revenue",
+        "description": "Generated over $7K in revenue through in-game advertisements in previous games.",
+        "date": ""
+      },
+      {
+        "title": "Children's Educational App",
+        "description": "Successfully published Kids Educational App (Funzy) on both the App Store and Play Store. Gained 2000+ organic downloads and a teacher’s approval batch from Google.",
+        "date": ""
+      },
+      {
+        "title": "Hack Real Time Communication Hackathon Winner",
+        "description": "Secured 1st prize in Hack Real Time Communication Hackathon organized at IIT Chicago.",       
+        "date": ""
+      }
+    ]
+  }

@@ -20,6 +20,7 @@ import ResumePreview from './ResumePreviewWrapper';
 import { storeResume } from '../Models/addInfoModels';
 import KeywordsDialog from './KeywordsDialog';
 import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
+//import a json file with the resume data
 
 
 
@@ -194,6 +195,26 @@ useEffect(() => {
     useEffect(() => {
         const currentData = localStorage.getItem('current_resume_data');
 
+        //use resume data from the json file and set the sections to the default sections
+        // if (resume) {
+        //     setKeywords(resume.keywords);
+        //     setJobDescription(resume.jobDescription);
+        //     setPersonalInfo(resume.personalInfo);
+        //     setSocials(Array.isArray(resume.socials) ? resume.socials : [
+        //         { platform: 'linkedin', url: '' },
+        //         { platform: 'github', url: '' },
+        //         { platform: 'portfolio', url: '' }
+        //     ]);
+        //     setEducation(resume.education);
+        //     setWorkExperience(resume.workExperience);
+        //     setProjects(resume.projects);
+        //     setSkills(resume.skills);
+        //     setAchievements(resume.achievements);
+        //     setName(resume.name);
+
+           
+            
+        // }
 
         if (currentData) {
             const data = JSON.parse(currentData);
@@ -550,6 +571,8 @@ useEffect(() => {
             )}
             {fullView && (
                 <div className="fixed inset-0 bg-white z-50 overflow-auto">
+
+                    
                     <Resume 
                     previewMode={false}
                        previewData={
@@ -568,12 +591,20 @@ useEffect(() => {
                        }
                        
                     />
-                    <button 
-                        className="fixed top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded" 
+
+                    <button
+                        className="fixed top-4 right-10 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
                         onClick={() => setfullView(false)}
                     >
                         Close
                     </button>
+                    <button
+                        className="fixed top-4 left-10 bg-gray-200 hover:bg-gray-400 text-black px-4 py-2 rounded"
+                        onClick={() => setfullView(false)}
+                    >
+                        🔙
+                    </button>
+                    
                 </div>
             )
             }

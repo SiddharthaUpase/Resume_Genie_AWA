@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const EducationForm = ({ education, setEducation }) => {
-  const [educations, setEducations] = useState(education.length > 0 ? education : [
-    { college: '', degree: '', startDate: '', endDate: '', courses: [], gpa: '', major: '', minor: '' }
-  ]);
+  const [educations, setEducations] = useState(education.length > 0 ? education : [ ]);
   const [currentCourse, setCurrentCourse] = useState('');
 
   useEffect(() => {
@@ -51,17 +49,22 @@ const EducationForm = ({ education, setEducation }) => {
   };
 
   const handleDeleteEducation = (index) => {
-    if (educations.length > 1) {
       const newEducations = educations.filter((_, i) => i !== index);
       setEducations(newEducations);
-    }
+  };
+  const displayMonthYear = (date) => {
+    
+    if(!date) return '';
+    //convert  YYYY-MM-DD to YYYY-MM
+    return date.slice(0, 7);
+
   };
 
   return (
     <div className="flex flex-col items-start space-y-4 max-w-3xl mx-auto bg-white">
       {educations.map((edu, index) => (
         <div key={index} className="space-y-4 p-4 border border-gray-200 rounded-lg relative w-full">
-          {educations.length > 1 && (
+
             <button
               onClick={() => handleDeleteEducation(index)}
               className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
@@ -71,7 +74,6 @@ const EducationForm = ({ education, setEducation }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          )}
 
           <div className="grid grid-cols-2 gap-4">
             {/* College input */}
@@ -163,7 +165,7 @@ const EducationForm = ({ education, setEducation }) => {
                 type="month"
                 id={`startDate-${index}`}
                 name="startDate"
-                value={edu.startDate}
+                value={displayMonthYear(edu.startDate)}
                 onChange={(e) => handleInputChange(index, e)}
                 className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
               />
@@ -175,7 +177,7 @@ const EducationForm = ({ education, setEducation }) => {
                 type="month"
                 id={`endDate-${index}`}
                 name="endDate"
-                value={edu.endDate}
+                value={displayMonthYear(edu.endDate)}
                 onChange={(e) => handleInputChange(index, e)}
                 className={`block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 ${edu.endDate === 'Present' ? 'bg-gray-200' : ''}`}
                 disabled={edu.endDate === 'Present'}

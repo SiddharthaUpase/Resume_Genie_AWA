@@ -27,15 +27,23 @@ export const rewriteAchievement = async (achievement) => {
 };
 
 
-export const rewriteProjectDescription = async (description, customPrompt) => {
-    const response = await fetch(`${currentApiUrl}/rewrite_project_description`, {
+
+
+export const addPointToDescription = async (description, vague_statement) => {
+    //make a post request to the server
+    //send the description and vague statement
+    //return the response
+
+    console.log('Description:', description);
+    console.log('Vague statement:', vague_statement);
+    const response = await fetch(`${currentApiUrl}/add_point_to_description`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            project_description: description,
-            prompt: customPrompt || 'Rewrite the project description in bullet points format.',
+            description: description,
+            vague_statement: vague_statement,
         }),
     });
 
@@ -44,10 +52,11 @@ export const rewriteProjectDescription = async (description, customPrompt) => {
     }
 
     const data = await response.json();
-    return data.project_description;
+    return data.detailed_point;
+
 };
 
-export const rewriteWorkDescription = async (description, customPrompt) => {
+export const rewriteDescription = async (description) => {
     //convert the
 
     const response = await fetch(`${currentApiUrl}/rewrite_description`, {
@@ -56,8 +65,7 @@ export const rewriteWorkDescription = async (description, customPrompt) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            description: description,
-            prompt: customPrompt ? encodeURIComponent(customPrompt) : 'Rewrite the project description in bullet points format.',        }),
+            description: description}),
     });
 
     if (!response.ok) {
@@ -65,9 +73,42 @@ export const rewriteWorkDescription = async (description, customPrompt) => {
     }
 
     const data = await response.json();
-    return data.bullet_points;
-};
+    const jsonString = data.bullet_points;
+    console.log(jsonString);
+    const descriptionArray = JSON.parse(jsonString);
+    console.log(descriptionArray);
+    return descriptionArray;
+    
+    };
 
+
+    
+    export const rewriteSpecificLine = async (selectedLine, selectedText, prompt,description) => {
+        console.log('Selected line:', selectedLine);
+        console.log('Selected text:', selectedText);
+        console.log('Prompt:', prompt);
+        console.log('Description:', description);
+
+        const response = await fetch(`${currentApiUrl}/rewrite_specific_line`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedText: selectedText,
+                selectedLine: selectedLine,
+                prompt: prompt || 'Rewrite the selected line.',
+                description: description,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data.rewritten_text;
+    };
 
 export const storeResume = async (newResume, set_id) => {
     if(!set_id){

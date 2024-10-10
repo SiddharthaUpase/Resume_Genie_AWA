@@ -13,16 +13,9 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const location = useLocation();
 
     //check if previewData has key words
-
-
-
-
     const data = previewData || location.state.data;
 
     const { personalInfo, socials, education, workExperience, projects, skills, achievements, sections, keywords } = data;
-
-
-
 
     // Flexible sections
     const flexibleSections = sections;
@@ -52,25 +45,6 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
     };
 
-    // Helper function to process descriptions
-    const processDescription = (description) => {
-        return description
-            .split('\n')
-            .map(line => line.replace(/^•\s*/, ''))
-            .join('\n');
-    };
-
-    // Process descriptions for work experiences and projects
-    const processedWorkExperience = workExperience.map(exp => ({
-        ...exp,
-        description: processDescription(exp.description)
-    }));
-
-    const processedProjects = projects.map(project => ({
-        ...project,
-        description: processDescription(project.description)
-    }));
-
 
     // Function to handle PDF download
     const handlePrint = useReactToPrint({
@@ -95,10 +69,10 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         fontWeight: 'bold'
     };
 
-    const DateComponent = ({ startDate, endDate }) => {
+    const DateComponent = ({ startMonth, endMonth }) => {
         return (
             <span style={dateStyle}>
-                {formatDate(startDate)} - {formatDate(endDate)}
+                {formatDate(startMonth)} - {formatDate(endMonth)}
             </span>
         );
     };
@@ -139,31 +113,26 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                 <div key={index} className="mb">
                     <div className="flex justify-between">
                         <strong style={subHeaderStyle}>{exp.jobTitle}</strong>
-                        <DateComponent startDate={exp.startDate} endDate={exp.endDate} />
+                        <DateComponent startMonth={exp.startMonth} endMonth={exp.endMonth} />
                     </div>
                     <div className='flex space-x-1'>
                         <p style={{ fontSize: '13px' }}>{exp.company}</p>
                         {exp.location && <p style={{ fontSize: '13px' }}>({exp.location})</p>}
                     </div>
                     <ul className="list-disc pl-4" style={descriptionStyle}>
-                    {typeof exp.description === 'string' && (
-                            // Define the regex for sentence splitting
-                            (() => {
-                                const sentenceEndRegex = /(?<!\d)\.(?!\d)(?!\s*[A-Z][a-z]\.)/g;
 
-                                // Split the text and process it
-                                const points = exp.description
-                                    .split(sentenceEndRegex)
-                                    .map(point => point.trim())
-                                    .filter(point => point !== '');
-
-                                return points.map((point, index) => (
-                                    <li key={index}>
-                                        {highlightText(point.endsWith('.') ? point : `${point}.`, keywords)}
-                                    </li>
-                                ));
-                            })()
+                        {Array.isArray(exp.description) ? (
+                            exp.description.map((point, index) => (
+                                <li key={index}>
+                                    {highlightText(point, keywords)}
+                                </li>
+                            ))
+                        ) : (
+                            <li>
+                                {highlightText(exp.description, keywords)}
+                            </li>
                         )}
+                    
                     </ul>
                 </div>
             ))}
@@ -172,7 +141,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
     // Similar implementation for Skills section:
     const renderSkills = (skills, keywords) => (
-        <section className="mb-2">
+        <section className="mb-1">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
                 SKILLS
             </h2>
@@ -189,7 +158,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
     // Example for Projects section:
     const renderProjects = (projects, keywords) => (
-        <section className="mb-2">
+        <section className="mb-1">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
                 PROJECTS
             </h2>
@@ -198,30 +167,23 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     <div className="flex flex-col">
                         <div className="flex justify-between">
                             <strong style={subHeaderStyle}>{project.title}</strong>
-                            <DateComponent startDate={project.startMonth} endDate={project.endMonth} />
+                            <DateComponent startMonth={project.startMonth} endMonth={project.endMonth} />
                         </div>
                         <a href={project.link} className="text-blue-600 hover:underline" style={{ fontSize: '13px' }}>
                             {project.link}
                         </a>
                     </div>
                     <ul className="list-disc pl-4" style={descriptionStyle}>
-                        {typeof project.description === 'string' && (
-                            // Define the regex for sentence splitting
-                            (() => {
-                                const sentenceEndRegex = /(?<!\d)\.(?!\d)(?!\s*[A-Z][a-z]\.)/g;
-
-                                // Split the text and process it
-                                const points = project.description
-                                    .split(sentenceEndRegex)
-                                    .map(point => point.trim())
-                                    .filter(point => point !== '');
-
-                                return points.map((point, index) => (
-                                    <li key={index}>
-                                        {highlightText(point.endsWith('.') ? point : `${point}.`, keywords)}
-                                    </li>
-                                ));
-                            })()
+                        {Array.isArray(project.description) ? (
+                            project.description.map((point, index) => (
+                                <li key={index}>
+                                    {highlightText(point, keywords)}
+                                </li>
+                            ))
+                        ) : (
+                            <li>
+                                {highlightText(project.description, keywords)}
+                            </li>
                         )}
                     </ul>
                 </div>
@@ -230,7 +192,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     );
 
     const renderAchievements = (achievements, keywords) => (
-        <section className="mb-2">
+        <section className="mb-1">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>ACHIEVEMENTS</h2>
             {achievements.map((achievement, index) => (
                 <div key={index} className="">
@@ -254,16 +216,17 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         switch (sectionType) {
             case 'Education':
                 return education.length > 0 && (
-                    <section className="mb-2">
+                    <section className="mb-1">
                         <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>EDUCATION</h2>
                         {education.map((edu, index) => (
                             <div key={index} className="mb-1">
                                 <div className="flex justify-between">
                                     <div className="flex space-x-1">
                                         <strong style={subHeaderStyle}>{edu.college}</strong>
-                                        <p style={{ fontSize: '12px' }}>({edu.location})</p>
+                                        {edu.location && <p style={{ fontSize: '12px' }}>({edu.location})</p>}
+                                
                                     </div>
-                                    <DateComponent startDate={edu.startDate} endDate={edu.endDate} />
+                                    <DateComponent startMonth={edu.startDate} endMonth={edu.endDate} />
                                 </div>
 
                                 <div className="flex space-x-1 items-center">
@@ -294,9 +257,9 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                     </section>
                 );
             case 'Work Exp.':
-                return workExperience.length > 0 && renderWorkExperience(processedWorkExperience, keywords);
+                return workExperience.length > 0 && renderWorkExperience(workExperience, keywords);
             case 'Projects':
-                return projects.length > 0 && renderProjects(processedProjects, keywords);
+                return projects.length > 0 && renderProjects(projects, keywords);
             case 'Skills':
                 return skills.length > 0 && renderSkills(skills, keywords);
             case 'Achievements':
@@ -339,11 +302,23 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         return () => window.removeEventListener('resize', checkOverflow);
     }, []);
 
+    const items = [
+        { value: personalInfo.email, label: personalInfo.email },
+        { value: personalInfo.phone, label: personalInfo.phone },
+        { value: personalInfo.location, label: personalInfo.location },
+        ...socials.map(social => ({
+          value: social.url,
+          label: social.platform,
+          isLink: true,
+          url: social.url
+        }))
+      ].filter(item => item.value);
+
     return (
         <div className='flex flex-col justify-start items-center' style={{ margin: 0, padding: 8 }}>
             <div className="w-full h-full relative">
                 <div
-                    className="w-[21.59cm] mx-auto bg-white pl-4 pr-4 pt-2 shadow-lg relative"
+                    className="w-[21.59cm] mx-auto bg-white pl-4 pr-4 pt-1.5 shadow-lg relative"
                     style={{
                         height: '27.94cm',
                         fontFamily: '"Times New Roman", Times, serif',
@@ -358,34 +333,28 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
                         <h1 className="font-bold text-center" style={{ fontSize: '16px' }}>{`${personalInfo.first_name.toUpperCase()} ${personalInfo.last_name.toUpperCase()}`}</h1>
 
-                        <div className="flex justify-center items-center text-sm" style={{ fontSize: '13px' }}>
-
-                            <div className="flex space-x-2 items-center">
-                                <span>{personalInfo.email}</span>
-                                <span className="border-l border-black h-3 mx-1"></span>
-                                <span>{personalInfo.phone}</span>
-                                <span className="border-l border-black h-3 mx-1"></span>
-                                <span>{personalInfo.location}</span>
-                                <span className="border-l border-black h-3 mx-1"></span>
-                                {socials.map((social, index) => (
-                                    social.url && (
-                                        <React.Fragment key={index}>
+                        <div className="flex justify-center items-center text-sm mt-1" style={{ fontSize: '13px' }}>
+                            <div className="flex flex-wrap items-center">
+                                {items.map((item, index) => (
+                                    <React.Fragment key={index}>
+                                        {index > 0 && <span className="border-l border-black h-3 mx-1"></span>}
+                                        {item.isLink ? (
                                             <a
-                                                href={social.url}
+                                                href={item.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-blue-600 hover:underline"
-                                                style={{ cursor: 'pointer' }} // Ensure cursor changes to pointer
-                                                onClick={() => console.log(`Opening link: ${social.url}`)} // Debugging log
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => console.log(`Opening link: ${item.url}`)}
                                             >
-                                                {social.platform}
+                                                {item.label}
                                             </a>
-                                            {index < socials.length - 1 && socials[index + 1].url && <span className="border-l border-black h-3 mx-1"></span>}
-                                        </React.Fragment>
-                                    )
+                                        ) : (
+                                            <span>{item.label}</span>
+                                        )}
+                                    </React.Fragment>
                                 ))}
                             </div>
-
                         </div>
                     </header>
 

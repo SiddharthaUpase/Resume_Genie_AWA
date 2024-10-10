@@ -114,6 +114,7 @@ const BaseResume = () => {
         try {
           const jsonResume = await getJsonResume(pdfText);
           setJsonString(jsonResume);
+          console.log(jsonResume);
         } catch (error) {
           console.error('Error fetching JSON resume:', error);
         } finally {
@@ -242,7 +243,7 @@ const BaseResume = () => {
           className="bg-blue-500 rounded-lg shadow-md overflow-hidden cursor-pointer"
           whileHover={{ scale: 1.03 }}
           transition={{ duration: 0.2 }}
-          onClick={() => handleDialog(true)}
+          onClick={() => handleCreateWithAI()}
         >
           <div className="p-6 flex flex-col items-center justify-center h-full text-white">
             <PlusCircle size={48} className="mb-4" />

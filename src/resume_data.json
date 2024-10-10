@@ -1,118 +1,145 @@
 {
   "personalInfo": {
-    "first_name": "Siddhartha",
-    "last_name": "Upase",
-    "email": "supase@hawk.iit.edu",
-    "phone": "3127219920",
-    "location": "Chicago"
+    "first_name": "Akshat",
+    "last_name": "Patel",
+    "email": "akshat64@umd.edu",
+    "phone": "",
+    "location": ""
   },
   "socials": {
-    "linkedin": "https://www.linkedin.com/in/siddhartha-upase-a6963617a/",
-    "github": "https://github.com/SiddharthaUpase",
-    "portfolio": "test"
+    "linkedin": "linkedin.com/in/akshat-patel64",
+    "github": "akshatpatel64.github.io",
+    "portfolio": "medium.com/@patelaksht24"
   },
   "education": [
     {
-      "college": "Illinois Institute of Technology",
-      "degree": "Masters in Computer Science",
-      "startDate": "2024-09-01",
-      "endDate": "Present",
+      "college": "University of Maryland, College Park, MD, USA",
+      "degree": "Master of Engineering in Cybersecurity",
+      "startDate": "August 2023",
+      "endDate": "May 2025",
       "courses": [
-        "Advanced AI",
-        "Machine Learning",
-        "Advanced Database Management"
+        "Cloud Security",
+        "Information Assurance",
+        "Network Security",
+        "Security Tools for Information Security"
       ],
-      "gpa": "3.75",
-      "major": "Computer Science",
+      "gpa": "",
+      "major": "",
       "minor": "",
-      "location": "Chicago, IL, USA"
+      "location": "College Park, MD, USA"
     },
     {
-      "college": "Maharashtra Institute of Technology",
-      "degree": "B.Tech",
-      "startDate": "2024-09-20",
-      "endDate": "2024-09-28",
-      "courses": [],
-      "gpa": "3.5",
-      "major": "Mechanical engineering",
+      "college": "Charotar University of Science and Technology, Anand, GJ, India",
+      "degree": "Bachelor of Technology in Electronics and Communication",
+      "startDate": "July 2019",
+      "endDate": "May 2023",
+      "courses": ["EC351: Python", "EC441: Embedded Systems"],
+      "gpa": "9.64/10",
+      "major": "Electronics and Communication",
       "minor": "",
-      "location": "Pune, India "
+      "location": "Anand, GJ, India"
     }
   ],
   "workExperience": [
     {
-      "company": "Funzy",
-      "startDate": "2024-09-06",
-      "endDate": "2024-09-28",
-      "description": "• Developed over 15 engaging educational games tailored specifically for children, enhancing learning experiences.\n• Achieved the successful sale of an innovative educational app, showcasing expertise in the ed-tech market.\n• Led the end-to-end development process, ensuring all educational games met high-quality standards and user engagement.\n• Built a robust portfolio of kids' games, contributing to a compelling app that was well-received in the market.",
-      "jobTitle": "Founder",
-      "location": "Chicago, IL, USA"
+      "company": "University of Maryland",
+      "startDate": "June 2024",
+      "endDate": "August 2024",
+      "description": [
+        "Successfully resolved over 200 IT tickets, maintaining 99.9% system uptime across the campus.",
+        "Updated IDS rules, reducing potential security threats by 25%.",
+        "Ensured 100% device compliance with MDM (Intune, Kandji, JAMF Pro) policies, resolving non-compliance issues within 24 hours using Bomgar remote assistance.",
+        "Defined department-specific application allow lists, reducing unauthorized software downloads and reduction in ABR.",
+        "Conducted regular internal security audits and compliance checks, ensuring alignment with regulations including HIPAA, PCI, and SOX.",
+        "Led internal data inventory audits, classifying over 5,000 system and software entries, and ensuring regulatory compliance. Coordinated with 200+ staff members and managed vendor communications on data retention policies.",
+        "Conducted 10+ seminars on social engineering and typosquatting, increasing employee awareness and reducing incident reports by 100%."
+      ],
+      "jobTitle": "Information Security Engineer and IT Support Intern",
+      "location": "College Park, MD, USA"
     },
     {
-      "company": "Iconsens Lab",
-      "startDate": "2024-09-01",
-      "endDate": "2024-09-21",
-      "description": "• Developed multiple MR applications tailored specifically for the unique needs of construction site workers\n• Led a team to enhance MR apps, ensuring higher efficiency and safety in the construction processes\n• Achieved seamless integration of MR technologies, resulting in a 20% reduction in task execution time\n• Built user-friendly interfaces in MR apps that improved worker engagement and operational accuracy on-site",
-      "jobTitle": "Software Developer",
-      "location": "Chicago, IL, USA"
+      "company": "Charotar University of Science and Technology—Dotsquares",
+      "startDate": "Jan 2023",
+      "endDate": "May 2023",
+      "description": [
+        "Led the development of an advanced Intrusion Detection System, enhancing network security by detecting and restricting over 95% of unauthorized network activities using customized Snort rules.",
+        "Engineered a user-friendly interface for the IDS, facilitating the analysis of over 10,00,000 network packets daily, streamlining threat detection and response.",
+        "Conducted comprehensive cybersecurity research on the e-governance website, identifying and fortifying 30+ security loopholes, significantly boosting the site’s defense against cyber threats."
+      ],
+      "jobTitle": "Cybersecurity Intern",
+      "location": "Anand—Ahmedabad, GJ, IN"
     }
   ],
   "projects": [
     {
-      "title": "Tero AI",
-      "description": "• Developed an advanced cold emailing tool specifically tailored to streamline SDR outreach efforts.\n• Integrated personalization features within the tool to enhance engagement rates and improve response rates.\n• Automated follow-up sequences to ensure consistent communication and reduced manual effort for SDRs.\n• Implemented analytics to track email performance, providing SDRs actionable insights for optimizing campaigns.",
-      "link": "http://teroai.tech/"
+      "title": "Security Assessment and Robust AWS Architecture Design for Healthcare Application",
+      "description": [
+        "Identified key vulnerabilities in cloud infrastructure, VMs, and network security.",
+        "Enhanced data security and aligned with HIPAA compliance standards.",
+        "Incorporated multi-AZ deployments, secure data storage solutions, and advanced AWS services to ensure high availability and disaster recovery readiness.",
+        "Enhanced security posture, achieved full HIPAA compliance, and improved system availability and disaster recovery readiness."
+      ],
+      "link": ""
     },
     {
-      "title": "Resume Genie",
-      "description": "• Developed an AI tool to generate professional resumes customized to job descriptions for increased relevance.\n• Implemented advanced NLP algorithms to match resume content accurately with specific job roles and requirements.\n• Led the implementation of AI tools to automate resume content generation, streamlining the resume creation process.",
+      "title": "CMMC 2.0 Level 1 Compliance and Security Enhancement for Web Application Infrastructure",
+      "description": [
+        "Identified and mitigated 18+ security vulnerabilities/non-compliance issues.",
+        "Ensured compliance with CMMC 2.0 Level 1 and enhanced defense against cyber threats.",
+        "Achieved CMMC 2.0 Level 1 compliance, reduced unauthorized access attempts by 99.9%, and improved overall security posture."
+      ],
+      "link": ""
+    },
+    {
+      "title": "The Security Architecture Redesign and Proposal for CustomerFirst Bank",
+      "description": [
+        "Redesigned Security Architecture, improving threat detection by 40% and reducing vulnerabilities by 30% within a $500K budget.",
+        "Ensured 100% Compliance with GLBA and PCI-DSS, achieving a 100% audit pass rate for the bank’s systems.",
+        "Enhanced Endpoint Security for remote devices, resulting in 99.9% compliance across Windows, Mac, and Linux platforms."
+      ],
       "link": ""
     }
   ],
   "skills": [
     [
-      "Front-end Development",
-      [
-        "HTML",
-        "CSS",
-        "React",
-        "Vue.js"
-      ]
+      "Programming Languages",
+      ["Python", "C", "C++", "SQL", "JAVA", "Perl", "Shell Scripting"]
     ],
     [
-      "Back-end Development",
-      [
-        "Node.js",
-        "Python",
-        "C#",
-        "Java",
-        "SQL"
-      ]
+      "Security Frameworks",
+      ["HIPAA", "GDPR", "ISO/IEC 27001", "NIST", "MITRE ATT&CK", "ITIL"]
     ],
     [
-      "Mobile Development",
+      "Tools & Technologies",
       [
-        "React Native",
-        "Flutter",
-        "Swift"
+        "AWS",
+        "MS Azure",
+        "Google Cloud",
+        "Wireshark",
+        "Snort",
+        "Rapid7",
+        "Zenmap",
+        "OWASP ZAP",
+        "Metasploit Framework",
+        "Nessus",
+        "sqlmap",
+        "JAMF Pro",
+        "Splunk",
+        "Security Onion"
       ]
     ]
   ],
   "achievements": [
     {
-      "title": "Stand Up Comedian",
-      "description": "Performed as a successful stand-up comedian captivating diverse audiences.",
+      "title": "Certificates",
+      "description": "CompTIA Security+, ISC2 CC, Ethical hacking essential, Network Security Essentials (EC-Council)",
       "date": ""
     },
     {
-      "title": "Hackathon Winner",
-      "description": "Won the first prize in the Hackathon organized by the college.",
-      "date": ""
-    },
-    {
-      "title": "Public Speaker",
-      "description": "Delivered impactful speeches at various events and conferences.",
+      "title": "Publication",
+      "description": "Privacy Challenges and Solutions in implementing Searchable Encryption for Cloud Storage, Springer",
       "date": ""
     }
-  ]
+  ],
+  "name": "Akshat Patel"
 }

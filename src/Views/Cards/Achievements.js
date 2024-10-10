@@ -5,7 +5,7 @@ import { use } from 'framer-motion/client';
 
 const AchievementsForm = ({ achievements_parent, onChange }) => {
   const [achievements, setAchievements] = useState(
-    achievements_parent || [{ id: Date.now(), title: '', description: '', date: '' }]
+    achievements_parent || []
   );
 
   const [loading, setLoading] = useState({});
