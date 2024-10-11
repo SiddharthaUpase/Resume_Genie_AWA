@@ -69,6 +69,56 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         fontWeight: 'bold'
     };
 
+    // Update the parseFormattedText function to use Tailwind classes
+const parseFormattedText = (text) => {
+    const patterns = [
+      // Bold italic underline
+      { regex: /\*\*_\*(.*?)\*_\*\*/g, style: 'font-bold italic underline' },
+      // Bold italic
+      { regex: /\*\*\*(.*?)\*\*\*/g, style: 'font-bold italic' },
+      // Bold underline
+      { regex: /\*\*_(.*?)_\*\*/g, style: 'font-bold underline' },
+      // Italic underline
+      { regex: /\*_(.*?)_\*/g, style: 'italic underline' },
+      // Bold
+      { regex: /\*\*(.*?)\*\*/g, style: 'font-bold' },
+      // Italic
+      { regex: /\*(.*?)\*/g, style: 'italic' },
+      // Underline
+      { regex: /__(.*?)__/g, style: 'underline' },
+    ];
+  
+    let parts = [{ text, style: '' }];
+  
+    patterns.forEach(({ regex, style }) => {
+      parts = parts.flatMap(part => {
+        if (!part.style) {
+          const splits = part.text.split(regex);
+          return splits.map((text, i) => {
+            if (i % 2 === 0) return { text, style: '' };
+            // Convert style string to Tailwind classes
+            const tailwindClasses = style.split(' ').map(s => {
+              switch (s) {
+                case 'font-bold': return 'font-bold';
+                case 'italic': return 'italic';
+                case 'underline': return 'underline';
+                default: return '';
+              }
+            }).filter(Boolean).join(' ');
+            return { text, style: tailwindClasses };
+          });
+        }
+        return [part];
+      });
+    });
+  
+    return parts.map((part, index) => (
+      <span key={index} className={part.style}>
+        {part.text}
+      </span>
+    ));
+  };
+
     const DateComponent = ({ startMonth, endMonth }) => {
         return (
             <span style={dateStyle}>
@@ -77,32 +127,30 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         );
     };
 
-    const highlightText = (text, keywords) => {
-        if (!keywords || keywords.length === 0) return text;
-        if (!previewMode) return text;
-
-        // Create a regex pattern from keywords
-        const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
-
-        // Split the text into parts that should be highlighted and those that shouldn't
-        const parts = text.split(pattern);
-
-        return parts.map((part, index) => {
-            // Check if this part matches any keyword (case-insensitive)
-            const isKeyword = keywords.some(keyword =>
-                part.toLowerCase() === keyword.toLowerCase()
-            );
-
-            return isKeyword ? (
-                <span
-                    key={index}
-                    className="bg-yellow-200 px-0.5 rounded"
-                >
-                    {part}
-                </span>
-            ) : part;
-        });
-    };
+// Update the highlightText function to handle both keywords and Tailwind formatting
+const highlightText = (text, keywords) => {
+    if (!keywords || keywords.length === 0) return parseFormattedText(text);
+    if (!previewMode) return parseFormattedText(text);
+  
+    const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
+    const parts = text.split(pattern);
+  
+    return parts.map((part, index) => {
+      const isKeyword = keywords.some(keyword =>
+        part.toLowerCase() === keyword.toLowerCase()
+      );
+  
+      if (isKeyword) {
+        return (
+          <span key={index} className="bg-yellow-200 px-0.5 rounded">
+            {part}
+          </span>
+        );
+      }
+  
+      return parseFormattedText(part);
+    });
+  };
 
     const renderWorkExperience = (experience, keywords) => (
         <section className="mb-2">

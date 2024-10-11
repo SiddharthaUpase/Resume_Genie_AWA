@@ -46,13 +46,13 @@
       "startDate": "June 2024",
       "endDate": "August 2024",
       "description": [
-        "Successfully resolved over 200 IT tickets, maintaining 99.9% system uptime across the campus.",
-        "Updated IDS rules, reducing potential security threats by 25%.",
-        "Ensured 100% device compliance with MDM (Intune, Kandji, JAMF Pro) policies, resolving non-compliance issues within 24 hours using Bomgar remote assistance.",
-        "Defined department-specific application allow lists, reducing unauthorized software downloads and reduction in ABR.",
-        "Conducted regular internal security audits and compliance checks, ensuring alignment with regulations including HIPAA, PCI, and SOX.",
-        "Led internal data inventory audits, classifying over 5,000 system and software entries, and ensuring regulatory compliance. Coordinated with 200+ staff members and managed vendor communications on data retention policies.",
-        "Conducted 10+ seminars on social engineering and typosquatting, increasing employee awareness and reducing incident reports by 100%."
+        "Successfully resolved over **200 IT tickets**, maintaining **99.9%** system uptime across the campus.",
+        "Updated *IDS* rules, reducing potential security threats by **25%**.",
+        "Ensured **100% device compliance** with *MDM* (*Intune*, *Kandji*, *JAMF Pro*) policies, resolving non-compliance issues within **24 hours** using *Bomgar* remote assistance.",
+        "Defined department-specific application __allow lists__, reducing unauthorized software downloads and **_*significant reduction*_** in *ABR*.",
+        "Conducted regular internal **security audits** and compliance checks, ensuring alignment with regulations including *HIPAA*, *PCI*, and *SOX*.",
+        "Led internal __data inventory audits__, classifying over **5,000** system and software entries, and ensuring regulatory compliance. Coordinated with **200+** staff members and managed vendor communications on data retention policies.",
+        "Conducted **10+ seminars** on *social engineering* and *typosquatting*, increasing employee awareness and reducing incident reports by **100%**."
       ],
       "jobTitle": "Information Security Engineer and IT Support Intern",
       "location": "College Park, MD, USA"

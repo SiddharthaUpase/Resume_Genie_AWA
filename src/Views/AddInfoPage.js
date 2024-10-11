@@ -197,6 +197,7 @@ useEffect(() => {
 
         //use resume data from the json file and set the sections to the default sections
         // if (resume) {
+        //     console.log('Resume data:', resume);
         //     setKeywords(resume.keywords);
         //     setJobDescription(resume.jobDescription);
         //     setPersonalInfo(resume.personalInfo);
@@ -216,7 +217,8 @@ useEffect(() => {
             
         // }
 
-        if (currentData) {
+        // else
+         if (currentData) {
             const data = JSON.parse(currentData);
             setKeywords(data.keywords);
             setJobDescription(data.jobDescription);

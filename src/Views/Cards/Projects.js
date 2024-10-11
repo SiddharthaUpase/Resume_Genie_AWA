@@ -33,7 +33,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
     const [selectedLineIndex, setSelectedLineIndex] = useState(null);
     const [isRewriting, setIsRewriting] = useState(false);
     const [lineRewriteState, setLineRewriteState] = useState({});
-
+    const [showPrompt, setShowPrompt] = useState(false);
 
       // State for GIF visibility
     const [showGif, setShowGif] = useState(false);
@@ -80,16 +80,20 @@ const ProjectForm = ({ projects_data, onChange }) => {
 
     const handleSelection = (e, proj,index) => {
       const selection = window.getSelection();
-      console.log('Setting overlay for index:', index);
+      
 
       if (selection && selection.toString().length === 0) {
         setShowOverlay(prev => prev.map((overlay, i) => i === index ? false : overlay));
         return;
       }
-      const selectedText = e.target.value.substring(
-        e.target.selectionStart,
-        e.target.selectionEnd
-      );
+      let start = e.target.selectionStart;
+      let end = e.target.selectionEnd;
+      let selectedText = e.target.value.substring(start, end);
+      if (selectedText.includes('\n')) {
+        return;
+      }
+
+
   
       const findSelectedTextIndex = (description, selectedText) => {
         const points = Array.isArray(description) ? description : description.split('\n');
@@ -100,7 +104,13 @@ const ProjectForm = ({ projects_data, onChange }) => {
       setSelectedLineIndex(line_index);
   
       if (selectedText.length >= 10) {
-        setSelectedText(selectedText);
+        setShowPrompt(true);
+        //print the show overlay
+      } else {
+        setShowPrompt(false);
+        //setShowOverlay(prev => prev.map((overlay, i) => i === index ? false : overlay));
+      }
+      setSelectedText(selectedText);
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
         setOverlayPosition({
@@ -108,12 +118,62 @@ const ProjectForm = ({ projects_data, onChange }) => {
           y: rect.y + window.scrollY - 40
         });
       setShowOverlay(prev => prev.map((overlay, i) => i === index ? true : overlay));
-        //print the show overlay
-      } else {
-        setShowOverlay(prev => prev.map((overlay, i) => i === index ? false : overlay));
-        setSelectedLineIndex(null);
-      }
     };
+
+  const handleBold = (e, proj, index) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      const selectedText = selection.toString();
+      const boldText = selectedText.includes('**') ? selectedText.replace(/\*\*/g, ' ') : ` **${selectedText}** `;
+
+      const newDescription = proj.description.map((line) =>
+        line.includes(selectedText) ? line.replace(selectedText, boldText) : line
+      );
+
+      const newProjects = projects.map((proj, i) =>
+        i === index ? { ...proj, description: newDescription } : proj
+      );
+
+      setProjects(newProjects);
+    }
+  };
+
+  const handleItalic = (e, proj, index) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      const selectedText = selection.toString();
+      const italicText = selectedText.includes('*') && !selectedText.includes('**') ? selectedText.replace(/\*/g, ' ') : ` *${selectedText}* `;
+
+      const newDescription = proj.description.map((line) =>
+        line.includes(selectedText) ? line.replace(selectedText, italicText) : line
+      );
+
+      const newProjects = projects.map((proj, i) =>
+        i === index ? { ...proj, description: newDescription } : proj
+      );
+
+      setProjects(newProjects);
+    }
+  };
+
+  const handleUnderline = (e, proj, index) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      const selectedText = selection.toString();
+      const underlineText = selectedText.includes('__') ? selectedText.replace(/__/g, ' ') : ` __${selectedText}__ `;
+
+      const newDescription = proj.description.map((line) =>
+        line.includes(selectedText) ? line.replace(selectedText, underlineText) : line
+      );
+
+      const newProjects = projects.map((proj, i) =>
+        i === index ? { ...proj, description: newDescription } : proj
+      );
+
+      setProjects(newProjects);
+    }
+  };
+
 
     const handleLineRewrite = async (index, lineIndex) => {
       setIsRewriting(true);
@@ -552,6 +612,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
                           <p className="text-sm text-blue-800 font-semibold truncate">
                             "{selectedText.length > 50 ? `${selectedText.substring(0, 70)}...` : selectedText}"
                           </p>
+                          {showPrompt && (
                           <div className="flex items-center space-x-2">
                             <div className="text-sm text-gray-700">No.</div>
                             <input
@@ -571,6 +632,8 @@ const ProjectForm = ({ projects_data, onChange }) => {
                               value={prompt}
                               onChange={(e) => setPrompt(e.target.value)}
                             />
+                            
+                           
                             {!lineRewriteState.rewritten ? (
                               <button
                                 onClick={() => handleLineRewrite(index, selectedLineIndex)}
@@ -597,7 +660,30 @@ const ProjectForm = ({ projects_data, onChange }) => {
                                 </button>
                               </div>
                             )}
-                          </div>
+                          </div>)}
+                            <div className='flex space-x-2'>
+                              <button
+                              onClick={(e) => handleBold(e, project, index)}
+                                className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
+                                title="Bold"
+                              >
+                                <b>B</b>
+                              </button>
+                              <button
+                                 onClick={(e) => handleItalic(e, project, index)}
+                                className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
+                                title="Italic"
+                              >
+                                <i>I</i>
+                              </button>
+                              <button
+                                 onClick={(e) => handleUnderline(e, project, index)}
+                                className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
+                                title="Underline"
+                              >
+                                <u>U</u>
+                              </button>
+                            </div>
                         </div>
                       )
                     )}

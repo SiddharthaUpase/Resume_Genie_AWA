@@ -15,6 +15,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
   const [initialDescriptions, setInitialDescriptions] = useState([]);
   const [isAddingPoint, setIsAddingPoint] = useState(false);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
     if (workExperience && workExperience.length > 0) {
@@ -72,15 +73,14 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
     
     if (selection && selection.toString().length === 0) {
       setShowOverlay(prev => prev.map((overlay, i) => i === index ? false : overlay));
+      return;
     }
     const selectedText = e.target.value.substring(
       e.target.selectionStart,
       e.target.selectionEnd
     );
     if (selectedText.includes('\n')) {
-      alert('Please select only one point at a time.');
-      // Clear the selection
-      e.target.selectionStart = e.target.selectionEnd;
+
 
       return;
     }
@@ -93,25 +93,73 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
     setSelectedLineIndex(line_index);
 
     if (selectedText.length >= 10) {
-      setSelectedText(selectedText);
-
-      // Get the selection coordinates
+      setShowPrompt(true);
+      //print the show overlay
+    } else {
+      setShowPrompt(false);
+      //setShowOverlay(prev => prev.map((overlay, i) => i === index ? false : overlay));
+    }
+    setSelectedText(selectedText);
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-
-      // Position the overlay above the selection
       setOverlayPosition({
         x: rect.x + window.scrollX,
-        y: rect.y + window.scrollY - 40 // 40px above the selection
+        y: rect.y + window.scrollY - 40
       });
+    setShowOverlay(prev => prev.map((overlay, i) => i === index ? true : overlay));
+  };
 
-      setShowOverlay(prev => prev.map((overlay, i) => i === index ? true : overlay));
-      console.log(overlayPosition);
-      console.log(showOverlay);
-    } else {
-      setShowOverlay(prev => prev.map((overlay, i) => i === index ? false : overlay));
-      setSelectedLineIndex(null);
+  const handleBold = (e, exp, index) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      const selectedText = selection.toString();
+      const boldText = selectedText.includes('**') ? selectedText.replace(/\*\*/g, ' ') : ` **${selectedText}** `;
 
+      const newDescription = exp.description.map((line) =>
+        line.includes(selectedText) ? line.replace(selectedText, boldText) : line
+      );
+
+      const newExperiences = experiences.map((exp, i) =>
+        i === index ? { ...exp, description: newDescription } : exp
+      );
+
+      setExperiences(newExperiences);
+    }
+  };
+
+  const handleItalic = (e, exp, index) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      const selectedText = selection.toString();
+      const italicText = selectedText.includes('*') && !selectedText.includes('**') ? selectedText.replace(/\*/g, ' ') : ` *${selectedText}* `;
+
+      const newDescription = exp.description.map((line) =>
+        line.includes(selectedText) ? line.replace(selectedText, italicText) : line
+      );
+
+      const newExperiences = experiences.map((exp, i) =>
+        i === index ? { ...exp, description: newDescription } : exp
+      );
+
+      setExperiences(newExperiences);
+    }
+  };
+
+  const handleUnderline = (e, exp, index) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      const selectedText = selection.toString();
+      const underlineText = selectedText.includes('__') ? selectedText.replace(/__/g, ' ') : ` __${selectedText}__ `;
+
+      const newDescription = exp.description.map((line) =>
+        line.includes(selectedText) ? line.replace(selectedText, underlineText) : line
+      );
+
+      const newExperiences = experiences.map((exp, i) =>
+        i === index ? { ...exp, description: newDescription } : exp
+      );
+
+      setExperiences(newExperiences);
     }
   };
 
@@ -604,78 +652,86 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                           <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
                         </div>
                       ) : (
-                        <div className="absolute z-10 bg-blue-50 shadow-lg rounded-lg p-4 flex flex-col gap-3 border border-blue-200 max-w-md" style={{ top: 'calc(50% - 10rem)', left: 'calc(50% - 15rem)' }}>
-                          <p className="text-sm text-blue-800 font-semibold truncate">
-                            "{selectedText.length > 50 ? `${selectedText.substring(0, 70)}...` : selectedText}"
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            <div className="text-sm text-gray-700">No.</div>
-                            <input
-                              type="number"
-                              value={selectedLineIndex !== null ? selectedLineIndex + 1 : ''}
-                              onChange={(e) => {
-                                const newIndex = parseInt(e.target.value, 10);
-                                setSelectedLineIndex(!isNaN(newIndex) ? newIndex : null);
-                              }}
-                              className="w-16 text-sm border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                              placeholder="Line #"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Prompt..."
-                              className="w-full text-sm border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                              value={prompt}
-                              onChange={(e) => setPrompt(e.target.value)}
-                            />
-                            {/* <button
-                              onClick={() => document.execCommand('bold')}
-                              className="p-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full transition"
-                              title="Bold"
-                            >
-                              <b>B</b>
-                            </button>
-                            <button
-                              onClick={() => document.execCommand('underline')}
-                              className="p-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full transition"
-                              title="Underline"
-                            >
-                              <u>U</u>
-                            </button>
-                            <button
-                              onClick={() => document.execCommand('italic')}
-                              className="p-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full transition"
-                              title="Italic"
-                            >
-                              <i>I</i>
-                            </button> */}
-                            {!lineRewriteState.rewritten ? (
-                              <button
-                                onClick={() => handleLineRewrite(index, selectedLineIndex)}
-                                className="p-2 bg-blue-500 text-white hover:bg-blue-600 rounded-full transition"
-                                title="Rewrite selected text"
-                              >
-                                <Pencil size={14} />
-                              </button>
-                            ) : (
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={handleAcceptLineRewrite}
-                                  className="p-2 bg-green-500 text-white hover:bg-green-600 rounded-full transition"
-                                  title="Accept rewrite"
-                                >
-                                  ✓
-                                </button>
-                                <button
-                                  onClick={handleRejectLineRewrite}
-                                  className="p-2 bg-red-500 text-white hover:bg-red-600 rounded-full transition"
-                                  title="Reject rewrite"
-                                >
-                                  ✗
-                                </button>
+                          <div className="absolute z-10 bg-blue-50 shadow-lg rounded-lg p-4 flex flex-col gap-3 border border-blue-200 max-w-md" style={{ top: 'calc(50% - 10rem)', left: 'calc(50% - 15rem)' }}>
+                            <p className="text-sm text-blue-800 font-semibold truncate">
+                              "{selectedText.length > 50 ? `${selectedText.substring(0, 70)}...` : selectedText}"
+                            </p>
+                            <div className="flex flex-col items-start space-y-1">
+                              <div className="flex items-center space-x-2">
+
+                                <div className="text-sm text-gray-700">No.</div>
+                                <input
+                                  type="number"
+                                  value={selectedLineIndex !== null ? selectedLineIndex + 1 : ''}
+                                  onChange={(e) => {
+                                    const newIndex = parseInt(e.target.value, 10);
+                                    setSelectedLineIndex(!isNaN(newIndex) ? newIndex : null);
+                                  }}
+                                  className="w-16 text-sm border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  placeholder="Line #"
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Prompt..."
+                                  className="w-full text-sm border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  value={prompt}
+                                  onChange={(e) => setPrompt(e.target.value)}
+                                />
+                                {!lineRewriteState.rewritten ? (
+                                  <button
+                                    onClick={() => handleLineRewrite(index, selectedLineIndex)}
+                                    className="p-2 bg-blue-500 text-white hover:bg-blue-600 rounded-full transition"
+                                    title="Rewrite selected text"
+                                  >
+                                    <Pencil size={14} />
+                                  </button>
+                                ) : (
+                                  <div className="flex space-x-2">
+                                    <button
+                                      onClick={handleAcceptLineRewrite}
+                                      className="p-2 bg-green-500 text-white hover:bg-green-600 rounded-full transition"
+                                      title="Accept rewrite"
+                                    >
+                                      ✓
+                                    </button>
+                                    <button
+                                      onClick={handleRejectLineRewrite}
+                                      className="p-2 bg-red-500 text-white hover:bg-red-600 rounded-full transition"
+                                      title="Reject rewrite"
+                                    >
+                                      ✗
+                                    </button>
+                                  </div>
+                                )}
+
                               </div>
-                            )}
+                              <div className='flex space-x-2'>
+                              <button
+                              onClick={(e) => handleBold(e, exp, index)}
+                                className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
+                                title="Bold"
+                              >
+                                <b>B</b>
+                              </button>
+                              <button
+                                 onClick={(e) => handleItalic(e, exp, index)}
+                                className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
+                                title="Italic"
+                              >
+                                <i>I</i>
+                              </button>
+                              <button
+                                 onClick={(e) => handleUnderline(e, exp, index)}
+                                className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
+                                title="Underline"
+                              >
+                                <u>U</u>
+                              </button>
+                            </div>
+
+                            </div>
+
                           </div>
-                        </div>
                       )
                     )}
                   </div>
