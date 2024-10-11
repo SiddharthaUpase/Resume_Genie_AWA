@@ -53,6 +53,17 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
                         &#x2630; {/* Unicode for a draggable icon */}
                     </span>
                 )}
+
+                {(section.name === 'Achievements' || section.name === 'Leadership' || section.name === 'Extracurricular' || section.name === 'Summary') && (
+                    <span 
+                        className="cursor-pointer text-red-500" 
+                        onClick={() => {
+                            // Add your delete logic here
+                        }}
+                    >
+                        &#x2716; {/* Unicode for a delete icon */}
+                    </span>
+                )}
             </div>
         </li>
     );
