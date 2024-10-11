@@ -7,7 +7,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } 
 import { motion } from 'framer-motion';
 import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu, Brain, FileArchive } from 'lucide-react';
 import { getJsonResume, deleteResume } from '../../Models/resumeModel';
-
+import{useResume} from '../../Context/ResumeContext';
 const BaseResume = () => {
   const [resume_data, setResume_data] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -20,6 +20,8 @@ const BaseResume = () => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const [jsonString, setJsonString] = useState('');
   const [convertedString, setConvertedString] = useState('');
+
+  const {setResumeState} = useResume();
 
   const wittyLoadingStatements = [
     'Hold tight, genius at work...',
@@ -142,6 +144,9 @@ const BaseResume = () => {
   const handleEditResume = (resumeId) => {
     const data = resume_data[resumeId];
     navigate('/addInfo', { state: { data } });
+    //implelemt with use resumehhok
+    setResumeState(data);
+
   };
 
   const handleViewResume = (resumeId) => {

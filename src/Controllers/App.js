@@ -9,6 +9,7 @@ import Resume from '../Views/ResumeReview';
 import { ProgressInfoProvider } from '../Context/ProgressInfoContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { SectionsListProvider } from '../Context/SectionsListContext';
+import { ResumeProvider } from '../Context/ResumeContext';
 
 function App() {
   const [auth, setAuth] = useState(false);
@@ -17,7 +18,8 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="787439220358-5b3j7h7k5hglclbr150ii4pq38lo5r8k.apps.googleusercontent.com">
     <ProgressInfoProvider>
-    <SectionsListProvider>  
+    <SectionsListProvider>
+      <ResumeProvider>  
     <Router>
       <Routes>
         <Route path="/" element={<LoginView />} />
@@ -28,6 +30,7 @@ function App() {
         <Route path= "/resume-review" element={<Resume />} />
       </Routes>
     </Router>
+    </ResumeProvider>
     </SectionsListProvider>
     </ProgressInfoProvider> 
     

@@ -23,8 +23,7 @@ import ResumePreview from './ResumePreviewWrapper';
 import { storeResume } from '../Models/addInfoModels';
 import KeywordsDialog from './KeywordsDialog';
 import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
-//import a json file with the resume data
-
+import { useResume } from '../Context/ResumeContext';
 
 
 
@@ -70,8 +69,8 @@ const AddInfoPage = ({ }) => {
     const openDialog = () => setIsDialogOpen(true);
     const closeDialog = () => setIsDialogOpen(false);
 
-
-    
+    const { resumeState} = useResume();
+    console.log("from resume context",resumeState);;
 
 
 
