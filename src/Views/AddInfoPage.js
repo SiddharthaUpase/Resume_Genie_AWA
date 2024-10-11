@@ -24,7 +24,7 @@ import { storeResume } from '../Models/addInfoModels';
 import KeywordsDialog from './KeywordsDialog';
 import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
 import { useResume } from '../Context/ResumeContext';
-
+import SummaryForm from './Cards/Summary';
 
 
 const AddInfoPage = ({ }) => {
@@ -582,6 +582,8 @@ useEffect(() => {
                         {sections[currentSection].name === 'Certifications' && <Certifications  certifications_parent={certifications} onChange={setCertifications}/>}
                         {sections[currentSection].name === 'Extracurriculars' && <Extracurriculars />}
                         {sections[currentSection].name === 'Leadership' && <Leadership  leadership_parent ={leadership} onChange={setLeadership} />}
+                        {sections[currentSection].name === 'Summary' && <SummaryForm summary_parent={summary} onChange={setSummary} />}
+
                     </Card>
 
                     <div className="flex justify-between space-x-8">
