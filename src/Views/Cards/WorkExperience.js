@@ -657,7 +657,8 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                               "{selectedText.length > 50 ? `${selectedText.substring(0, 70)}...` : selectedText}"
                             </p>
                             <div className="flex flex-col items-start space-y-1">
-                              <div className="flex items-center space-x-2">
+                              {showPrompt && (
+                                <div className="flex items-center space-x-2">
 
                                 <div className="text-sm text-gray-700">No.</div>
                                 <input
@@ -705,6 +706,9 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                                 )}
 
                               </div>
+                                
+                              )}
+                              
                               <div className='flex space-x-2'>
                               <button
                               onClick={(e) => handleBold(e, exp, index)}
