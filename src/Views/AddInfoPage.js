@@ -61,6 +61,7 @@ const AddInfoPage = ({ }) => {
         description: '' 
       }]);
     const [extracurriculars, setExtracurriculars] = useState(['']); //list of strings
+    const [summary, setSummary] = useState('');
     const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', '😎','🤩'];
     const [leftWidth, setLeftWidth] = useState(300);
     const [middleWidth, setMiddleWidth] = useState(1000);
@@ -87,7 +88,7 @@ const AddInfoPage = ({ }) => {
     const closeDialog = () => setIsDialogOpen(false);
 
     const { resumeState} = useResume();
-    console.log("from resume context",resumeState);;
+    
 
 
 
@@ -255,6 +256,7 @@ useEffect(() => {
             setCertifications(data.certifications);
             setLeadership(data.leadership);
             setExtracurriculars(data.extracurriculars);
+            setSummary(data.summary || '');
             
             console.log('Current data:', data);
         } else if (location.state && location.state.data) {
@@ -276,6 +278,7 @@ useEffect(() => {
             setCertifications(data.certifications);
             setLeadership(data.leadership);
             setExtracurriculars(data.extracurriculars);
+            setSummary(data.summary || '');
             
             if(data.id === ''){
                 set_id('');
@@ -344,6 +347,7 @@ useEffect(() => {
             setLeadership([{ position: '', organization: '', startDate: '', endDate: '', description: '' }]);
             setExtracurriculars(['']);
             setName('');
+            setSummary('');
             setSections([
 
                 { id: 0, name: 'Personal Info', emoji: '🧞' }, 
@@ -364,7 +368,7 @@ useEffect(() => {
     useEffect(() => {
 
         setSaved(false);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars, name]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name]);
 
 
 
@@ -378,7 +382,7 @@ useEffect(() => {
 
     const handleSubmission = () => {
         const data = {
-            personalInfo, socials, education, certifications,workExperience, projects, skills, achievements,leadership,extracurriculars, name, sections, id
+            personalInfo, socials, education, certifications,workExperience, projects, skills, achievements,leadership,extracurriculars,summary, name, sections, id
         };
 
         localStorage.setItem('current_resume_data', JSON.stringify(data));
@@ -420,7 +424,8 @@ useEffect(() => {
                     achievements.some(achievement => achievement.title !== '' || achievement.description !== '' || achievement.date !== '') ||
                     certifications.some(certification => certification.name !== '' || certification.issuer !== '' || certification.dateObtained !== '' || certification.expirationDate !== '' || certification.credentialID !== '' || certification.credentialURL !== '' || certification.description !== '')   ||
                     leadership.some(leader => leader.position !== '' || leader.organization !== '' || leader.startDate !== '' || leader.endDate !== '' || leader.description !== '') ||
-                    extracurriculars.some(extra => extra !== '')
+                    extracurriculars.some(extra => extra !== ''),
+                    name !== '' || summary !== ''
 
                 );
             };
@@ -447,7 +452,7 @@ useEffect(() => {
 
 
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills, achievements, certifications , leadership, extracurriculars,name, sections, id, keywords,jobDescription
+            personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars, name, sections, id, keywords, jobDescription, summary
         };
 
 
@@ -597,7 +602,7 @@ useEffect(() => {
                 </main>
 
                {/* Real-time preview */}
-                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} certifications={certifications} leadership={leadership} extracurriculars={extracurriculars} name={name} sections={sections} keywords={keywords} />
+                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} certifications={certifications} leadership={leadership} extracurriculars={extracurriculars} summary={summary} name={name} sections={sections} keywords={keywords} />
 
                 
             </div>
@@ -639,6 +644,7 @@ useEffect(() => {
                             certifications,
                             leadership,
                             extracurriculars,
+                            summary,
                             name,
                             sections,
                             keywords

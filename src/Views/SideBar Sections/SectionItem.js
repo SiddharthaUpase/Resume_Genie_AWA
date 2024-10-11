@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
 
-const SectionItem = ({ section, currentSection, setCurrentSection }) => {
+const SectionItem = ({ section, currentSection, setCurrentSection, handleDeleteSection }) => {
 
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: section.id });
 
@@ -57,9 +57,7 @@ const SectionItem = ({ section, currentSection, setCurrentSection }) => {
                 {(section.name === 'Achievements' || section.name === 'Leadership' || section.name === 'Extracurricular' || section.name === 'Summary') && (
                     <span 
                         className="cursor-pointer text-red-500" 
-                        onClick={() => {
-                            // Add your delete logic here
-                        }}
+                        onClick={handleDeleteSection}
                     >
                         &#x2716; {/* Unicode for a delete icon */}
                     </span>

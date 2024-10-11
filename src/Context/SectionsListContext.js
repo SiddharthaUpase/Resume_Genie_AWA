@@ -13,7 +13,8 @@ const SectionsListProvider = ({ children }) => {
         { id: 6, name: 'Achievements', emoji: '🏆' },
         { id: 7, name: 'Certifications', emoji: '📜' },
         { id: 8, name: 'Leadership', emoji: '👨‍👧‍👦' },
-        { id: 9, name: 'Extracurriculars', emoji: '🎭' }
+        { id: 9, name: 'Extracurriculars', emoji: '🎭' },
+        { id: 10, name: 'Summary', emoji: '📝' }
     ];
 
     const mandatorySections = [

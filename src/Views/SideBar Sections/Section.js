@@ -68,6 +68,17 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         setIsPopoverOpen(false);
     };
 
+    const handleRemoveSection = (section) => {
+        const updatedSections = sections.filter(s => s.id !== section.id);
+        //update the index of the sections
+        updatedSections.forEach((section, index) => {
+            section.id = index;
+        });
+        console.log(updatedSections);
+        setCurrentSection(updatedSections.length - 1);
+        setReorderedSections(updatedSections);
+    };
+
     const availableSectionsToAdd = allAvailableSections.filter(
         section => !sections.some(s => s.name === section.name)
     );
@@ -103,6 +114,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                                     currentSection={currentSection}
                                     setCurrentSection={() => setCurrentSection(index)}
                                     isActive={section.isActive !== false}
+                                    handleDeleteSection={() => handleRemoveSection(section)}
                                 />
                             ))}
                         </ul>
