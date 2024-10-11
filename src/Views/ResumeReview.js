@@ -15,7 +15,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     //check if previewData has key words
     const data = previewData || location.state.data;
 
-    const { personalInfo, socials, education, workExperience, projects, skills, achievements, sections, keywords } = data;
+    const { personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars, sections, keywords } = data;
 
     // Flexible sections
     const flexibleSections = sections;
@@ -31,7 +31,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         checkOverflow();
         window.addEventListener('resize', checkOverflow);
         return () => window.removeEventListener('resize', checkOverflow);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, sections]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership,extracurriculars, sections]);
 
 
     // Helper function to format date
@@ -257,6 +257,74 @@ const highlightText = (text, keywords) => {
     )
 
 
+const renderCertifications = (certifications, keywords) => (
+  <section className="mb-1">
+    <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
+      CERTIFICATIONS
+    </h2>
+    {certifications.map((certification, index) => (
+      <div key={index} className="mb-1">
+        <div className="flex flex-col">
+          <div className="flex justify-between">
+            <strong style={{ fontSize: '12.5px' }}>{certification.name}</strong>
+            <span style={{ fontSize: '12px' }}>
+              {formatDate(certification.dateObtained)}
+              {certification.expirationDate && ` - ${formatDate(certification.expirationDate)}`}
+            </span>
+          </div>
+          <div style={{ fontSize: '12px' }}>
+            <span>{certification.issuer}</span>
+            {certification.credentialID && (
+              <span className="ml-2">ID: {certification.credentialID}</span>
+            )}
+          </div>
+          {certification.credentialURL && (
+            <a 
+              href={certification.credentialURL} 
+              className="text-blue-600 hover:underline" 
+              style={{ fontSize: '11px' }}
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Verify Credential
+            </a>
+          )}
+        </div>
+        {certification.description && (
+          <p style={{ fontSize: '12px', marginTop: '2px' }}>
+            {highlightText(certification.description, keywords)}
+          </p>
+        )}
+      </div>
+    ))}
+  </section>
+);
+
+const renderLeadership = (leadership, keywords) => (
+    <section className="mb-1">
+      <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
+        LEADERSHIP EXPERIENCE
+      </h2>
+      {leadership.map((experience, index) => (
+        <div key={index} className="mb-1">
+          <div className="flex justify-between items-baseline">
+            <strong style={{ fontSize: '12.5px' }}>{experience.position}</strong>
+            <span style={{ fontSize: '12px' }}>
+              {formatDate(experience.startDate)} - {experience.endDate ? formatDate(experience.endDate) : 'Present'}
+            </span>
+          </div>
+          <div style={{ fontSize: '12px' }}>
+            <span>{experience.organization}</span>
+          </div>
+          {experience.description && (
+            <p style={{ fontSize: '12px', marginTop: '2px' }}>
+              {highlightText(experience.description, keywords)}
+            </p>
+          )}
+        </div>
+      ))}
+    </section>
+  );
 
 
     // Function to render a section based on its type
@@ -312,6 +380,10 @@ const highlightText = (text, keywords) => {
                 return skills.length > 0 && renderSkills(skills, keywords);
             case 'Achievements':
                 return achievements.length > 0 && renderAchievements(achievements, keywords);
+            case 'Certifications':
+                return certifications.length > 0 && renderCertifications(certifications, keywords);
+            case 'Leadership':
+                return leadership.length >0 && renderLeadership(leadership, keywords);
             default:
                 return null;
         }
