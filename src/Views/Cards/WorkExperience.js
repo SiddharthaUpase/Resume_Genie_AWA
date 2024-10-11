@@ -717,7 +717,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                               >
                                 <b>B</b>
                               </button>
-                              <button
+                              {/* <button
                                  onClick={(e) => handleItalic(e, exp, index)}
                                 className="p-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition"
                                 title="Italic"
@@ -730,7 +730,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                                 title="Underline"
                               >
                                 <u>U</u>
-                              </button>
+                              </button> */}
                             </div>
 
                             </div>
