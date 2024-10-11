@@ -27,7 +27,8 @@ const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {
 };
 
 const Section = ({ sections, currentSection, setCurrentSection, setReorderedSections }) => {
-    const allAvailableSections = useContext(SectionsListContext);
+    const {sectionsList,mandatorySections} = useContext(SectionsListContext);
+    const allAvailableSections = sectionsList;
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const popoverRef = useRef(null);
 

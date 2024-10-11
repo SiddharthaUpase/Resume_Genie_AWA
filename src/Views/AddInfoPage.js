@@ -44,6 +44,23 @@ const AddInfoPage = ({ }) => {
     const [skills, setSkills] = useState([]);
     const [id, set_id] = useState('');
     const [achievements, setAchievements] = useState([{ title: '', description: '', date: '' }]);
+    const [certifications, setCertifications] = useState([{
+      name: '', 
+      issuer: '', 
+      dateObtained: '', 
+      expirationDate: '', 
+      credentialID: '', 
+      credentialURL: '',
+      description: ''
+    }]);
+    const [leadership, setLeadership] = useState([{ 
+        position: '', 
+        organization: '', 
+        startDate: '', 
+        endDate: '', 
+        description: '' 
+      }]);
+    const [extracurriculars, setExtracurriculars] = useState(['']); //list of strings
     const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', '😎','🤩'];
     const [leftWidth, setLeftWidth] = useState(300);
     const [middleWidth, setMiddleWidth] = useState(1000);
@@ -235,7 +252,11 @@ useEffect(() => {
             setName(data.name);
             setSections(data.sections);
             set_id(data.id);
+            setCertifications(data.certifications);
+            setLeadership(data.leadership);
+            setExtracurriculars(data.extracurriculars);
             
+            console.log('Current data:', data);
         } else if (location.state && location.state.data) {
             
             const data = location.state.data;
@@ -252,6 +273,9 @@ useEffect(() => {
             setProjects(data.projects);
             setSkills(data.skills);
             setAchievements(data.achievements);
+            setCertifications(data.certifications);
+            setLeadership(data.leadership);
+            setExtracurriculars(data.extracurriculars);
             
             if(data.id === ''){
                 set_id('');
@@ -285,6 +309,23 @@ useEffect(() => {
                 data.name = '';
                 setName('');
             }
+
+            if(data.certifications == null){
+                data.certifications = [];
+                setCertifications([]);
+            }
+
+            if(data.leadership == null){
+                data.leadership = [];
+                setLeadership([]);
+            }
+
+            if(data.extracurriculars == null){
+                data.extracurriculars = [];
+                setExtracurriculars([]);
+            }
+
+            console.log('Location state data:', data);
         } else {
             setJobDescription('');
             setKeywords([]);
@@ -299,6 +340,9 @@ useEffect(() => {
             setProjects([{ title: '', description: '', link: '' }]);
             setSkills([]);
             setAchievements([{ title: '', description: '', date: '' }]);
+            setCertifications([{ name: '', issuer: '', dateObtained: '', expirationDate: '', credentialID: '', credentialURL: '', description: '' }]);
+            setLeadership([{ position: '', organization: '', startDate: '', endDate: '', description: '' }]);
+            setExtracurriculars(['']);
             setName('');
             setSections([
 
@@ -320,7 +364,7 @@ useEffect(() => {
     useEffect(() => {
 
         setSaved(false);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, name]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars, name]);
 
 
 
@@ -334,7 +378,7 @@ useEffect(() => {
 
     const handleSubmission = () => {
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills, achievements, name, sections, id
+            personalInfo, socials, education, certifications,workExperience, projects, skills, achievements,leadership,extracurriculars, name, sections, id
         };
 
         localStorage.setItem('current_resume_data', JSON.stringify(data));
@@ -373,7 +417,11 @@ useEffect(() => {
                     workExperience.some(work => work.jobTitle !== '' || work.company !== '' || work.startDate !== '' || work.endDate !== '' || work.description !== '' || work.location !== '') ||
                     projects.some(project => project.title !== '' || project.description !== '' || project.link !== '') ||
                     skills.length > 0 ||
-                    achievements.some(achievement => achievement.title !== '' || achievement.description !== '' || achievement.date !== '')
+                    achievements.some(achievement => achievement.title !== '' || achievement.description !== '' || achievement.date !== '') ||
+                    certifications.some(certification => certification.name !== '' || certification.issuer !== '' || certification.dateObtained !== '' || certification.expirationDate !== '' || certification.credentialID !== '' || certification.credentialURL !== '' || certification.description !== '')   ||
+                    leadership.some(leader => leader.position !== '' || leader.organization !== '' || leader.startDate !== '' || leader.endDate !== '' || leader.description !== '') ||
+                    extracurriculars.some(extra => extra !== '')
+
                 );
             };
 
@@ -399,7 +447,7 @@ useEffect(() => {
 
 
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills, achievements, name, sections, id, keywords,jobDescription
+            personalInfo, socials, education, workExperience, projects, skills, achievements, certifications , leadership, extracurriculars,name, sections, id, keywords,jobDescription
         };
 
 
@@ -526,9 +574,9 @@ useEffect(() => {
                         {sections[currentSection].name === 'Projects' && <Projects projects_data={projects} onChange={setProjects} />}
                         {sections[currentSection].name === 'Skills' && <MultiFieldSkillsForm skill_sets={skills} onChange={setSkills} />}
                         {sections[currentSection].name === 'Achievements' && <AchievementsForm achievements_parent={achievements} onChange={setAchievements} />}
-                        {sections[currentSection].name === 'Certifications' && <Certifications />}
+                        {sections[currentSection].name === 'Certifications' && <Certifications  certifications_parent={certifications} onChange={setCertifications}/>}
                         {sections[currentSection].name === 'Extracurriculars' && <Extracurriculars />}
-                        {sections[currentSection].name === 'Leadership' && <Leadership />}
+                        {sections[currentSection].name === 'Leadership' && <Leadership  leadership_parent ={leadership} onChange={setLeadership} />}
                     </Card>
 
                     <div className="flex justify-between space-x-8">
@@ -549,7 +597,7 @@ useEffect(() => {
                 </main>
 
                {/* Real-time preview */}
-                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} name={name} sections={sections} keywords={keywords} />
+                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} certifications={certifications} leadership={leadership} extracurriculars={extracurriculars} name={name} sections={sections} keywords={keywords} />
 
                 
             </div>
@@ -588,6 +636,9 @@ useEffect(() => {
                             projects,
                             skills,
                             achievements,
+                            certifications,
+                            leadership,
+                            extracurriculars,
                             name,
                             sections,
                             keywords
