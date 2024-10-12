@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import Resume from './ResumeReview';
 
-const ResumePreview = (  {setfullView, personalInfo, socials, education, workExperience, projects, skills, achievements, certifications,  leadership, extracurriculars, name, sections, keywords}) => {
+const ResumePreview = (  {setfullView, personalInfo, socials, education, workExperience, projects, skills, achievements, certifications,  leadership, extracurriculars,summary, name, sections, keywords}) => {
   const [zoom, setZoom] = useState(80);
 
   const handleZoomIn = () => {
@@ -64,6 +64,7 @@ const ResumePreview = (  {setfullView, personalInfo, socials, education, workExp
               extracurriculars,
               name,
               sections,
+              summary,
               keywords
             }}
           />

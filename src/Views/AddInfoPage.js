@@ -32,6 +32,12 @@ const AddInfoPage = ({ }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [currentSection, setCurrentSection] = useState(0);
+
+    useEffect(() => {
+        console.log('Current Section was changed', currentSection);
+    }, [currentSection]);
+
+
     const [personalInfo, setPersonalInfo] = useState({ first_name: '', last_name: '', email: '', phone: '', location: '' });
     const [socials, setSocials] = useState([
         { platform: 'linkedin', url: '' },
@@ -328,7 +334,6 @@ useEffect(() => {
                 setExtracurriculars([]);
             }
 
-            console.log('Location state data:', data);
         } else {
             setJobDescription('');
             setKeywords([]);
@@ -345,7 +350,7 @@ useEffect(() => {
             setAchievements([{ title: '', description: '', date: '' }]);
             setCertifications([{ name: '', issuer: '', dateObtained: '', expirationDate: '', credentialID: '', credentialURL: '', description: '' }]);
             setLeadership([{ position: '', organization: '', startDate: '', endDate: '', description: '' }]);
-            setExtracurriculars(['']);
+            setExtracurriculars([]);
             setName('');
             setSummary('');
             setSections([
@@ -464,10 +469,16 @@ useEffect(() => {
     }
 
     const handleReorderSections = (newSections) => {
-        const currentSectionName = sections[currentSection].name;
+        if (newSections.length < sections.length) {
+            // A section was deleted
+            setCurrentSection(0);
+        } else {
+            // Sections were reordered
+            const currentSectionName = sections[currentSection].name;
+            const newCurrentSectionIndex = newSections.findIndex(section => section.name === currentSectionName);
+             setCurrentSection(newCurrentSectionIndex);
+        }
         setSections(newSections);
-        const newCurrentSectionIndex = newSections.findIndex(section => section.name === currentSectionName);
-        setCurrentSection(newCurrentSectionIndex);
     };
 
 
@@ -556,9 +567,9 @@ useEffect(() => {
                 }
 
                 >
-                    <Section 
-                        sections={sections} 
-                        currentSection={currentSection} 
+                    <Section
+                        sections={sections}
+                        currentSection={currentSection}
                         setCurrentSection={setCurrentSection}
                         setReorderedSections={handleReorderSections}
                     />
@@ -580,7 +591,7 @@ useEffect(() => {
                         {sections[currentSection].name === 'Skills' && <MultiFieldSkillsForm skill_sets={skills} onChange={setSkills} />}
                         {sections[currentSection].name === 'Achievements' && <AchievementsForm achievements_parent={achievements} onChange={setAchievements} />}
                         {sections[currentSection].name === 'Certifications' && <Certifications  certifications_parent={certifications} onChange={setCertifications}/>}
-                        {sections[currentSection].name === 'Extracurriculars' && <Extracurriculars />}
+                        {sections[currentSection].name === 'Extracurriculars' && <Extracurriculars activities_parent={extracurriculars} onChange={setExtracurriculars} />}
                         {sections[currentSection].name === 'Leadership' && <Leadership  leadership_parent ={leadership} onChange={setLeadership} />}
                         {sections[currentSection].name === 'Summary' && <SummaryForm summary_parent={summary} onChange={setSummary} />}
 

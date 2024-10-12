@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { Download } from 'lucide-react';
+import { s, summary } from 'framer-motion/client';
 
 
 
@@ -12,10 +13,12 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const [isOverflowing, setIsOverflowing] = useState(false);
     const location = useLocation();
 
+
     //check if previewData has key words
     const data = previewData || location.state.data;
 
-    const { personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars, sections, keywords } = data;
+
+    const { personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, sections, keywords } = data;
 
     // Flexible sections
     const flexibleSections = sections;
@@ -31,7 +34,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         checkOverflow();
         window.addEventListener('resize', checkOverflow);
         return () => window.removeEventListener('resize', checkOverflow);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership,extracurriculars, sections]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership,extracurriculars,summary, sections]);
 
 
     // Helper function to format date
@@ -278,6 +281,16 @@ const renderLeadership = (leadership, keywords) => (
     </section>
   );
 
+    const renderSummary = (summary, keywords) => (
+        <section className="mb-1">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>SUMMARY</h2>
+            <p style={{ fontSize: '12px' }}>
+                {highlightText(summary, keywords)}
+            </p>
+        </section>
+    );
+  
+
 
     // Function to render a section based on its type
     const renderSection = (sectionType) => {
@@ -336,6 +349,9 @@ const renderLeadership = (leadership, keywords) => (
                 return certifications.length > 0 && renderCertifications(certifications, keywords);
             case 'Leadership':
                 return leadership.length >0 && renderLeadership(leadership, keywords);
+            case 'Summary':
+                return summary && renderSummary(summary, keywords);
+
             default:
                 return null;
         }

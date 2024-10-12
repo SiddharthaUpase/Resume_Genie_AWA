@@ -39,6 +39,10 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         })
     );
 
+    useEffect(() => {
+        console.log('Current Section was changed', currentSection);
+    }, [currentSection]);
+
     const handleDragEnd = (event) => {
         const { active, over } = event;
 
@@ -54,7 +58,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
             }));
 
             setReorderedSections(updatedSections);
-            setCurrentSection(newIndex);
+            setLastSection();
 
 
             
@@ -64,41 +68,36 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
     const handleAddSection = (newSection) => {
         const updatedSections = [...sections, { ...newSection, id: sections.length, isActive: true }];
         setReorderedSections(updatedSections);
-        setCurrentSection(updatedSections.length - 1);
+        setCurrentSection(0);
         setIsPopoverOpen(false);
     };
 
-    const handleRemoveSection = (section) => {
-        const updatedSections = sections.filter(s => s.id !== section.id);
-        //update the index of the sections
+    const handleDeleteSection = (sectionId) => {
+        const updatedSections = sections.filter((section) => section.id !== sectionId);
+        // Update the id of each section
         updatedSections.forEach((section, index) => {
             section.id = index;
         });
-        console.log(updatedSections);
-        setCurrentSection(updatedSections.length - 1);
         setReorderedSections(updatedSections);
+        setLastSection();
+    }
+
+
+    //a funcion that sets the current section to the last section
+    const setLastSection = () => {
+        setCurrentSection(sections.length - 1);
     };
+
 
     const availableSectionsToAdd = allAvailableSections.filter(
         section => !sections.some(s => s.name === section.name)
     );
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target)) {
-                setIsPopoverOpen(false);
-            }
-        };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     return (
-        <div className="md:w-full space-y-2 relative">
-            <nav className="rounded-lg shadow-md p-2 min-h-96 max-h-[calc(100vh-4rem)] overflow-y-auto bg-white">
+        <div className="w-full space-y-2 relative">
+            <nav className="rounded-lg shadow-md p-2 min-h-96 max-h-[calc(100vh-4rem)] overflow-y-auto bg-white w-full">
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCorners}
@@ -114,7 +113,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                                     currentSection={currentSection}
                                     setCurrentSection={() => setCurrentSection(index)}
                                     isActive={section.isActive !== false}
-                                    handleDeleteSection={() => handleRemoveSection(section)}
+                                    handleDeleteSection={handleDeleteSection}
                                 />
                             ))}
                         </ul>
