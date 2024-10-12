@@ -43,6 +43,10 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         console.log('Current Section was changed', currentSection);
     }, [currentSection]);
 
+    useEffect(() => {
+        console.log("Sections updated:", sections);
+      }, [sections]);
+
     const handleDragEnd = (event) => {
         const { active, over } = event;
 
@@ -58,8 +62,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
             }));
 
             setReorderedSections(updatedSections);
-            setLastSection();
-
+            setCurrentSection(newIndex);
 
             
         }
@@ -68,7 +71,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
     const handleAddSection = (newSection) => {
         const updatedSections = [...sections, { ...newSection, id: sections.length, isActive: true }];
         setReorderedSections(updatedSections);
-        setCurrentSection(0);
+        setCurrentSection(updatedSections.length - 1);
         setIsPopoverOpen(false);
     };
 
@@ -78,7 +81,10 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         updatedSections.forEach((section, index) => {
             section.id = index;
         });
+
         setReorderedSections(updatedSections);
+        console.log(updatedSections);
+        console.log(sections);
         setLastSection();
     }
 

@@ -582,7 +582,9 @@ useEffect(() => {
                 overflow: 'auto'
                 
                  }}>
-                    <Card title={`${sections[currentSection].emoji} ${sections[currentSection].name}`}>
+
+                    {!sections[currentSection ]? ( <> {setCurrentSection(sections.length-1)} </>)
+                    :(<Card title={`${sections[currentSection].emoji} ${sections[currentSection].name}`}>
                         {sections[currentSection].name === 'Personal Info' && <PersonalInfo personal_info={personalInfo} onChange={setPersonalInfo} />}
                         {sections[currentSection].name === 'Socials' && <Socials social_info={socials} onChange={setSocials} />}
                         {sections[currentSection].name === 'Education' && <Education education={education} setEducation={setEducation} />}
@@ -595,7 +597,7 @@ useEffect(() => {
                         {sections[currentSection].name === 'Leadership' && <Leadership  leadership_parent ={leadership} onChange={setLeadership} />}
                         {sections[currentSection].name === 'Summary' && <SummaryForm summary_parent={summary} onChange={setSummary} />}
 
-                    </Card>
+                    </Card>)}
 
                     <div className="flex justify-between space-x-8">
                         <button
