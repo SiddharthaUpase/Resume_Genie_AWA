@@ -31,7 +31,7 @@ const AIEnhancedEditor = ({
           setAnimationProgress((prev) => {
             if (prev < 100) {
               animationFrame = requestAnimationFrame(animate);
-              return prev + 2;
+              return prev + 1; // Decrease the increment to slow down the animation
             }
             return 100;
           });
@@ -182,6 +182,7 @@ const AIEnhancedEditor = ({
                 ['clean']
               ]
             }}
+            placeholder={content.trim() === '' ? 'Briefly explain what you wanna write about' : ''}
           />
           {animateAIRewrite && (
             <div 

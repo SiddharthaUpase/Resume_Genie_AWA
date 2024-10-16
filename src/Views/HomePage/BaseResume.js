@@ -71,15 +71,19 @@ const BaseResume = () => {
 
   useEffect(() => {
     setIsGettingResumes(true);
+
     const getResumesData = async () => {
       const data = await getResumes();
+      
       //add a delay to show the loading spinner
       setIsGettingResumes(false);
+
       if (data) {
         setResume_data(data);
         console.log(data);
       }
     };
+
     getResumesData();
   }, []);
 

@@ -194,7 +194,9 @@ const highlightText = (text, keywords) => {
                 <div key={index} className="mb">
                     <div className="flex justify-between">
                         <strong style={subHeaderStyle}>{exp.jobTitle}</strong>
-                        <DateComponent startMonth={exp.startMonth} endMonth={exp.endMonth} />
+                       {exp.startMonth && exp.endMonth && (
+                            <DateComponent startMonth={exp.startMonth} endMonth={exp.endMonth} />
+                        )}
                     </div>
                     <div className='flex space-x-1'>
                         <p style={{ fontSize: '13px' }}>{exp.company}</p>
@@ -238,7 +240,9 @@ const highlightText = (text, keywords) => {
                     <div className="flex flex-col">
                         <div className="flex justify-between">
                             <strong style={subHeaderStyle}>{project.title}</strong>
-                            <DateComponent startMonth={project.startMonth} endMonth={project.endMonth} />
+                            {project.startMonth && project.endMonth && (
+                                <DateComponent startMonth={project.startMonth} endMonth={project.endMonth} />
+                            )}
                         </div>
                         <a href={project.link} className="text-blue-600 hover:underline" style={{ fontSize: '13px' }}>
                             {project.link}
@@ -426,7 +430,9 @@ const renderLeadership = (leadership, keywords) => (
                                         <strong style={subHeaderStyle}>{edu.college}</strong>
                                         {edu.location && <p style={{ fontSize: '12px' }}>({edu.location})</p>}
                                     </div>
-                                    <DateComponent startMonth={edu.startDate} endMonth={edu.endDate} />
+                                    {edu.startMonth && edu.endMonth && (
+                                        <DateComponent startMonth={edu.startMonth} endMonth={edu.endMonth} />
+                                    )}
                                 </div>
 
                                 <div className="flex space-x-1 items-center">

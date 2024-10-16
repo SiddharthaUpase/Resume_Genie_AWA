@@ -77,6 +77,7 @@ const AddInfoPage = ({ }) => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [saved, setSaved] = useState(false);
     const [name, setName] = useState('');
+    const [showNameWarning, setShowNameWarning] = useState(false);
     const [fullView, setfullView] = useState(false);
     const [sections, setSections] = useState([
     { id: 0, name: 'Personal Info', emoji: '🧞' },
@@ -214,6 +215,35 @@ useEffect(() => {
     }, [skills]);
 
 
+    useEffect(() => {
+        // Handler for browser back button
+        const handlePopState = (event) => {
+            console.log('Back button pressed');
+            // Prevent the default back action
+            event.preventDefault();
+            
+            if (!saved) {
+                setShowConfirmDialog(true);
+            } else {
+                // If everything is saved, allow navigation
+                navigate('/home');
+            }
+        };
+
+        // Push an initial entry to the history stack
+        window.history.pushState(null, '', window.location.pathname);
+
+        // Add event listener for popstate
+        window.addEventListener('popstate', handlePopState);
+
+        // Cleanup function
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [saved, navigate]); // Dependencies array includes saved state and navigate function
+
+
+const saveRetryCount = useRef(0);
 
     //create an endpoin to post the resume data
     const postResume = async (data) => {
@@ -225,15 +255,28 @@ useEffect(() => {
             status: 'draft',
             name: name
         };
-        console.log('New resume:', newResume);
         
         try {
             const response = await storeResume(newResume,set_id);
-            
+            setSaved(true);
+            //if saved in the first attempt reset the retry count
+            saveRetryCount.current = 0;
+            console.log('Resume saved in the first attempt:', response);
 
 
         } catch (error) {
             console.error('Fetch error:', error);
+            //call the post resume function again if the save fails
+            if (saveRetryCount.current < 3) {
+                saveRetryCount.current += 1;
+                postResume(data);
+                console.log('Retrying save:', saveRetryCount.current);
+            }
+            else {
+                alert('Failed to save resume data');
+            }
+
+
         }
     };
 
@@ -265,6 +308,7 @@ useEffect(() => {
         // else
          if (currentData) {
             const data = JSON.parse(currentData);
+            console.log('Loading from Current Data:', data);
             setKeywords(data.keywords);
             setJobDescription(data.jobDescription);
             setPersonalInfo(data.personalInfo);
@@ -286,7 +330,6 @@ useEffect(() => {
             setExtracurriculars(data.extracurriculars);
             setSummary(data.summary || '');
             
-            console.log('Current data:', data);
             if (data.customSections) {
                 setCustomSections(data.customSections);
                 setCustomSectionData(data.customSectionData || {});
@@ -299,6 +342,7 @@ useEffect(() => {
 
         } else if (location.state && location.state.data) {
             
+            console.log('Loading from location state:', location.state.data);
             const data = location.state.data;
             setKeywords(data.keywords);
             setJobDescription(data.jobDescription);
@@ -309,14 +353,9 @@ useEffect(() => {
                 { platform: 'portfolio', url: '' }
             ]);
             setEducation(data.education);
-            setWorkExperience(data.workExperience);
+            setWorkExperience(data.workExperience||[]);
             setProjects(data.projects);
             setSkills(data.skills);
-            setAchievements(data.achievements);
-            setCertifications(data.certifications);
-            setLeadership(data.leadership);
-            setExtracurriculars(data.extracurriculars);
-            setSummary(data.summary || '');
             setCustomSections(data.customSections || []);
             setCustomSectionData(data.customSectionData || {});
             
@@ -376,6 +415,7 @@ useEffect(() => {
 
 
         } else {
+            console.log('No data found');
             setJobDescription('');
             setKeywords([]);
             setPersonalInfo({ first_name: '', last_name: '', email: '', phone: '', location: '' });
@@ -384,14 +424,10 @@ useEffect(() => {
                 { platform: 'github', url: '' },
                 { platform: 'portfolio', url: '' }
             ]);
-            setEducation([{ college: '', degree: '', startDate: '', endDate: '', courses: [], gpa: '', major: '', minor: '', location: '' }]);
-            setWorkExperience([{ jobTitle: '', company: '', startDate: '', endDate: '', description: '', location: '' }]);
-            setProjects([{ title: '', description: '', link: '' }]);
+            setEducation([]);
+            setWorkExperience([]);
+            setProjects([]);
             setSkills([]);
-            setAchievements([{ title: '', description: '', date: '' }]);
-            setCertifications([{ name: '', issuer: '', dateObtained: '', expirationDate: '', credentialID: '', credentialURL: '', description: '' }]);
-            setLeadership([{ position: '', organization: '', startDate: '', endDate: '', description: '' }]);
-            setExtracurriculars([]);
             setName('');
             setSummary('');
             setSections([
@@ -415,7 +451,7 @@ useEffect(() => {
     useEffect(() => {
 
         setSaved(false);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections,currentSection, customSections, customSectionData]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections, customSections, customSectionData]);
 
 
 
@@ -429,12 +465,12 @@ useEffect(() => {
 
     const handleSubmission = () => {
         const data = {
-            personalInfo, socials, education, certifications,workExperience, projects, skills, achievements,leadership,extracurriculars,summary, name, sections, id
+            personalInfo, socials, education, certifications,workExperience, projects, skills, name, sections, id, customSections, customSectionData
         };
 
         localStorage.setItem('current_resume_data', JSON.stringify(data));
-        // localStorage.setItem('resume_data', JSON.stringify(data));
-        navigate('/resume-review', { state: { data } });
+
+        setfullView(true);
     };
     const handleBack = () => {
         const currentData = localStorage.getItem('current_resume_data');
@@ -493,7 +529,7 @@ useEffect(() => {
 
 
         if (name === '' || name === null) {
-            alert('Please enter a name for the resume');
+            setShowNameWarning(true);
             return;
         }
 
@@ -508,7 +544,7 @@ useEffect(() => {
         //saved to the database
         postResume(data);
 
-        setSaved(true);
+        
     }
 
     const handleReorderSections = (newSections) => {
@@ -611,6 +647,8 @@ useEffect(() => {
     }
 
 
+
+
     return (
         <div className="flex flex-col min-h-screen bg-white">
             {/* Header */}
@@ -641,11 +679,12 @@ useEffect(() => {
                     <span className="text-sm font-bold">Resume Name</span>
                     <input
                         type="text"
-                        className="border border-gray-300 rounded p-1"
+                        className={`border rounded p-1 ${showNameWarning && name === '' ? 'border-red-500' : 'border-gray-300'}`}
                         autoComplete="off" // Disable autocomplete
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
+                    {showNameWarning && name === '' && <span className="text-red-500 text-sm">Name is required</span>}
                 </div>
 
                     {keywords && keywords.length > 0 && (
@@ -755,7 +794,7 @@ useEffect(() => {
                             onClick={currentSection === sections.length - 1 ? handleSubmission : handleNext}
                             className={`px-4 py-2 rounded ${currentSection === sections.length - 1 ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
                         >
-                            {currentSection === sections.length - 1 ? 'Submit' : 'Next'}
+                            {currentSection === sections.length - 1 ? 'View' : 'Next'}
                         </button>
                     </div>
                 </main>
@@ -767,23 +806,12 @@ useEffect(() => {
             </div>
 
             {showConfirmDialog && (
-                <AlertDialog.Root open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                    <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-50 z-20" />
-                    <AlertDialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded shadow-lg z-20">
-                        <AlertDialog.Title className="text-lg font-bold">Confirm Action</AlertDialog.Title>
-                        <AlertDialog.Description className="mt-2 text-sm">
-                            Are you sure you want to proceed without saving your changes?
-                        </AlertDialog.Description>
-                        <div className="mt-4 flex justify-end space-x-2">
-                            <AlertDialog.Cancel asChild>
-                                <button className="px-4 py-2 bg-blue-600 hover:bg-gray-400 rounded text-white">No</button>
-                            </AlertDialog.Cancel>
-                            <AlertDialog.Action asChild>
-                                <button className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded" onClick={handleBack}>Yes</button>
-                            </AlertDialog.Action>
-                        </div>
-                    </AlertDialog.Content>
-                </AlertDialog.Root>
+                <ConfirmDialog
+                    showConfirmDialog={showConfirmDialog}
+                    setShowConfirmDialog={setShowConfirmDialog}
+                    handleBack={handleBack}
+                />
+               
             )}
             {fullView && (
                 <div className="fixed inset-0 bg-white z-50 overflow-auto">
@@ -831,5 +859,27 @@ useEffect(() => {
         </div>
     );
 };
+
+
+const ConfirmDialog = ({ showConfirmDialog, setShowConfirmDialog, handleBack }) => (
+    <AlertDialog.Root open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-50 z-20" />
+        <AlertDialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded shadow-lg z-20">
+            <AlertDialog.Title className="text-lg font-bold">Confirm Action</AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-sm">
+                Are you sure you want to proceed without saving your changes?
+            </AlertDialog.Description>
+            <div className="mt-4 flex justify-end space-x-2">
+                <AlertDialog.Cancel asChild>
+                    <button className="px-4 py-2 bg-blue-600 hover:bg-gray-400 rounded text-white">No</button>
+                </AlertDialog.Cancel>
+                <AlertDialog.Action asChild>
+                    <button className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded" onClick={handleBack}>Yes</button>
+                </AlertDialog.Action>
+            </div>
+        </AlertDialog.Content>
+    </AlertDialog.Root>
+);
+
 
 export default AddInfoPage;

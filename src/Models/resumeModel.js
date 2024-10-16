@@ -1,12 +1,16 @@
 import { json } from "react-router-dom";
 import currentApiUrl from "./apiUrl";
 
+
+//a state to keep a track of the retry count
+let retryCount = 0;
+
+
 export const getResumes = async ( ) => {
     // Get the user ID from the authentication token
     const user_id = localStorage.getItem('session') ? JSON.parse(localStorage.getItem('session')).user_id : null;
 
     try {
-        console.log(currentApiUrl)
         const response = await fetch(`${currentApiUrl}/get_resumes?user_id=${user_id}`, {
             method: 'GET', // Use the GET method
             headers: {
@@ -17,11 +21,17 @@ export const getResumes = async ( ) => {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log(data);
         return data.resumes;
         
     } catch (error) {
-        console.error('There was a problem with the fetch operation:', error);
+        if(retryCount < 10){
+            retryCount++;
+            return getResumes();
+        }
+        else{
+            console.error('There was a problem with the fetch operation:', error);
+
+        }
         
     }
 };
