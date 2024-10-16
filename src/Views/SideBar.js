@@ -26,7 +26,7 @@ export const Sidebar = ({ children, setSelectedOption }) => {
     };
 
     const getInitials = (name) => {
-        return name.split(' ').map(word => word[0]).join('');
+        return name.split(' ').map(word => word[0]).join('').substring(0, 2);
     };
 
     useEffect(() => {

@@ -3,6 +3,9 @@ import { useLocation } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { Download } from 'lucide-react';
 import { s, summary } from 'framer-motion/client';
+import DOMPurify from 'dompurify';
+import { render } from '@testing-library/react';
+
 
 
 
@@ -13,12 +16,39 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const [isOverflowing, setIsOverflowing] = useState(false);
     const location = useLocation();
 
+   
 
     //check if previewData has key words
     const data = previewData || location.state.data;
 
+    const { personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, sections, keywords,customSections,
+        customSectionData } = data;
 
-    const { personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, sections, keywords } = data;
+
+        const renderHTML = (html, keywords, isSingleLine) => {
+            const allowedTags = isSingleLine 
+                ? ['b', 'i', 'em', 'strong', 'a', 'u'] 
+                : ['b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'u', 'p'];
+
+            const sanitizedHTML = DOMPurify.sanitize(html, { 
+                ALLOWED_TAGS: allowedTags,
+                ALLOWED_ATTR: ['href', 'target', 'rel']
+            });
+            
+            if (isSingleLine) {
+                // For single line, remove all HTML tags except for inline formatting
+                // This regex now properly handles both opening and closing tags
+                const strippedHTML = sanitizedHTML.replace(/<(?!\/?(?:b|i|em|strong|a|u)\b)[^>]+>/gi, '');
+                return <span dangerouslySetInnerHTML={{ __html: strippedHTML }} />;
+            } else {
+                return <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />;
+            }
+
+            
+
+        };
+    
+  
 
     // Flexible sections
     const flexibleSections = sections;
@@ -34,7 +64,7 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         checkOverflow();
         window.addEventListener('resize', checkOverflow);
         return () => window.removeEventListener('resize', checkOverflow);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership,extracurriculars,summary, sections]);
+    }, [personalInfo, socials, education, workExperience, projects, skills,  sections]);
 
 
     // Helper function to format date
@@ -122,21 +152,11 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                         <p style={{ fontSize: '13px' }}>{exp.company}</p>
                         {exp.location && <p style={{ fontSize: '13px' }}>({exp.location})</p>}
                     </div>
-                    <ul className="list-disc pl-4" style={descriptionStyle}>
-
-                        {Array.isArray(exp.description) ? (
-                            exp.description.map((point, index) => (
-                                <li key={index}>
-                                    {highlightText(point, keywords)}
-                                </li>
-                            ))
-                        ) : (
-                            <li>
-                                {highlightText(exp.description, keywords)}
-                            </li>
-                        )}
                     
-                    </ul>
+                    <div className='work-experience' style={descriptionStyle}>
+                     {renderHTML(exp.description, keywords, false)}
+                     </div>
+
                 </div>
             ))}
         </section>
@@ -176,19 +196,9 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                             {project.link}
                         </a>
                     </div>
-                    <ul className="list-disc pl-4" style={descriptionStyle}>
-                        {Array.isArray(project.description) ? (
-                            project.description.map((point, index) => (
-                                <li key={index}>
-                                    {highlightText(point, keywords)}
-                                </li>
-                            ))
-                        ) : (
-                            <li>
-                                {highlightText(project.description, keywords)}
-                            </li>
-                        )}
-                    </ul>
+                    <div className='work-experience' style={descriptionStyle}>
+                     {renderHTML(project.description, keywords, false)}
+                     </div>
                 </div>
             ))}
         </section>
@@ -285,11 +295,73 @@ const renderLeadership = (leadership, keywords) => (
         <section className="mb-1">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>SUMMARY</h2>
             <p style={{ fontSize: '12px' }}>
-                {highlightText(summary, keywords)}
+                {renderHTML(summary, keywords, false)}
             </p>
         </section>
     );
   
+
+    const renderExtracurriculars = (extracurriculars, keywords) => (
+        <section className="mb-1">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>EXTRACURRICULAR ACTIVITIES</h2>
+            {extracurriculars.map((activity, index) => (
+                <div key={index} className="mb-1">
+                    <div className="flex justify-between items-baseline">
+                        <strong style={{ fontSize: '12.5px' }}>{activity.name}</strong>
+                        <span style= {dateStyle}>
+                            {formatDate(activity.startMonth)} - {activity.endMonth ? formatDate(activity.endMonth) : 'Present'}
+                        </span>
+                    </div>
+                    <div style={{ fontSize: '12px' }}>
+                        <span>{activity.organization}</span>
+                    </div>
+                    {activity.description && (
+                        <p style={{ fontSize: '12px', marginTop: '2px' }}>
+                            {highlightText(activity.description, keywords)}
+                        </p>
+                    )}
+                </div>
+            ))}
+        </section>
+    );
+
+    const renderCustomSection = (sectionName, sectionData, keywords, isSingle) => (
+        <section className="mb-1">
+            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
+                {sectionName.toUpperCase()}
+            </h2>
+            {sectionData.map((item, index) => (
+                <div key={index} className="mb-1">
+                    {isSingle ? (
+                        <div style={{ fontSize: '12.5px', display: 'flex', justifyContent: 'space-between' }}>
+                            <span>
+                            <strong style={subHeaderStyle}>{item.title}</strong>
+                                {item.startMonth && item.endMonth && (
+                                    <span> ({item.startMonth} - {item.endMonth}):</span>
+                                )}
+                                <span style={{ marginLeft: '4px' }}>
+                                    {renderHTML(item.description, keywords, true)}
+                                </span>
+                            </span>
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: '12.5px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                               <strong style={subHeaderStyle}>{item.title}</strong>
+                                {item.startMonth && item.endMonth && (
+                                    <DateComponent startMonth={item.startMonth} endMonth={item.endMonth} />
+                                )}
+                            </div>
+                            <div className="custom-section-content">
+                                {renderHTML(item.description, keywords, false)}
+                            </div>
+                            {item.additionalInfo && <p>{highlightText(item.additionalInfo, keywords)}</p>}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </section>
+    );
 
 
     // Function to render a section based on its type
@@ -302,27 +374,20 @@ const renderLeadership = (leadership, keywords) => (
                         {education.map((edu, index) => (
                             <div key={index} className="mb-1">
                                 <div className="flex justify-between">
-                                    <div className="flex space-x-1">
+                                    <div className="flex space-x-1 items-center">
                                         <strong style={subHeaderStyle}>{edu.college}</strong>
                                         {edu.location && <p style={{ fontSize: '12px' }}>({edu.location})</p>}
-                                
                                     </div>
                                     <DateComponent startMonth={edu.startDate} endMonth={edu.endDate} />
                                 </div>
 
                                 <div className="flex space-x-1 items-center">
-                                    {edu.degree && (
-                                        <>
-                                            <p style={{ fontSize: '12px' }}>{edu.degree}</p>
-                                            <span className="border-l border-black h-3 mx-1"></span>
-                                        </>
-                                    )}
-                                    {edu.major && (
-                                        <>
-                                            <p style={{ fontSize: '12px' }}>{edu.major}</p>
-                                            <span className="border-l border-black h-3 mx-1"></span>
-                                        </>
-                                    )}
+                                {(edu.degree && edu.major) && (
+                                    <p style={{ fontSize: '12px' }}>
+                                        {edu.degree && edu.major ? `${edu.degree} in ${edu.major}` : edu.degree || edu.major}
+                                        <span className="border-l border-black h-3 mx-1"></span>
+                                    </p>
+                                )}
                                     {edu.minor && (
                                         <>
                                             <p style={{ fontSize: '12px' }}>{edu.minor}</p>
@@ -331,8 +396,11 @@ const renderLeadership = (leadership, keywords) => (
                                     )}
                                     {edu.gpa && <p style={{ fontSize: '12px' }}>GPA: {edu.gpa}</p>}
                                 </div>
-                                <p style={{ fontSize: '12px' }}> {edu.courses.join(', ')}</p>
-
+                                {edu.courses && edu.courses.length > 0 && (
+                                    <p style={{ fontSize: '12px' }}>
+                                        <strong>Coursework:</strong> {edu.courses.join(', ')}
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </section>
@@ -343,17 +411,30 @@ const renderLeadership = (leadership, keywords) => (
                 return projects.length > 0 && renderProjects(projects, keywords);
             case 'Skills':
                 return skills.length > 0 && renderSkills(skills, keywords);
-            case 'Achievements':
-                return achievements.length > 0 && renderAchievements(achievements, keywords);
-            case 'Certifications':
-                return certifications.length > 0 && renderCertifications(certifications, keywords);
-            case 'Leadership':
-                return leadership.length >0 && renderLeadership(leadership, keywords);
-            case 'Summary':
-                return summary && renderSummary(summary, keywords);
+            // case 'Achievements':
+            //     return achievements.length > 0 && renderAchievements(achievements, keywords);
+            // case 'Certifications':
+            //     return certifications.length > 0 && renderCertifications(certifications, keywords);
+            // case 'Leadership':
+            //     return leadership.length >0 && renderLeadership(leadership, keywords);
+            // case 'Summary':
+            //     return summary && renderSummary(summary, keywords);
 
-            default:
-                return null;
+            // case 'Extracurriculars':
+            //     return extracurriculars.length > 0 && renderExtracurriculars(extracurriculars, keywords);
+
+                default:
+                    // Check if it's a custom section
+                   //render custom section
+                    const customSection = customSections.find(section => section.name === sectionType);
+                    
+                    if (customSection) {
+
+                        const sectionData = customSectionData[sectionType];
+                        return sectionData.length > 0 && renderCustomSection(sectionType, sectionData, keywords, customSection.singleLine);
+                    }
+
+                    return null;
         }
     };
 
@@ -463,6 +544,32 @@ const renderLeadership = (leadership, keywords) => (
                             </div>
                         </div>
                     )}
+                    <style jsx>{`
+        .custom-section-content ul, .work-experience ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .custom-section-content ol, .work-experience ol {
+            list-style-type: decimal;
+            padding-left: 20px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .custom-section-content li, .work-experience li {
+            margin-bottom: 2px;
+        }
+    a {
+        color: #0000EE;
+        text-decoration: underline;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+
+
+    `}</style>
 
 
 

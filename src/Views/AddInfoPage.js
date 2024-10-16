@@ -25,6 +25,8 @@ import KeywordsDialog from './KeywordsDialog';
 import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
 import { useResume } from '../Context/ResumeContext';
 import SummaryForm from './Cards/Summary';
+import CustomSectionForm from './Cards/CustomSection';
+import { i, section } from 'framer-motion/client';
 
 
 const AddInfoPage = ({ }) => {
@@ -82,8 +84,7 @@ const AddInfoPage = ({ }) => {
     { id: 2, name: 'Education', emoji: '🎓' },
     { id: 3, name: 'Work Exp.', emoji: '👔' },
     { id: 4, name: 'Projects', emoji: '🚀' },
-    { id: 5, name: 'Skills', emoji: '🔧' },
-    { id: 6, name: 'Achievements', emoji: '🏆' }]);
+    { id: 5, name: 'Skills', emoji: '🔧' },]);
     const currentSectionData = sections[currentSection];
     
     const [keywords, setKeywords] = useState([]);
@@ -94,7 +95,33 @@ const AddInfoPage = ({ }) => {
     const closeDialog = () => setIsDialogOpen(false);
 
     const { resumeState} = useResume();
+
+    const [customSections, setCustomSections] = useState([]);
+    const [customSectionData, setCustomSectionData] = useState({});
+
+    const addCustomSection = (sectionName) => {
+        const newSection = {
+            id: sections.length,
+            section_id: Date.now(),
+            name: sectionName,
+            emoji: '⚙️', // Default emoji for custom sections
+            isCustom: true,
+            singleLine: false,
+        };
+        setSections([...sections, newSection]);
+        setCustomSections([...customSections, newSection]);
+        setCustomSectionData({...customSectionData, [sectionName]: []});
+        setCurrentSection(sections.length);
+    };
+
+const handleCustomSectionChange = (sectionName, data) => {
     
+    setCustomSectionData(prevData => ({
+        ...prevData,
+        [sectionName]: data
+    }));
+};
+
 
 
 
@@ -188,14 +215,6 @@ useEffect(() => {
 
 
 
-
-
-
-
-
-    
-    
-
     //create an endpoin to post the resume data
     const postResume = async (data) => {
         const storedSession = JSON.parse(localStorage.getItem("session"));
@@ -206,6 +225,7 @@ useEffect(() => {
             status: 'draft',
             name: name
         };
+        console.log('New resume:', newResume);
         
         try {
             const response = await storeResume(newResume,set_id);
@@ -265,6 +285,16 @@ useEffect(() => {
             setSummary(data.summary || '');
             
             console.log('Current data:', data);
+            if (data.customSections) {
+                setCustomSections(data.customSections);
+                setCustomSectionData(data.customSectionData || {});
+                setSections([...sections, ...data.customSections]);
+            }
+            else {
+                setCustomSectionData({});
+                setCustomSections([]);
+            }
+
         } else if (location.state && location.state.data) {
             
             const data = location.state.data;
@@ -285,6 +315,8 @@ useEffect(() => {
             setLeadership(data.leadership);
             setExtracurriculars(data.extracurriculars);
             setSummary(data.summary || '');
+            setCustomSections(data.customSections || []);
+            setCustomSectionData(data.customSectionData || {});
             
             if(data.id === ''){
                 set_id('');
@@ -304,7 +336,6 @@ useEffect(() => {
                     { id: 3, name: 'Work Exp.', emoji: '👔' },
                     { id: 4, name: 'Projects', emoji: '🚀' },
                     { id: 5, name: 'Skills', emoji: '🔧' },
-                    { id: 6, name: 'Achievements', emoji: '🏆' }
                 ]);
             }
             
@@ -334,6 +365,14 @@ useEffect(() => {
                 setExtracurriculars([]);
             }
 
+            if(data.customSections == null){
+                data.customSections = [];
+                setCustomSections([]);
+                setCustomSectionData({});
+            }
+
+
+
         } else {
             setJobDescription('');
             setKeywords([]);
@@ -361,9 +400,10 @@ useEffect(() => {
                 { id: 3, name: 'Work Exp.', emoji: '👔' },
                 { id: 4, name: 'Projects', emoji: '🚀' },
                 { id: 5, name: 'Skills', emoji: '🔧' },
-                { id: 6, name: 'Achievements', emoji: '🏆' }
             ]);
             set_id('');
+            setCustomSectionData({});
+            setCustomSections([]);
         }
     }, []);
 
@@ -373,7 +413,7 @@ useEffect(() => {
     useEffect(() => {
 
         setSaved(false);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections,currentSection, customSections, customSectionData]);
 
 
 
@@ -431,6 +471,7 @@ useEffect(() => {
                     leadership.some(leader => leader.position !== '' || leader.organization !== '' || leader.startDate !== '' || leader.endDate !== '' || leader.description !== '') ||
                     extracurriculars.some(extra => extra !== ''),
                     name !== '' || summary !== ''
+                    
 
                 );
             };
@@ -457,9 +498,9 @@ useEffect(() => {
 
 
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars, name, sections, id, keywords, jobDescription, summary
+            personalInfo, socials, education, workExperience, projects, skills,  name, sections, id, keywords, jobDescription, summary, customSections, customSectionData
         };
-
+        
 
 
         //saved to the database
@@ -479,8 +520,93 @@ useEffect(() => {
              setCurrentSection(newCurrentSectionIndex);
         }
         setSections(newSections);
+        console.log('Updated sections:', newSections);
+        // Update the customSections
+        //go throught the sections and check if the object is a custom section, if it is update the custom section id   
+        const updatedCustomSections = customSections.map(customSection => {
+            const newSection = newSections.find(section => section.name === customSection.name);
+            return newSection ? { ...customSection, id: newSection.id } : customSection;
+        }
+        );
+        setCustomSections(updatedCustomSections);
+        console.log('Updated custom sections:', updatedCustomSections);
+
     };
 
+    const handleChangeCustomSectionName = (customSection_id, newName, sectionData) => {
+        setSections(prevSections => 
+            prevSections.map(section => 
+                section.section_id === customSection_id ? { ...section, name: newName } : section
+            )
+        );
+
+        setCustomSections(prevCustomSections => 
+            prevCustomSections.map(section => 
+                section.section_id === customSection_id ? { ...section, name: newName } : section
+            )
+        );
+
+        // Update the customSectionData
+        setCustomSectionData(prevData => {
+            const oldName = customSections.find(section => section.section_id === customSection_id)?.name;
+            if (oldName && oldName !== newName) {
+                const { [oldName]: oldData, ...rest } = prevData;
+                return {
+                    ...rest,
+                    [newName]: sectionData
+                };
+            }
+            return prevData;
+        });
+    };
+
+    const handleDeleteCustomSection = (section_id) => {
+
+
+       //remove the section from the custom sections 
+
+       const updatedCustomSections = customSections.filter(section => section.id !== section_id);
+         setCustomSections(updatedCustomSections);
+
+
+        setCustomSectionData(prevData => {
+            const sectionName = customSections.find(section => section.id === section_id)?.name;
+            if (sectionName) {
+                const { [sectionName]: _, ...rest } = prevData;
+                return rest;
+            }
+            return prevData;
+        });
+
+        const updatedSections = sections.filter(section => section.id !== section_id);
+        // Update the id of each section
+        updatedSections.forEach((section, index) => {
+            section.id = index;
+        }
+
+        );
+        setSections(updatedSections);
+
+        
+
+    }
+
+    const toggleSingleLineLayout = (section_id, isSingleLine) => {
+
+        console.log('Toggling single line layout:', section_id, isSingleLine);
+        setSections(prevSections => 
+            prevSections.map(section => 
+                section.id === section_id ? { ...section, singleLine: isSingleLine } : section
+            )
+        );
+        setCustomSections(prevCustomSections =>
+            prevCustomSections.map(section =>
+                section.id === section_id ? { ...section, singleLine: isSingleLine } : section
+            )
+        );
+
+        console.log('Updated sections:', sections);
+    }
 
 
     return (
@@ -572,6 +698,8 @@ useEffect(() => {
                         currentSection={currentSection}
                         setCurrentSection={setCurrentSection}
                         setReorderedSections={handleReorderSections}
+                        deleteCustomSection={(section_id) => handleDeleteCustomSection(section_id)}
+                        handleAddCustomSection={(sectionName) => addCustomSection(sectionName)}
                     />
                 </nav>
                 {/* Form content */}
@@ -591,11 +719,25 @@ useEffect(() => {
                         {sections[currentSection].name === 'Work Exp.' && <WorkExperience workExperience={workExperience} onChange={setWorkExperience} />}
                         {sections[currentSection].name === 'Projects' && <Projects projects_data={projects} onChange={setProjects} />}
                         {sections[currentSection].name === 'Skills' && <MultiFieldSkillsForm skill_sets={skills} onChange={setSkills} />}
-                        {sections[currentSection].name === 'Achievements' && <AchievementsForm achievements_parent={achievements} onChange={setAchievements} />}
+                        {/* {sections[currentSection].name === 'Achievements' && <AchievementsForm achievements_parent={achievements} onChange={setAchievements} />}
                         {sections[currentSection].name === 'Certifications' && <Certifications  certifications_parent={certifications} onChange={setCertifications}/>}
                         {sections[currentSection].name === 'Extracurriculars' && <Extracurriculars activities_parent={extracurriculars} onChange={setExtracurriculars} />}
                         {sections[currentSection].name === 'Leadership' && <Leadership  leadership_parent ={leadership} onChange={setLeadership} />}
-                        {sections[currentSection].name === 'Summary' && <SummaryForm summary_parent={summary} onChange={setSummary} />}
+                        {sections[currentSection].name === 'Summary' && <SummaryForm summary_parent={summary} onChange={setSummary} />} */}
+                        {customSections.map((section) => (
+                            sections[currentSection].name === section.name && (
+                                <CustomSectionForm
+                                    key={section.id}
+                                    sectionKey={section.id}
+                                    uniqueId={section.section_id}
+                                    sectionName={section.name}
+                                    data={customSectionData[section.name] || []}
+                                    onChange={(data) => handleCustomSectionChange(section.name, data)}
+                                    onChangeSectionName={handleChangeCustomSectionName}
+                                    handleIsSingleLine={(section_id, isSingleLine) => toggleSingleLineLayout(section_id, isSingleLine)}                                   
+                                />
+                            )
+                        ))}
 
                     </Card>)}
 
@@ -617,7 +759,7 @@ useEffect(() => {
                 </main>
 
                {/* Real-time preview */}
-                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} achievements={achievements} certifications={certifications} leadership={leadership} extracurriculars={extracurriculars} summary={summary} name={name} sections={sections} keywords={keywords} />
+                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} name={name} sections={sections} keywords={keywords} customSections={customSections} customSectionData={customSectionData} />
 
                 
             </div>
@@ -643,7 +785,7 @@ useEffect(() => {
             )}
             {fullView && (
                 <div className="fixed inset-0 bg-white z-50 overflow-auto">
-
+                    
                     
                     <Resume 
                     previewMode={false}
@@ -655,14 +797,11 @@ useEffect(() => {
                             workExperience,
                             projects,
                             skills,
-                            achievements,
-                            certifications,
-                            leadership,
-                            extracurriculars,
-                            summary,
                             name,
                             sections,
-                            keywords
+                            keywords,
+                            customSectionData,
+                            customSections
                         }
                        }
                        
@@ -684,6 +823,7 @@ useEffect(() => {
                 </div>
             )
             }
+
 
 
         </div>

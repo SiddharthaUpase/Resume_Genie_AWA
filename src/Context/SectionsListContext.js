@@ -10,11 +10,12 @@ const SectionsListProvider = ({ children }) => {
         { id: 3, name: 'Work Exp.', emoji: '👔' },
         { id: 4, name: 'Projects', emoji: '🚀' },
         { id: 5, name: 'Skills', emoji: '🔧' },
-        { id: 6, name: 'Achievements', emoji: '🏆' },
-        { id: 7, name: 'Certifications', emoji: '📜' },
-        { id: 8, name: 'Leadership', emoji: '👨‍👧‍👦' },
-        { id: 9, name: 'Extracurriculars', emoji: '🎭' },
-        { id: 10, name: 'Summary', emoji: '📝' }
+        // { id: 6, name: 'Achievements', emoji: '🏆' },
+        // { id: 7, name: 'Certifications', emoji: '📜' },
+        // { id: 8, name: 'Leadership', emoji: '👨‍👧‍👦' },
+        // { id: 9, name: 'Extracurriculars', emoji: '🎭' },
+        // { id: 10, name: 'Summary', emoji: '📝' },
+        { id: 11, name: 'Custom Section', emoji: '🔖', isCustom: true }
     ];
 
     const mandatorySections = [

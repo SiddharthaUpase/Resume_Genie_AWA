@@ -8,25 +8,21 @@ const ExtracurricularsForm = ({ activities_parent, onChange }) => {
 
     useEffect(() => {
         onChange(activities);
+        console.log(activities);
     }, [activities, onChange]);
 
-    useEffect(() => {
-        const initialCollapsed = {};
-        activities.forEach((_, index) => {
-            initialCollapsed[index] = true;
-        });
-        setCollapsed(initialCollapsed);
-    }, []);
 
     const handleInputChange = (index, event) => {
         const { name, value } = event.target;
         setActivities(prevActivities =>
             prevActivities.map((activity, i) => i === index ? { ...activity, [name]: value } : activity)
         );
+
+       
     };
 
     const handleAddActivity = () => {
-        setActivities(prev => [...prev, { id: Date.now(), name: '', description: '' }]);
+        setActivities(prev => [...prev, { id: Date.now(), name: '', description: '', startMonth: '', endMonth: '' }]);
     };
 
     const handleRemoveActivity = (index) => {
@@ -63,23 +59,24 @@ const ExtracurricularsForm = ({ activities_parent, onChange }) => {
             {activities.map((activity, index) => (
                 <div
                     key={activity.id}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={() => handleDragOver(index)}
-                    onDragEnd={handleDragEnd}
                     className="mb-6 p-4 border border-gray-200 rounded-lg relative"
                 >
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center flex-1">
-                            <div className="cursor-grab mr-2">
+                            <div className="cursor-grab mr-2"
+                                                draggable
+                                                onDragStart={() => handleDragStart(index)}
+                                                onDragOver={() => handleDragOver(index)}
+                                                onDragEnd={handleDragEnd}
+                            >
                                 <GripVerticalIcon className="h-5 w-5 text-gray-500" />
                             </div>
                             {collapsed[index] ? (
                                 <div className="flex-1">
                                     <h3 className="text-lg font-medium">{getPreviewText(activity)}</h3>
-                                    {activity.description && (
-                                        <p className="text-gray-600 text-sm mt-1">{activity.description}</p>
-                                    )}
+                                {activity.description && (
+                                    <p className="text-gray-600 text-sm mt-1">{activity.description.substring(0, 50)}{activity.description.length > 50 ? '...' : ''}</p>
+                                )}
                                 </div>
                             ) : null}
                         </div>
@@ -120,23 +117,44 @@ const ExtracurricularsForm = ({ activities_parent, onChange }) => {
                                     placeholder="e.g., Basketball Team"
                                 />
                             </div>
+                            <div>
+                                <label htmlFor={`startMonth-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Start Month</label>
+                                <input
+                                    type="month"
+                                    id={`startMonth-${index}`}
+                                    name="startMonth"
+                                    value={activity.startMonth}
+                                    onChange={(e) => handleInputChange(index, e)}
+                                    className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor={`endMonth-${index}`} className="block mb-2 text-sm font-medium text-gray-900">End Month</label>
+                                <input
+                                    type="month"
+                                    id={`endMonth-${index}`}
+                                    name="endMonth"
+                                    value={activity.endMonth}
+                                    onChange={(e) => handleInputChange(index, e)}
+                                    className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
 
                             <div>
                                 <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Description</label>
                                 <textarea
                                     id={`description-${index}`}
                                     name="description"
-                                    value={activity.description}
+                                    value={activity.description || ''}
                                     onChange={(e) => handleInputChange(index, e)}
                                     rows="3"
                                     maxLength="100"
-                                    className={`block w-full p-4 text-gray-900 border rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 ${
-                                        activity.description.length > 100 ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className={`block w-full p-4 text-gray-900 border rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 ${activity.description && activity.description.length > 100 ? 'border-red-500' : 'border-gray-300'
+                                        }`}
                                     placeholder="Briefly describe your activity"
                                 />
                                 <div className="text-sm text-gray-500 mt-2">
-                                    {activity.description.length}/100 characters
+                                    {(activity.description ? activity.description.length : 0)}/100 characters
                                 </div>
                             </div>
                         </div>

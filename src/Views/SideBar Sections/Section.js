@@ -26,7 +26,7 @@ const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {
     );
 };
 
-const Section = ({ sections, currentSection, setCurrentSection, setReorderedSections }) => {
+const Section = ({ sections, currentSection, setCurrentSection, setReorderedSections, deleteCustomSection, handleAddCustomSection}) => {
     const {sectionsList,mandatorySections} = useContext(SectionsListContext);
     const allAvailableSections = sectionsList;
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -69,13 +69,51 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
     };
 
     const handleAddSection = (newSection) => {
+
+        if(newSection.name == 'Custom Section')
+        {
+         const sectionName = prompt("Please enter the name of the custom section");
+
+         if(sectionName == null || sectionName == "") return;
+        const tempSectionName = sectionName.trim();
+
+        // if (['Achievements', 'Certifications', 'Leadership', 'Extracurriculars', 'Summary'].includes(tempSectionName)) {
+        //     alert("This section name is reserved and cannot be used.");
+        //     return;
+        // }
+        //check if the section name exuist in the customasections 
+        if (sections.some((section) => section.name === sectionName)) {
+            alert("This section already exists");
+            return;
+        }
+
+        handleAddCustomSection(sectionName);
+        setIsPopoverOpen(false);
+
+    }else{
+
+
         const updatedSections = [...sections, { ...newSection, id: sections.length, isActive: true }];
         setReorderedSections(updatedSections);
         setCurrentSection(updatedSections.length - 1);
         setIsPopoverOpen(false);
+
+    }
     };
 
     const handleDeleteSection = (sectionId) => {
+
+        //go through the sections and check if the object with this id is a custom section
+
+        const sectionToDelete = sections.find((section) => section.id === sectionId);
+        if (sectionToDelete.isCustom) {
+            deleteCustomSection(sectionToDelete.id);
+            console.log("Custom section deleted");
+        }
+        else {
+
+
+
         const updatedSections = sections.filter((section) => section.id !== sectionId);
         // Update the id of each section
         updatedSections.forEach((section, index) => {
@@ -83,9 +121,11 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         });
 
         setReorderedSections(updatedSections);
-        console.log(updatedSections);
-        console.log(sections);
         setLastSection();
+    }
+
+        
+
     }
 
 

@@ -55,7 +55,7 @@ const SectionItem = ({ section, currentSection, setCurrentSection, handleDeleteS
                         >
                             {section.name}
                         </span>
-                        {(section.name === 'Achievements' || section.name === 'Leadership' || section.name === 'Extracurriculars' || section.name === 'Summary' || section.name === 'Certifications') && (
+                        {(section.name === 'Achievements' || section.name === 'Leadership' || section.name === 'Extracurriculars' || section.name === 'Summary' || section.name === 'Certifications' || section.isCustom) && (
                             <span 
                                 className="cursor-pointer text-red-500 hover:bg-red-200"
                                 onClick={() => setShowDelete(true)} // Wrap the state update in a function
