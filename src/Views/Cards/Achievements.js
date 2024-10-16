@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { rewriteAchievement } from '../../Models/addInfoModels';
 import { ChevronDownIcon, ChevronUpIcon, GripVerticalIcon } from 'lucide-react';
 import { use } from 'framer-motion/client';
+import AIEnhancedEditor from "../../Custom Components/AIEnhancedEditor";
 
 const AchievementsForm = ({ achievements_parent, onChange }) => {
   const [achievements, setAchievements] = useState(
@@ -27,8 +28,6 @@ const AchievementsForm = ({ achievements_parent, onChange }) => {
 
     setCollapsed(initialCollapsed);
   }, [ ]);
-
-
 
   const handleAIrewrite = async (index, achievement) => {
     setLoading(prev => ({ ...prev, [index]: true }));
@@ -84,6 +83,12 @@ const AchievementsForm = ({ achievements_parent, onChange }) => {
     const { name, value } = event.target;
     setAchievements(prevAchievements =>
       prevAchievements.map((achievement, i) => i === index ? { ...achievement, [name]: value } : achievement)
+    );
+  };
+
+  const handleQuillChange = (index, content) => {
+    setAchievements(prevAchievements =>
+      prevAchievements.map((achievement, i) => i === index ? { ...achievement, description: content } : achievement)
     );
   };
 
@@ -186,59 +191,22 @@ const AchievementsForm = ({ achievements_parent, onChange }) => {
                   placeholder="e.g., First Place in Coding Competition"
                 />
               </div>
-
               <div>
-                <label htmlFor={`description-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Description</label>
-                <textarea
-                  id={`description-${index}`}
-                  name="description"
-                  value={aiRewriteState[index]?.rewritten || achievement.description}
-                  onChange={(e) => handleInputChange(index, e)}
-                  rows="3"
-                  maxLength="100"
-                  className={`block w-full p-4 text-gray-900 border rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 ${
-                    achievement.description.length > 100 ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Briefly describe your achievement"
-                  style={{ backgroundColor: aiRewriteState[index]?.rewritten ? '#A2FFA7' : 'white' }}
-                  disabled={holdInputBox[index]}
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <button
-                    onClick={() => handleAIrewrite(index, achievement)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                    disabled={loading[index] || aiRewriteState[index]?.rewritten}
-                  >
-                    {loading[index] ? (
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                      </svg>
-                    ) : (
-                      'AI Rewrite'
-                    )}
-                  </button>
-                  <div className="text-sm text-gray-500">
-                    {achievement.description.length}/100 characters
-                  </div>
-                </div>
-                {aiRewriteState[index]?.rewritten && (
-                  <div className="mt-2 flex space-x-2">
-                    <button 
-                      onClick={() => handleAcceptRewrite(index)}
-                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-                    >
-                      ✓ Accept
-                    </button>
-                    <button 
-                      onClick={() => handleRejectRewrite(index)}
-                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                    >
-                      ✗ Reject
-                    </button>
-                  </div>
-                )}
-              </div>
+              <AIEnhancedEditor
+                                index={index}
+                                content={achievement.description}
+                                onContentChange={handleQuillChange}
+                                label='Description'
+                                linecount={1}
+                                characterLimit={200}
+                                isDescriptionEmpty={achievement.description === ''}
+                                apiEndpoint = 'enhance_content'
+                                contentType="achievements"
+                            />
+            </div>
+              
+
+              
 
               <div>
                 <label htmlFor={`date-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Date of Achievement</label>

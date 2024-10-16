@@ -7,7 +7,6 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } 
 import { motion } from 'framer-motion';
 import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu, Brain, FileArchive } from 'lucide-react';
 import { getJsonResume, deleteResume } from '../../Models/resumeModel';
-
 const BaseResume = () => {
   const [resume_data, setResume_data] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -20,6 +19,8 @@ const BaseResume = () => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const [jsonString, setJsonString] = useState('');
   const [convertedString, setConvertedString] = useState('');
+  const [isGettingResumes, setIsGettingResumes] = useState(false);
+
 
   const wittyLoadingStatements = [
     'Hold tight, genius at work...',
@@ -69,8 +70,11 @@ const BaseResume = () => {
   }, [convertedString, navigate]);
 
   useEffect(() => {
+    setIsGettingResumes(true);
     const getResumesData = async () => {
       const data = await getResumes();
+      //add a delay to show the loading spinner
+      setIsGettingResumes(false);
       if (data) {
         setResume_data(data);
         console.log(data);
@@ -107,14 +111,12 @@ const BaseResume = () => {
 
   useEffect(() => {
     setIsDialogOpen(false);
-    console.log(pdfText);
     const fetchJsonResume = async () => {
       if (pdfText) {
         setIsLoading(true);
         try {
           const jsonResume = await getJsonResume(pdfText);
           setJsonString(jsonResume);
-          console.log(jsonResume);
         } catch (error) {
           console.error('Error fetching JSON resume:', error);
         } finally {
@@ -141,7 +143,11 @@ const BaseResume = () => {
 
   const handleEditResume = (resumeId) => {
     const data = resume_data[resumeId];
+    console.log('This is the data:', data);
     navigate('/addInfo', { state: { data } });
+    //implelemt with use resumehhok
+
+
   };
 
   const handleViewResume = (resumeId) => {
@@ -178,6 +184,7 @@ const BaseResume = () => {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
+<<<<<<< HEAD
       {resume_data.length === 0 && (
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
@@ -192,63 +199,32 @@ const BaseResume = () => {
           <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Resumes</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resume_data.map((resume, index) => (
+=======
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Resumes</h1>
+      
+      {isGettingResumes && (
+      
+        <div className="flex items-center justify-center h-96">
+          <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+        </div>
+      )
+      }
+      {!isGettingResumes && resume_data.length === 0 && (
+        <div className="flex flex-col items-center justify-center h-96">
+          <p className="text-xl text-gray-800 mb-4">You haven't created any resumes yet.</p>
+>>>>>>> CustomSections
           <motion.div
-            key={resume._id}
-            className="bg-white rounded-lg shadow-md overflow-hidden"
+            className="bg-blue-500 rounded-lg shadow-md overflow-hidden cursor-pointer"
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
+            onClick={() => handleCreateWithAI()}
           >
-            <div className="p-6">
-              
-              <div className='flex justify-between'>
-                <h2 className="text-xl font-semibold mb-4 text-gray-800">{resume.name}</h2>
-                {resume.keywords && (
-                  <motion.div
-                    initial={{ scale: 1 }}
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
-                    title="Keyword optimized"
-                  >
-                    <Brain size={24} className="ml-2 text-yellow-500" />
-                  </motion.div>
-                )}
-                {!resume.keywords && (
-                  <div title="Base Resume">
-                  
-                  <FileArchive size={24} className="ml-2 text-gray-500" />
-                  </div>
-                  
-                )}
-
-              </div>
-              <div className="flex justify-start space-x-4 ">
-                <button
-                  onClick={() => handleViewResume(index)}
-                  className="flex items-center px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-200"
-                  title='View Resume'
-                >
-                  <Eye size={18}  />
-                </button>
-                <button
-                  onClick={() => handleEditResume(index)}
-                  className="flex items-center px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-200"
-                  title='Edit Resume'
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  onClick={() => {
-                    setOpen(true);
-                    setCurrentIndex(index);
-                  }}
-                  className="flex items-center px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-200"
-                  title='Delete Resume'
-                >
-                  <Trash2 size={18}  />
-                </button>
-              </div>
+            <div className="p-6 flex flex-col items-center justify-center h-full text-white">
+              <PlusCircle size={48} className="mb-4" />
+              <span className="text-xl font-semibold">Create New Resume</span>
             </div>
           </motion.div>
+<<<<<<< HEAD
         ))}
         <motion.div
           className="bg-blue-500 rounded-lg shadow-md overflow-hidden cursor-pointer"
@@ -263,6 +239,88 @@ const BaseResume = () => {
         </motion.div>
       </div>
           
+=======
+        </div>
+      )}
+
+      
+      {!isGettingResumes && resume_data.length > 0 && (
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {resume_data.map((resume, index) => (
+           <motion.div
+             key={resume._id}
+             className="bg-white rounded-lg shadow-md overflow-hidden"
+             whileHover={{ scale: 1.03 }}
+             transition={{ duration: 0.2 }}
+           >
+             <div className="p-6">
+               
+               <div className='flex justify-between'>
+                 <h2 className="text-xl font-semibold mb-4 text-gray-800">{resume.name}</h2>
+                 {resume.keywords && (
+                   <motion.div
+                     initial={{ scale: 1 }}
+                     animate={{ scale: [1, 1.2, 1] }}
+                     transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
+                     title="Keyword optimized"
+                   >
+                     <Brain size={24} className="ml-2 text-yellow-500" />
+                   </motion.div>
+                 )}
+                 {!resume.keywords && (
+                   <div title="Base Resume">
+                   
+                   <FileArchive size={24} className="ml-2 text-gray-500" />
+                   </div>
+                   
+                 )}
+ 
+               </div>
+               <div className="flex justify-start space-x-4 ">
+                 <button
+                   onClick={() => handleViewResume(index)}
+                   className="flex items-center px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-200"
+                   title='View Resume'
+                 >
+                   <Eye size={18}  />
+                 </button>
+                 <button
+                   onClick={() => handleEditResume(index)}
+                   className="flex items-center px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-200"
+                   title='Edit Resume'
+                 >
+                   <Edit size={18} />
+                 </button>
+                 <button
+                   onClick={() => {
+                     setOpen(true);
+                     setCurrentIndex(index);
+                   }}
+                   className="flex items-center px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-200"
+                   title='Delete Resume'
+                 >
+                   <Trash2 size={18}  />
+                 </button>
+               </div>
+             </div>
+           </motion.div>
+         ))}
+         <motion.div
+           className="bg-blue-500 rounded-lg shadow-md overflow-hidden cursor-pointer"
+           whileHover={{ scale: 1.03 }}
+           transition={{ duration: 0.2 }}
+           onClick={() => handleCreateWithAI()}
+         >
+           <div className="p-6 flex flex-col items-center justify-center h-full text-white">
+             <PlusCircle size={48} className="mb-4" />
+             <span className="text-xl font-semibold">Create New Resume</span>
+           </div>
+         </motion.div>
+       </div>
+      )
+        }
+     
+>>>>>>> CustomSections
       {showDialog && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
           <motion.div
