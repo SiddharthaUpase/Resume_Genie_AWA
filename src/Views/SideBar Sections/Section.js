@@ -16,7 +16,10 @@ const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {
                     <button
                         key={section.name}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                        onClick={() => onAddSection(section)}
+                        onClick={() => {
+                            onAddSection(section);
+                            onClose();
+                        }}
                     >
                         {section.name}
                     </button>
@@ -171,7 +174,6 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                 <button
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-                    onBlur={() => setIsPopoverOpen(false)}
                 >
                     <CirclePlus className="h-6 w-6 text-lightBlue-500" />
                 </button>
