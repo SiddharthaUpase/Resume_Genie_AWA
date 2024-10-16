@@ -6,7 +6,7 @@ import CustomResume from './HomePage/CustomResume';
 import { Sidebar, SidebarItem } from './SideBar';
 import { Layout, FileText, LogOut, Brain } from 'lucide-react';
 import LogOutPage from './HomePage/LogOut';
-import FeedbackForm from './FeedbackForm';
+import FeedbackForm from './HomePage/FeedbackForm';
 
 
 const Home = () => {
