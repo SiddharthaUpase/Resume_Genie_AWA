@@ -10,19 +10,23 @@ const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-            <div className="py-1">
-                {availableSections.map((section) => (
-                    <button
-                        key={section.name}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                        onClick={() => onAddSection(section)}
-                    >
-                        {section.name}
-                    </button>
-                ))}
-            </div>
-        </div>
+       <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+    <div className="py-1">
+        {availableSections.map((section) => (
+            <button
+                key={section.name}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                onClick={() => {
+                    onAddSection(section);
+                    setIsPopoverOpen(false); // Close the popover after adding the section
+                }}
+            >
+                {section.name}
+            </button>
+        ))}
+    </div>
+</div>
+
     );
 };
 
@@ -171,7 +175,7 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                 <button
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-                    onBlur={() => setIsPopoverOpen(false)}
+                    
                 >
                     <CirclePlus className="h-6 w-6 text-lightBlue-500" />
                 </button>
