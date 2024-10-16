@@ -85,12 +85,12 @@ const CustomSectionForm = ({ sectionKey, sectionName, uniqueId, data, onChange, 
     };
     
 
-    const getPreviewText = (item) => {
+    const getPreviewText = (item,index) => {
         let preview = item.title;
         if (item.startMonth) {
             preview += ` (${item.startMonth} - ${item.endMonth || 'Present'})`;
         }
-        return preview || 'Untitled Item';
+        return preview || `Item ${index + 1}`;
     };
 
     const quillModules = {
@@ -162,7 +162,7 @@ const CustomSectionForm = ({ sectionKey, sectionName, uniqueId, data, onChange, 
                             </div>
                             {collapsed[index] ? (
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-medium">{getPreviewText(item)}</h3>
+                                    <h3 className="text-lg font-medium">{getPreviewText(item, index)}</h3>
                                     
                                     {!isQuillContentEmpty(item.description) && (
                                         <p className="text-gray-600 text-sm mt-1">{item.description.substring(0, 20)}{item.description.length > 10 ? '...' : ''}</p>
