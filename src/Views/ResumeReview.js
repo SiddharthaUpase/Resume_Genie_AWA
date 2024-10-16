@@ -430,8 +430,8 @@ const renderLeadership = (leadership, keywords) => (
                                         <strong style={subHeaderStyle}>{edu.college}</strong>
                                         {edu.location && <p style={{ fontSize: '12px' }}>({edu.location})</p>}
                                     </div>
-                                    {edu.startMonth && edu.endMonth && (
-                                        <DateComponent startMonth={edu.startMonth} endMonth={edu.endMonth} />
+                                    {edu.startDate && edu.endDate && (
+                                        <DateComponent startMonth={edu.startDate} endMonth={edu.endDate} />
                                     )}
                                 </div>
 
