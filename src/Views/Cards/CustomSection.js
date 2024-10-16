@@ -217,7 +217,8 @@ const CustomSectionForm = ({ sectionKey, sectionName, uniqueId, data, onChange, 
                                 characterLimit={200}
                                 isDescriptionEmpty={isQuillContentEmpty(item.description)}
                                 apiEndpoint='enhance_content'
-                                contentType='generic'
+                                contentType= {tempSectionName}
+                                
                             />
                             <div>
                                 <label htmlFor={`startMonth-${index}`} className="block mb-2 text-sm font-medium text-gray-900">Start Date</label>
