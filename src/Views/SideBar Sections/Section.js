@@ -4,7 +4,7 @@ import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinat
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import SectionItem from './SectionItem';
 import { SectionsListContext } from '../../Context/SectionsListContext';
-import { PlusCircle } from 'lucide-react';
+import { CirclePlus } from 'lucide-react';
 
 const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {
     if (!isOpen) return null;
@@ -171,8 +171,9 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
                 <button
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                    onBlur={() => setIsPopoverOpen(false)}
                 >
-                    <PlusCircle className="h-6 w-6 text-indigo-600" />
+                    <CirclePlus className="h-6 w-6 text-lightBlue-500" />
                 </button>
                 
                 <Popover
