@@ -184,22 +184,6 @@ const BaseResume = () => {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-<<<<<<< HEAD
-      {resume_data.length === 0 && (
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-            <p className="mt-4 text-xl font-semibold text-gray-800">Loading resumes...</p>
-          </div>
-        </div>
-      )}
-
-      {resume_data.length > 0 && (
-        <div>
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Resumes</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resume_data.map((resume, index) => (
-=======
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Resumes</h1>
       
       {isGettingResumes && (
@@ -212,7 +196,6 @@ const BaseResume = () => {
       {!isGettingResumes && resume_data.length === 0 && (
         <div className="flex flex-col items-center justify-center h-96">
           <p className="text-xl text-gray-800 mb-4">You haven't created any resumes yet.</p>
->>>>>>> CustomSections
           <motion.div
             className="bg-blue-500 rounded-lg shadow-md overflow-hidden cursor-pointer"
             whileHover={{ scale: 1.03 }}
@@ -224,22 +207,6 @@ const BaseResume = () => {
               <span className="text-xl font-semibold">Create New Resume</span>
             </div>
           </motion.div>
-<<<<<<< HEAD
-        ))}
-        <motion.div
-          className="bg-blue-500 rounded-lg shadow-md overflow-hidden cursor-pointer"
-          whileHover={{ scale: 1.03 }}
-          transition={{ duration: 0.2 }}
-          onClick={() => handleCreateWithAI()}
-        >
-          <div className="p-6 flex flex-col items-center justify-center h-full text-white">
-            <PlusCircle size={48} className="mb-4" />
-            <span className="text-xl font-semibold">Create New Resume</span>
-          </div>
-        </motion.div>
-      </div>
-          
-=======
         </div>
       )}
 
@@ -320,7 +287,6 @@ const BaseResume = () => {
       )
         }
      
->>>>>>> CustomSections
       {showDialog && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
           <motion.div
@@ -386,10 +352,21 @@ const BaseResume = () => {
           </button>
         </DialogActions>
       </Dialog>
-          </div>
-      )}
-      
 
+      {isloading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-white p-8 rounded-lg shadow-xl text-center"
+        >
+          <p className="mb-4 text-xl font-semibold text-gray-800">
+            {currentStatement}
+          </p>
+          <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+        </motion.div>
+      </div>
+      )}
     </div>
   );
 };
