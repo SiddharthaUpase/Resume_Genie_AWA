@@ -5,8 +5,9 @@ import pdfToText from 'react-pdftotext';
 import { getResumes } from '../../Models/resumeModel';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { motion } from 'framer-motion';
-import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu, Brain, FileArchive } from 'lucide-react';
+import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu, Brain, FileArchive,Copy } from 'lucide-react';
 import { getJsonResume, deleteResume } from '../../Models/resumeModel';
+import { storeResume } from '../../Models/addInfoModels';
 const BaseResume = () => {
   const [resume_data, setResume_data] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -145,6 +146,15 @@ const BaseResume = () => {
     navigate('/addInfo');
   };
 
+  const handleCopyResume = (resumeId)=>{
+    const orgData = resume_data[resumeId];
+
+const data = {...orgData , id:''};
+console.log('This is the data:', data);
+    navigate('/addInfo', { state: { data} });
+
+  };
+
   const handleEditResume = (resumeId) => {
     const data = resume_data[resumeId];
     console.log('This is the data:', data);
@@ -272,6 +282,14 @@ const BaseResume = () => {
                  >
                    <Trash2 size={18}  />
                  </button>
+
+                 <button
+                    className="flex items-center px-3 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-200"
+                    title='Copy Resume'
+                    onClick={() => handleCopyResume(index)}
+                  >
+                    <Copy size={18} />
+                </button>
                </div>
              </div>
            </motion.div>
