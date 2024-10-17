@@ -17,11 +17,12 @@ const AIEnhancedEditor = ({
   }) => {
     const [activeTab, setActiveTab] = useState('generateDescription');
     const [customPrompt, setCustomPrompt] = useState('');
+    const [addPointPrompt, setAddPointPrompt] = useState('');
     const [lineCount, setLineCount] = useState(linecount);
     const [charCount, setCharCount] = useState(characterLimit);
     const [animateAIRewrite, setAnimateAIRewrite] = useState(false);
     const [animationProgress, setAnimationProgress] = useState(0);
-    const [descriptionGenerated, setDescriptionGenerated] = useState(!isDescriptionEmpty);
+    const [descriptionGenerated, setDescriptionGenerated] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
 
     useEffect(() => {
@@ -146,7 +147,7 @@ const AIEnhancedEditor = ({
                 }`}
               >
                 <Wand2 className="inline-block w-4 h-4 mr-1" />
-                Regenerate Description
+                Generate Description
               </button>
               <button
                 onClick={() => setActiveTab('customAIRewrite')}
@@ -195,7 +196,7 @@ const AIEnhancedEditor = ({
         </div>
 
         <div className="mt-2">
-          {!descriptionGenerated && (
+          {/* {!descriptionGenerated && (
             <div className="flex space-x-2 items-center ">
             <button
               onClick={() => handleAIRewrite()}
@@ -226,7 +227,7 @@ const AIEnhancedEditor = ({
             
             
             </div>
-          )}
+          )} */}
           {descriptionGenerated && activeTab === 'generateDescription' && (
             <button
               onClick={() => handleAIRewrite()}
@@ -234,25 +235,25 @@ const AIEnhancedEditor = ({
               disabled={isGenerating}
             >
               <Wand2 className="inline-block w-4 h-4 mr-1" />
-              {isGenerating ? 'Generating...' : 'Regenerate Description'}
+              {isGenerating ? 'Generating...' : 'Generate Description'}
             </button>
           )}
           {descriptionGenerated && (activeTab === 'customAIRewrite' || activeTab === 'addPoint') && (
             <div className="flex space-x-2">
               <input
                 type="text"
-                placeholder={activeTab === 'customAIRewrite' ? "Enter custom instructions" : "Enter point to add"}
+                placeholder={activeTab === 'customAIRewrite' ? "Enter custom instructions to customize the description" : "In short, what's the point?"}
                 className="flex-grow p-2 border rounded"
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
+                value={activeTab === 'customAIRewrite' ? customPrompt : addPointPrompt}
+                onChange={(e) => activeTab === 'customAIRewrite' ? setCustomPrompt(e.target.value) : setAddPointPrompt(e.target.value)}
               />
               <button
-                onClick={() => activeTab === 'customAIRewrite' ? handleAIRewrite(customPrompt) : handleAddPoint(customPrompt)}
+                onClick={() => activeTab === 'customAIRewrite' ? handleAIRewrite(customPrompt) : handleAddPoint(addPointPrompt)}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                 disabled={isGenerating}
               >
                 <Wand2 className="inline-block w-4 h-4 mr-1" />
-                {isGenerating ? 'Generating...' : (activeTab === 'customAIRewrite' ? 'Custom AI Rephrase' : 'Add Point')}
+                {isGenerating ? 'Generating...' : (activeTab === 'customAIRewrite' ? 'AI Rephrase' : 'Add Point')}
               </button>
             </div>
           )}

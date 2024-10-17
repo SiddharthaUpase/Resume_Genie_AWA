@@ -16,6 +16,8 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const [isOverflowing, setIsOverflowing] = useState(false);
     const location = useLocation();
 
+    console.log(previewData);
+
    
 
     //check if previewData has key words
@@ -244,9 +246,15 @@ const highlightText = (text, keywords) => {
                                 <DateComponent startMonth={project.startMonth} endMonth={project.endMonth} />
                             )}
                         </div>
-                        <a href={project.link} className="text-blue-600 hover:underline" style={{ fontSize: '13px' }}>
-                            {project.link}
-                        </a>
+                    <a 
+                        href={project.link} 
+                        className="text-blue-600 hover:underline" 
+                        style={{ fontSize: '13px' }} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                    >
+                        {project.link}
+                    </a>
                     </div>
                     <div className='work-experience' style={descriptionStyle}>
                      {renderHTML(project.description, keywords, false)}

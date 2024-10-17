@@ -472,6 +472,24 @@ const saveRetryCount = useRef(0);
 
         setfullView(true);
     };
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const data = {
+                personalInfo, socials, education, workExperience, projects, skills, name, sections, id, customSections, customSectionData, keywords, jobDescription, summary, achievements, certifications, leadership, extracurriculars
+            };
+            localStorage.setItem('current_resume_data', JSON.stringify(data));
+            console.log('Auto-saved resume data');
+        }, 5000); // 10 seconds
+
+        console.log('Auto-save interval started');
+
+
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    }, [personalInfo, socials, education, workExperience, projects, skills, name, sections, id, customSections, customSectionData, keywords, jobDescription, summary, achievements, certifications, leadership, extracurriculars]);
+
+
+
     const handleBack = () => {
         const currentData = localStorage.getItem('current_resume_data');
         if (currentData) {
