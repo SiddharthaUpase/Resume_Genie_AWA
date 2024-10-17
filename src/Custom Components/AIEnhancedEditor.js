@@ -196,46 +196,23 @@ const AIEnhancedEditor = ({
         </div>
 
         <div className="mt-2">
-          {/* {!descriptionGenerated && (
-            <div className="flex space-x-2 items-center ">
-            <button
-              onClick={() => handleAIRewrite()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-              disabled={isGenerating || content.trim() === ''}
-            >
-              <Wand2 className="inline-block w-4 h-4 mr-1" />
-              {isGenerating ? 'Generating...' : 'Generate Description'}
-            </button>
-            
-            
-            {content.trim() !== '' && ( 
-              <div>
-              <span> or</span>
-              <span
-              onClick={() => {
-                setDescriptionGenerated(true);
-              }}
-              className="px-4 py-2 text-blue-500 cursor-pointer"
-            >
-              {'Use existing'}
-            </span>
-            </div>
-            )
-              
-            }
-            
-            
-            
-            </div>
-          )} */}
           {descriptionGenerated && activeTab === 'generateDescription' && (
             <button
               onClick={() => handleAIRewrite()}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
               disabled={isGenerating}
             >
-              <Wand2 className="inline-block w-4 h-4 mr-1" />
-              {isGenerating ? 'Generating...' : 'Generate Description'}
+             
+              {isGenerating ?  <>
+            <span className="inline-block w-4 h-4 mr-2 border-t-2 border-white rounded-full animate-spin"></span>
+            Generating...
+          </> : 
+          <>
+           <Wand2 className="inline-block w-4 h-4 mr-1" />
+            Generate Description
+          </>
+
+          }
             </button>
           )}
           {descriptionGenerated && (activeTab === 'customAIRewrite' || activeTab === 'addPoint') && (
@@ -252,8 +229,18 @@ const AIEnhancedEditor = ({
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                 disabled={isGenerating}
               >
-                <Wand2 className="inline-block w-4 h-4 mr-1" />
-                {isGenerating ? 'Generating...' : (activeTab === 'customAIRewrite' ? 'AI Rephrase' : 'Add Point')}
+               
+                {isGenerating ? (
+          <>
+            <span className="inline-block w-4 h-4 mr-2 border-t-2 border-white rounded-full animate-spin"></span>
+            Generating...
+          </>
+        ) : (
+          <>
+            <Wand2 className="inline-block w-4 h-4 mr-1" />
+            {activeTab === 'customAIRewrite' ? 'AI Rephrase' : 'Add Point'}
+          </>
+        )}
               </button>
             </div>
           )}
