@@ -150,7 +150,7 @@ const BaseResume = () => {
     const orgData = resume_data[resumeId];
 
 const data = {...orgData , id:''};
-console.log('This is the data:', data);
+    data.name = data.name + ' - Copy';
     navigate('/addInfo', { state: { data} });
 
   };
