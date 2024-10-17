@@ -320,7 +320,7 @@ const WorkExperienceForm = ({ workExperience, onChange }) => {
                                 characterLimit={200}
                                 isDescriptionEmpty={exp.description === ''}
                                 apiEndpoint = 'rephrase_work_description'
-                                contentType="work"
+                                contentType="Work"
                             />
             </div>
           )}

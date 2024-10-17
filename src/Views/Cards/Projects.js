@@ -296,6 +296,7 @@ const ProjectForm = ({ projects_data, onChange }) => {
                   linecount={2}
                   characterLimit={200}
                   isDescriptionEmpty={proj.description === ''}
+                  contentType="Project"
                 />
               </div>
               

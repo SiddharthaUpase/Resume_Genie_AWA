@@ -272,7 +272,16 @@ const data = {...orgData , id:''};
                  >
                    <Edit size={18} />
                  </button>
+                 
+
                  <button
+                    className="flex items-center px-3 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-200"
+                    title='Duplicate Resume'
+                    onClick={() => handleCopyResume(index)}
+                  >
+                    <Copy size={18} />
+                </button>
+                <button
                    onClick={() => {
                      setOpen(true);
                      setCurrentIndex(index);
@@ -282,14 +291,6 @@ const data = {...orgData , id:''};
                  >
                    <Trash2 size={18}  />
                  </button>
-
-                 <button
-                    className="flex items-center px-3 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-200"
-                    title='Copy Resume'
-                    onClick={() => handleCopyResume(index)}
-                  >
-                    <Copy size={18} />
-                </button>
                </div>
              </div>
            </motion.div>
