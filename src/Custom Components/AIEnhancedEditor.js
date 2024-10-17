@@ -31,7 +31,7 @@ const AIEnhancedEditor = ({
           setAnimationProgress((prev) => {
             if (prev < 100) {
               animationFrame = requestAnimationFrame(animate);
-              return prev + 1; // Decrease the increment to slow down the animation
+              return prev + 2; // Decrease the increment to slow down the animation
             }
             return 100;
           });
@@ -182,7 +182,8 @@ const AIEnhancedEditor = ({
                 ['clean']
               ]
             }}
-            placeholder={content.trim() === '' ? 'Briefly explain what you wanna write about' : ''}
+            placeholder={content.trim() === ''||'<p><br><p>' ? `Provide a brief overview of your ${contentType}, including goals, methods, and outcomes.` : ''}
+
           />
           {animateAIRewrite && (
             <div 
@@ -195,6 +196,7 @@ const AIEnhancedEditor = ({
 
         <div className="mt-2">
           {!descriptionGenerated && (
+            <div className="flex space-x-2 items-center ">
             <button
               onClick={() => handleAIRewrite()}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
@@ -203,6 +205,27 @@ const AIEnhancedEditor = ({
               <Wand2 className="inline-block w-4 h-4 mr-1" />
               {isGenerating ? 'Generating...' : 'Generate Description'}
             </button>
+            
+            
+            {content.trim() !== '' && ( 
+              <div>
+              <span> or</span>
+              <span
+              onClick={() => {
+                setDescriptionGenerated(true);
+              }}
+              className="px-4 py-2 text-blue-500 cursor-pointer"
+            >
+              {'Use existing'}
+            </span>
+            </div>
+            )
+              
+            }
+            
+            
+            
+            </div>
           )}
           {descriptionGenerated && activeTab === 'generateDescription' && (
             <button
