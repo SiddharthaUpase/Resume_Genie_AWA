@@ -16,7 +16,6 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const [isOverflowing, setIsOverflowing] = useState(false);
     const location = useLocation();
 
-    console.log(previewData);
 
    
 

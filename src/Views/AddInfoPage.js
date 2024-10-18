@@ -26,7 +26,7 @@ import { ProgressInfoContext} from '../Context/ProgressInfoContext';
 import { useResume } from '../Context/ResumeContext';
 import SummaryForm from './Cards/Summary';
 import CustomSectionForm from './Cards/CustomSection';
-import { i, section } from 'framer-motion/client';
+import { i, section, use } from 'framer-motion/client';
 
 
 const AddInfoPage = ({ }) => {
@@ -35,9 +35,6 @@ const AddInfoPage = ({ }) => {
     const location = useLocation();
     const [currentSection, setCurrentSection] = useState(0);
 
-    useEffect(() => {
-        console.log('Current Section was changed', currentSection);
-    }, [currentSection]);
 
 
     const [personalInfo, setPersonalInfo] = useState({ first_name: '', last_name: '', email: '', phone: '', location: '' });
@@ -122,6 +119,8 @@ const handleCustomSectionChange = (sectionName, data) => {
         [sectionName]: data
     }));
 };
+
+
 
 
 
@@ -502,14 +501,16 @@ const saveRetryCount = useRef(0);
     }
 
 
-    //show alert dialog
     const checkIfSaved = () => {
+        const current_resume_data = localStorage.getItem('current_resume_data');
+    
+        if (current_resume_data) {
+            localStorage.removeItem('current_resume_data');
+        } 
+    
         if (saved) {
             navigate('/home');
-            localStorage.removeItem('current_resume_data');
-        }
-        else {
-            //check if any content has been added
+        } else {
             const isContentAdded = () => {
                 return (
                     personalInfo.first_name !== '' ||
@@ -523,25 +524,22 @@ const saveRetryCount = useRef(0);
                     projects.some(project => project.title !== '' || project.description !== '' || project.link !== '') ||
                     skills.length > 0 ||
                     achievements.some(achievement => achievement.title !== '' || achievement.description !== '' || achievement.date !== '') ||
-                    certifications.some(certification => certification.name !== '' || certification.issuer !== '' || certification.dateObtained !== '' || certification.expirationDate !== '' || certification.credentialID !== '' || certification.credentialURL !== '' || certification.description !== '')   ||
+                    certifications.some(certification => certification.name !== '' || certification.issuer !== '' || certification.dateObtained !== '' || certification.expirationDate !== '' || certification.credentialID !== '' || certification.credentialURL !== '' || certification.description !== '') ||
                     leadership.some(leader => leader.position !== '' || leader.organization !== '' || leader.startDate !== '' || leader.endDate !== '' || leader.description !== '') ||
-                    extracurriculars.some(extra => extra !== ''),
-                    name !== '' || summary !== ''
-                    
-
+                    extracurriculars.some(extra => extra !== '') ||
+                    name !== '' ||
+                    summary !== ''
                 );
             };
-
-
+    
+    
             if (isContentAdded()) {
                 setShowConfirmDialog(true);
-
-            }
-            else {
+            } else {
                 navigate('/home');
             }
         }
-    }
+    };
 
     const saveData = () => {
 

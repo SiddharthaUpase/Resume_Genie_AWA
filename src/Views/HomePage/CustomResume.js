@@ -40,13 +40,13 @@ const CustomResume = () => {
         setKeywords([]);
     }, [jobDescription]);
 
-    //increment part
-    useEffect(() => {
-        if (keywords.length > 0) {
-            setPart(1);
-        }
-    }
-        , [keywords]);
+    // //increment part
+    // useEffect(() => {
+    //     if (keywords.length > 0) {
+    //         setPart(1);
+    //     }
+    // }
+    //     , [keywords]);
 
     const handleResumeChange = (event) => {
         const selectedId = event.target.value;

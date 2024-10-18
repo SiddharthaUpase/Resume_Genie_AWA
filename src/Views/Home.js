@@ -35,6 +35,10 @@ const Home = () => {
         return <CustomResume />;
         case 'logout':
             return <LogOutPage />;
+        
+        case 'customize':
+
+        return <CustomResume />;
 
         case 'feedback':
             return <FeedbackForm />;

@@ -46,9 +46,6 @@ const Section = ({ sections, currentSection, setCurrentSection, setReorderedSect
         console.log('Current Section was changed', currentSection);
     }, [currentSection]);
 
-    useEffect(() => {
-        console.log("Sections updated:", sections);
-      }, [sections]);
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
