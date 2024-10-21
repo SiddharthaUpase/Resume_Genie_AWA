@@ -104,12 +104,14 @@ export const deleteResume = async (resumeId) => {
 
 
 //write a function to get keywords from only a job description
-export const getKeywords = async (jobDescription) => {
+export const getKeywords = async (jobDescription, resume_id) => {
     if (!jobDescription) {
         throw new Error('Job description is required');
     }
 
-    console.log(jobDescription);
+    if(!resume_id){
+        throw new Error('Resume data is required');
+    }
 
     try {
         const response = await fetch(`${currentApiUrl}/get_keywords`, {
@@ -117,7 +119,9 @@ export const getKeywords = async (jobDescription) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ job_description: jobDescription }),
+            body: JSON.stringify({ job_description: jobDescription,
+                resume_id: resume_id 
+             }),
         });
 
         if (!response.ok) {
@@ -126,14 +130,9 @@ export const getKeywords = async (jobDescription) => {
 
         const data = await response.json();
         
-        const keywords = JSON.parse(data.keywords);
-        for (let i = 0; i < keywords.length; i++) {
-            keywords[i] = keywords[i].toLowerCase();
-        }
-        
 
-        if (keywords) {
-            return keywords;
+        if (data) {
+            return data;
         } else {
             throw new Error('Keywords not found in API response');
         }
@@ -143,13 +142,13 @@ export const getKeywords = async (jobDescription) => {
     }
 };
 
-export const injectKeywords = async (resumeId, keywords) => {
-    if (!resumeId) {
-        throw new Error('Resume ID is required');
+export const injectKeywords = async (resumeData, sections, keywords,summary) => {
+    if (!resumeData) {
+        throw new Error('Resume is required');
     }
 
-    if (!keywords) {
-        throw new Error('Keywords are required');
+    if (!sections) {
+        throw new Error('Sections are required');
     }
 
     try {
@@ -158,7 +157,11 @@ export const injectKeywords = async (resumeId, keywords) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ resume_id: resumeId, keywords: keywords }),
+            body: JSON.stringify({ resume_data: resumeData, 
+                sections: sections, 
+                keywords: keywords,
+                summary: summary
+            }),
         });
 
         if (!response.ok) {
@@ -167,11 +170,8 @@ export const injectKeywords = async (resumeId, keywords) => {
 
         const data = await response.json();
 
-        if (data.success) {
-            return data.resume;
-        } else {
-            throw new Error('Failed to inject keywords');
-        }
+        return data;
+
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
         throw error;
@@ -205,3 +205,29 @@ export const getAllResumes = async (user_id) => {
         throw error;
     }
 };
+
+
+export const getResume = async (resumeId) => {
+    if (!resumeId) {
+        throw new Error('Resume ID is required');
+    }
+
+    try {
+        const response = await fetch(`${currentApiUrl}/get_resume?resume_id=${resumeId}`);
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        if (data.resume) {
+            return data.resume;
+        } else {
+            throw new Error('Resume not found in API response');
+        }
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+        throw error;
+    }
+}

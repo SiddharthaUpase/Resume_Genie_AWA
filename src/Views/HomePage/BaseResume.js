@@ -197,7 +197,7 @@ const data = {...orgData , id:''};
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Resumes</h1>
       
       {isGettingResumes && (

@@ -65,12 +65,12 @@ const Home = () => {
           option="base"
           active={selectedOption === 'base'}
         />
-        {/* <SidebarItem
+        <SidebarItem
           icon={<Brain size={20} />}
           text="Customize Resume"
           option="customize"
           active={selectedOption === 'customize'}
-        /> */}
+        />
         
         <SidebarItem
           icon={<FileText size={20} />}
