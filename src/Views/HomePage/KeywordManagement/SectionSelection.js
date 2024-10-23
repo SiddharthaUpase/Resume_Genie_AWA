@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getResume } from '../../../Models/resumeModel';
 import { injectKeywords } from '../../../Models/resumeModel';
+import { json, useNavigate } from 'react-router-dom';
+import { data } from 'autoprefixer';
+
+
 
 const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) => {
   const [resume, setResume] = useState(null);
   const [selectedSections, setSelectedSections] = useState([]);
   const [isloading, setIsLoading] = useState(false);
-  console.log(keywords);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -22,12 +26,67 @@ const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) 
     fetchResume();
   }, [resumeId]);
 
+ 
+
   const handleInjectKeywords = async () => {
-    //make api call to inject keywords
     setIsLoading(true);
-    const data = await injectKeywords(resume, selectedSections, keywords, summary);
-    setIsLoading(false);
+    try {
+      const response = await injectKeywords(resume, selectedSections, keywords, summary);
+      const enhancedResume = response.enhanced_resume;
+      
+      // Parse the JSON strings in the response
+      const parsedData = {};
+      for (let section in enhancedResume) {
+        try {
+          parsedData[section] = JSON.parse(enhancedResume[section]);
+        } catch (error) {
+          console.error(`Error parsing ${section}:`, error);
+          parsedData[section] = enhancedResume[section]; // Keep original if parsing fails
+        }
+      }
+  
+      // Update the resume data with the parsed content
+      for (let section in parsedData) {
+        // Handle main sections
+        if (resume[section]) {
+          resume[section].forEach((item, index) => {
+            if (parsedData[section][index]) {
+              item.description = parsedData[section][index].description;
+            }
+          });
+        } 
+        // Handle custom sections
+        else if (resume.customSectionData) {
+          for (let customSection in resume.customSectionData) {
+            if (customSection === section) {
+              resume.customSectionData[customSection].forEach((item, index) => {
+                if (parsedData[section][index]) {
+                  item.description = parsedData[section][index].description;
+                }
+              });
+            }
+          }
+        }
+      }
+      resume.keywords = keywords;
+      resume.name = resume.name + ' Enhanced';
+      resume.id = null; // Clear the ID to create a new resume
+      setResume({...resume}); // Create a new object reference to trigger re-render
+      setIsLoading(false);
+
+      handleNavigate();
+    } catch (error) {
+      console.error('Error processing keywords:', error);
+      setIsLoading(false);
+    }
   };
+
+  const handleNavigate = () => {
+
+    const data = resume;
+        //navigate to the add info page with the updated resume
+        navigate('/addInfo', { state: { data } });
+    };
 
 
   const handleSectionToggle = (section) => {

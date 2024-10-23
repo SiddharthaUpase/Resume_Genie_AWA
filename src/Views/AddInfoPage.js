@@ -40,6 +40,7 @@ const AddInfoPage = ({ }) => {
     }, [currentSection]);
 
 
+
     const [personalInfo, setPersonalInfo] = useState({ first_name: '', last_name: '', email: '', phone: '', location: '' });
     const [socials, setSocials] = useState([
         { platform: 'linkedin', url: '' },
@@ -99,6 +100,7 @@ const AddInfoPage = ({ }) => {
 
     const [customSections, setCustomSections] = useState([]);
     const [customSectionData, setCustomSectionData] = useState({});
+    const [margins, setMargins] = useState({ margin_left: 4, margin_right: 4, margin_top: 1 });
 
     const addCustomSection = (sectionName) => {
         const newSection = {
@@ -248,7 +250,7 @@ const saveRetryCount = useRef(0);
     //create an endpoin to post the resume data
     const postResume = async (data) => {
         const storedSession = JSON.parse(localStorage.getItem("session"));
-
+        console.log(data);
         const newResume = {
             user_id: storedSession.user_id,
             resume_data: data,
@@ -282,94 +284,63 @@ const saveRetryCount = useRef(0);
 
     useEffect(() => {
         const currentData = localStorage.getItem('current_resume_data');
-
-        //use resume data from the json file and set the sections to the default sections
-        // if (resume) {
-        //     console.log('Resume data:', resume);
-        //     setKeywords(resume.keywords);
-        //     setJobDescription(resume.jobDescription);
-        //     setPersonalInfo(resume.personalInfo);
-        //     setSocials(Array.isArray(resume.socials) ? resume.socials : [
-        //         { platform: 'linkedin', url: '' },
-        //         { platform: 'github', url: '' },
-        //         { platform: 'portfolio', url: '' }
-        //     ]);
-        //     setEducation(resume.education);
-        //     setWorkExperience(resume.workExperience);
-        //     setProjects(resume.projects);
-        //     setSkills(resume.skills);
-        //     setAchievements(resume.achievements);
-        //     setName(resume.name);
-
-           
-            
-        // }
-
-        // else
-         if (currentData) {
+    
+        if (currentData) {
             const data = JSON.parse(currentData);
             console.log('Loading from Current Data:', data);
-            setKeywords(data.keywords);
-            setJobDescription(data.jobDescription);
-            setPersonalInfo(data.personalInfo);
+            setKeywords(data.keywords || []);
+            setJobDescription(data.jobDescription || '');
+            setPersonalInfo(data.personalInfo || { first_name: '', last_name: '', email: '', phone: '', location: '' });
             setSocials(Array.isArray(data.socials) ? data.socials : [
                 { platform: 'linkedin', url: '' },
                 { platform: 'github', url: '' },
                 { platform: 'portfolio', url: '' }
             ]);
-            setEducation(data.education);
-            setWorkExperience(data.workExperience);
-            setProjects(data.projects);
-            setSkills(data.skills);
-            setAchievements(data.achievements);
-            setName(data.name);
-            setSections(data.sections);
-            set_id(data.id);
-            setCertifications(data.certifications);
-            setLeadership(data.leadership);
-            setExtracurriculars(data.extracurriculars);
+            setEducation(data.education || []);
+            setWorkExperience(data.workExperience || []);
+            setProjects(data.projects || []);
+            setSkills(data.skills || []);
+            setAchievements(data.achievements || []);
+            setName(data.name || '');
+            setCertifications(data.certifications || []);
+            setLeadership(data.leadership || []);
+            setExtracurriculars(data.extracurriculars || []);
             setSummary(data.summary || '');
+            setMargins(data.margins || { margin_left: 4, margin_right: 4, margin_top: 1 });
+            
+            // Important: Load sections before custom sections
+            if (data.sections && Array.isArray(data.sections)) {
+                setSections(data.sections);
+            }
             
             if (data.customSections) {
                 setCustomSections(data.customSections);
                 setCustomSectionData(data.customSectionData || {});
-                setSections([...sections, ...data.customSections]);
             }
-            else {
-                setCustomSectionData({});
-                setCustomSections([]);
-            }
-
+            set_id(data.id || '');
+    
         } else if (location.state && location.state.data) {
-            
-            console.log('Loading from location state:', location.state.data);
             const data = location.state.data;
-            setKeywords(data.keywords);
-            setJobDescription(data.jobDescription);
-            setPersonalInfo(data.personalInfo);
+            setKeywords(data.keywords || []);
+            setJobDescription(data.jobDescription || '');
+            setPersonalInfo(data.personalInfo || { first_name: '', last_name: '', email: '', phone: '', location: '' });
             setSocials(Array.isArray(data.socials) ? data.socials : [
                 { platform: 'linkedin', url: '' },
                 { platform: 'github', url: '' },
                 { platform: 'portfolio', url: '' }
             ]);
-            setEducation(data.education);
-            setWorkExperience(data.workExperience||[]);
-            setProjects(data.projects);
-            setSkills(data.skills);
-            setCustomSections(data.customSections || []);
-            setCustomSectionData(data.customSectionData || {});
+            setEducation(data.education || []);
+            setWorkExperience(data.workExperience || []);
+            setProjects(data.projects || []);
+            setSkills(data.skills || []);
+            setName(data.name || '');
+            setSummary(data.summary || '');
+            setMargins(data.margins || { margin_left: 4, margin_right: 4, margin_top: 1 });
             
-            if(data.id === ''){
-                set_id('');
-            }
-            else{
-                set_id(data.id);
-            }
-            
-            if (data.sections) {
+            // Important: Load sections before custom sections
+            if (data.sections && Array.isArray(data.sections)) {
                 setSections(data.sections);
-            }
-            else {
+            } else {
                 setSections([
                     { id: 0, name: 'Personal Info', emoji: '🧞' },
                     { id: 1, name: 'Socials', emoji: '🧑‍💻' },
@@ -380,42 +351,18 @@ const saveRetryCount = useRef(0);
                 ]);
             }
             
-
-            //check if the name key exists in the data object
-            if (data.name) {
-                setName(data.name);
-            }
-            else {
-                //add the name key to the data object
-                data.name = '';
-                setName('');
-            }
-
-            if(data.certifications == null){
-                data.certifications = [];
-                setCertifications([]);
-            }
-
-            if(data.leadership == null){
-                data.leadership = [];
-                setLeadership([]);
-            }
-
-            if(data.extracurriculars == null){
-                data.extracurriculars = [];
-                setExtracurriculars([]);
-            }
-
-            if(data.customSections == null){
-                data.customSections = [];
+            if (data.customSections) {
+                setCustomSections(data.customSections);
+                setCustomSectionData(data.customSectionData || {});
+            } else {
                 setCustomSections([]);
                 setCustomSectionData({});
             }
-
-
-
+            
+            set_id(data.id || '');
         } else {
-            console.log('No data found');
+            // Initialize with default values
+            console.log('No data found, initializing with defaults');
             setJobDescription('');
             setKeywords([]);
             setPersonalInfo({ first_name: '', last_name: '', email: '', phone: '', location: '' });
@@ -430,9 +377,11 @@ const saveRetryCount = useRef(0);
             setSkills([]);
             setName('');
             setSummary('');
+            setCustomSectionData({});
+            setCustomSections([]);
+            setMargins({ margin_left: 4, margin_right: 4, margin_top: 1 });
             setSections([
-
-                { id: 0, name: 'Personal Info', emoji: '🧞' }, 
+                { id: 0, name: 'Personal Info', emoji: '🧞' },
                 { id: 1, name: 'Socials', emoji: '🧑‍💻' },
                 { id: 2, name: 'Education', emoji: '🎓' },
                 { id: 3, name: 'Work Exp.', emoji: '👔' },
@@ -440,8 +389,6 @@ const saveRetryCount = useRef(0);
                 { id: 5, name: 'Skills', emoji: '🔧' },
             ]);
             set_id('');
-            setCustomSectionData({});
-            setCustomSections([]);
         }
     }, []);
 
@@ -451,7 +398,7 @@ const saveRetryCount = useRef(0);
     useEffect(() => {
 
         setSaved(false);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections, customSections, customSectionData]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections, customSections, customSectionData, margins]);
 
 
 
@@ -476,7 +423,7 @@ const saveRetryCount = useRef(0);
     useEffect(() => {
         const intervalId = setInterval(() => {
             const data = {
-                personalInfo, socials, education, workExperience, projects, skills, name, sections, id, customSections, customSectionData, keywords, jobDescription, summary, achievements, certifications, leadership, extracurriculars
+                personalInfo, socials, education, workExperience, projects, skills, name, sections, id, customSections, customSectionData, keywords, jobDescription, margins
             };
             localStorage.setItem('current_resume_data', JSON.stringify(data));
             console.log('Auto-saved resume data');
@@ -505,8 +452,9 @@ const saveRetryCount = useRef(0);
     //show alert dialog
     const checkIfSaved = () => {
         if (saved) {
-            navigate('/home');
             localStorage.removeItem('current_resume_data');
+            navigate('/home');
+            
         }
         else {
             //check if any content has been added
@@ -554,7 +502,7 @@ const saveRetryCount = useRef(0);
 
 
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills,  name, sections, id, keywords, jobDescription, summary, customSections, customSectionData
+            personalInfo, socials, education, workExperience, projects, skills,  name, sections, id, keywords, jobDescription, summary, customSections, customSectionData, margins
         };
         
 
@@ -818,7 +766,10 @@ const saveRetryCount = useRef(0);
                 </main>
 
                {/* Real-time preview */}
-                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} name={name} sections={sections} keywords={keywords} customSections={customSections} customSectionData={customSectionData} />
+                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} name={name} sections={sections} keywords={keywords} customSections={customSections} customSectionData={customSectionData} margins={margins}
+                setMargins={setMargins}
+
+                />
 
                 
             </div>
@@ -849,7 +800,10 @@ const saveRetryCount = useRef(0);
                             sections,
                             keywords,
                             customSectionData,
-                            customSections
+                            customSections,
+                            margins,
+                            setMargins
+                            
                         }
                        }
                        

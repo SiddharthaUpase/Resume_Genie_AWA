@@ -143,6 +143,7 @@ export const getKeywords = async (jobDescription, resume_id) => {
 };
 
 export const injectKeywords = async (resumeData, sections, keywords,summary) => {
+    console.log('Summary:', summary);
     if (!resumeData) {
         throw new Error('Resume is required');
     }

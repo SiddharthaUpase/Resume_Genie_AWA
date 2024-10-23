@@ -139,9 +139,12 @@ const CustomResume = () => {
                     className="bg-white shadow-lg rounded-xl p-8 max-w-3xl w-full flex flex-col items-start justify-center space-y-6"
                     style={{ height: '80vh' }}
                 >
-                        <h1 className="text-3xl font-bold mb-8 text-center w-full bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold text-center w-full bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                             Custom Resume Builder
                         </h1>
+                        <h2 className="text-xl font-semibold text-gray-600 mb-4 text-center w-full">
+                            *This feature is currently in beta
+                        </h2>
                         
                         <div className="w-full space-y-2">
                             <label htmlFor="baseResume" className="block text-gray-700 font-semibold text-lg">
@@ -200,8 +203,9 @@ const CustomResume = () => {
                     <KeywordManagement
                         setPart={setPart}
                         resume_id={baseResume.id} // Pass the resume id
-                        keywords={keywords} // Pass the array from your backend
+                        keywords_list={keywords} // Pass the array from your backend
                         setFinalKeywords={setFinalKeywords}
+                        jobDescription={jobDescription}
                     />
                 );
 

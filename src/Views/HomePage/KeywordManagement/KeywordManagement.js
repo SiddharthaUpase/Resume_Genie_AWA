@@ -2,12 +2,123 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getResume } from '../../../Models/resumeModel';
 import DOMPurify from 'dompurify';
+import { s } from 'framer-motion/client';
 
-const KeywordManagement = ({ setPart, resume_id, keywords, setFinalKeywords }) => {
+const KeywordManagement = ({ setPart, resume_id, keywords_list, setFinalKeywords, jobDescription }) => {
   const [relevantKeywords, setRelevantKeywords] = useState([]);
   const [irrelevantKeywords, setIrrelevantKeywords] = useState([]);
   const [matchScore, setMatchScore] = useState(0);
   const [resume, setResume] = useState(null);
+  const [keywords, setKeywords] = useState([]);
+  const [frequencyMap, setFrequencyMap] = useState({});
+
+  useEffect(() => {
+    const calculateKeywordFrequency = (keywords, jobDescription) => {
+      // Helper function to escape special regex characters
+      const escapeRegExp = (string) => {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      };
+
+      // Helper function to get plural variations
+      const getPluralVariations = (term) => {
+        const variations = [term];
+        
+        // Common plural rules
+        if (term.endsWith('y')) {
+          variations.push(term.slice(0, -1) + 'ies');
+        } else if (term.endsWith('s') || term.endsWith('sh') || term.endsWith('ch') || term.endsWith('x') || term.endsWith('z')) {
+          variations.push(term + 'es');
+        } else {
+          variations.push(term + 's');
+        }
+
+        return variations;
+      };
+
+      // Helper function to count matches based on keyword type
+      const countMatches = (term, text) => {
+        if (!text) return 0; // Guard against undefined text
+        
+        const cleanText = text.toLowerCase();
+        const cleanTerm = term.toLowerCase();
+
+        // Handle special cases
+        const isAbbreviation = term === term.toUpperCase() && term.length > 1;
+        const isCompoundWord = term.includes('-') || term.includes(' ');
+
+        let count = 0;
+
+        if (isAbbreviation) {
+          // For abbreviations like "API", "CSS", etc.
+          const variations = getPluralVariations(cleanTerm);
+          variations.forEach(variant => {
+            const abbrRegex = new RegExp(`\\b${escapeRegExp(variant)}\\b|\\.${escapeRegExp(variant)}\\.?\\b`, 'gi');
+            const matches = cleanText.match(abbrRegex);
+            count += matches ? matches.length : 0;
+          });
+        } else if (isCompoundWord) {
+          // For compound words or hyphenated terms
+          const parts = cleanTerm.split(/[\s-]+/);
+          
+          // Handle plural for the last part of compound words
+          const baseParts = [...parts];
+          const lastPart = baseParts[baseParts.length - 1];
+          const pluralVariations = getPluralVariations(lastPart);
+          
+          pluralVariations.forEach(variant => {
+            const modifiedParts = [...baseParts];
+            modifiedParts[modifiedParts.length - 1] = variant;
+            
+            const compoundRegex = new RegExp(`\\b${modifiedParts.map(part => escapeRegExp(part)).join('[\\s-]+')}\\b`, 'gi');
+            const matches = cleanText.match(compoundRegex);
+            count += matches ? matches.length : 0;
+          });
+        } else {
+          // For regular words
+          const variations = getPluralVariations(cleanTerm);
+          
+          variations.forEach(variant => {
+            const wordRegex = new RegExp(`\\b${escapeRegExp(variant)}\\b`, 'gi');
+            const matches = cleanText.match(wordRegex);
+            count += matches ? matches.length : 0;
+
+            const hyphenatedRegex = new RegExp(`\\b${escapeRegExp(variant.replace(/\s+/g, '-'))}\\b`, 'gi');
+            const hyphenatedMatches = cleanText.match(hyphenatedRegex);
+            count += hyphenatedMatches ? hyphenatedMatches.length : 0;
+          });
+        }
+
+        return count;
+      };
+
+      // Process each keyword
+      const keywordFrequency = keywords.map(keyword => {
+        const frequency = countMatches(keyword.keyword, jobDescription);
+        return { keyword, frequency };
+      });
+
+      // Sort by frequency in descending order
+      keywordFrequency.sort((a, b) => b.frequency - a.frequency);
+      
+
+      // Extract just the keywords
+      const keywordFrequencyArray = keywordFrequency.map((item) => item.keyword);
+      
+      setFrequencyMap(keywordFrequency);
+      // Update state
+      setKeywords(keywordFrequencyArray);
+      
+      return keywordFrequency;
+    };
+
+    // Only run if we have keywords_list and jobDescription
+    if (keywords_list && keywords_list.length > 0) {
+      calculateKeywordFrequency(keywords_list, jobDescription);
+    }
+  }, [keywords_list, jobDescription]); // Dependencies array
+
+
+
 
   useEffect(() => {
     const fetchResumeAndCategorize = async () => {
@@ -119,47 +230,58 @@ const KeywordManagement = ({ setPart, resume_id, keywords, setFinalKeywords }) =
     tap: { scale: 0.95 }
   };
 
-  const Chip = ({ keyword, onAction, isRelevant }) => (
-    <motion.div
-      layout
-      variants={chipVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      whileHover="hover"
-      whileTap="tap"
-      className={`
-        inline-flex items-center m-0.5 px-2 py-1 rounded-full
-        shadow-md transition-colors duration-200
-        ${isRelevant 
-          ? 'bg-gradient-to-r from-blue-400 to-blue-500 text-white hover:shadow-blue-200'
-          : 'bg-gradient-to-r from-red-400 to-red-500 text-white hover:shadow-red-200'
-        }
-      `}
-    >
-      <span className="text-medium mr-2">{keyword}</span>
-      <motion.button
-        onClick={() => onAction(keyword, !isRelevant)}
-        whileHover={{ 
-          rotate: isRelevant ? 90 : 180,
-          transition: { duration: 0.15 }
-        }}
-        whileTap={{ scale: 0.9 }}
-        className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
-      >
-        {isRelevant ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-        )}
-      </motion.button>
-    </motion.div>
-  );
+  const Chip = ({ keyword, onAction, isRelevant }) => {
+    const frequency = frequencyMap.find(item => item.keyword.keyword === keyword)?.frequency || 0;
+    const isTop10Percent = frequencyMap.findIndex(item => item.keyword.keyword === keyword) < Math.ceil(frequencyMap.length * 0.2);
 
+    return (
+      <motion.div
+        layout
+        variants={chipVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        whileHover="hover"
+        whileTap="tap"
+        className={`
+          inline-flex items-center m-0.5 px-2 py-1 rounded-full
+          shadow-md transition-colors duration-200
+          ${isRelevant 
+            ? 'bg-gradient-to-r from-blue-400 to-blue-500 text-white hover:shadow-blue-200'
+            : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white hover:shadow-yellow-200'
+          }
+        `}
+      >
+        <span className="text-medium mr-2">
+          {keyword} {isTop10Percent && `(${frequency})`} 
+          {
+            isTop10Percent && (
+              <span className="text-yellow-400">★</span>)
+          }
+          
+        </span>
+        <motion.button
+          onClick={() => onAction(keyword, !isRelevant)}
+          whileHover={{ 
+            rotate: isRelevant ? 90 : 180,
+            transition: { duration: 0.15 }
+          }}
+          whileTap={{ scale: 0.9 }}
+          className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+        >
+          {isRelevant ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+          )}
+        </motion.button>
+      </motion.div>
+    );
+  };
   return (
     <motion.div
       key="part2"
@@ -229,7 +351,7 @@ const KeywordManagement = ({ setPart, resume_id, keywords, setFinalKeywords }) =
       <div className="w-full text-center mb-1">
         <p className="text-gray-600">
 
-        <strong> Move</strong> keywords between categories if needed, and add relevant skills from "Additional Keywords" to your profile.
+        <strong> Pick</strong> keywords from the list below and add the relevant ones.
         </p>
       </div>
       
@@ -258,15 +380,15 @@ const KeywordManagement = ({ setPart, resume_id, keywords, setFinalKeywords }) =
         </div>
 
         <div className="w-2/5 space-y-4">
-          <div className="bg-red-50 p-2 rounded-xl border-2 border-red-200">
-            <h2 className="text-md font-bold text-red-700 mb-1 flex items-center">
+          <div className="bg-yellow-50 p-2 rounded-xl border-2 border-yellow-200">
+            <h2 className="text-md font-bold text-yellow-700 mb-1 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
-              <span title="Review for relevance to your experience or role">Additional Keywords ⓘ</span>
+              <span title="Review for relevance to your experience or role">High Impact Keywords ⓘ</span>
             </h2>
             <div className="h-48 overflow-y-auto p-2 flex flex-wrap content-start">
-            <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="popLayout">
                 {irrelevantKeywords.map((keyword) => (
                   <Chip
                     key={keyword}
