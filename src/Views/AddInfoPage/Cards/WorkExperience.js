@@ -1,12 +1,12 @@
-import currentApiUrl from "../../Models/apiUrl";
+import currentApiUrl from "../../../Models/apiUrl";
 import React, { useEffect, useState, useRef } from 'react';
 import { ChevronDown, ChevronUp, Wand, X } from 'lucide-react';
-import { rewriteDescription, rewriteSpecificLine, addPointToDescription } from '../../Models/addInfoModels';
+import { rewriteDescription, rewriteSpecificLine, addPointToDescription } from '../../../Models/addInfoModels';
 import { Plus, Trash2, Edit2, GripVertical, Pencil,Wand2 } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { p } from "framer-motion/client";
-import AIEnhancedEditor from "../../Custom Components/AIEnhancedEditor";
+import AIEnhancedEditor from "../../../Custom Components/AIEnhancedEditor";
 
 const WorkExperienceForm = ({ workExperience, onChange }) => {
   const [experiences, setExperiences] = useState(() => {

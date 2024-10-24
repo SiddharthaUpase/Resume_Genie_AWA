@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
-import { sendFeedback } from '../../Models/feedback';
+import { sendFeedback } from '../../../Models/feedback';
 
 export const FeedbackForm = () => {
     const [formData, setFormData] = useState({

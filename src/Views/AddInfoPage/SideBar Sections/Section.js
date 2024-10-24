@@ -3,7 +3,7 @@ import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, u
 import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import SectionItem from './SectionItem';
-import { SectionsListContext } from '../../Context/SectionsListContext';
+import { SectionsListContext } from '../../../Context/SectionsListContext';
 import { CirclePlus } from 'lucide-react';
 
 const Popover = ({ isOpen, onClose, availableSections, onAddSection }) => {

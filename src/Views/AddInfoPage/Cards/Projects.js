@@ -1,10 +1,10 @@
-import currentApiUrl from "../../Models/apiUrl";
+import currentApiUrl from "../../../Models/apiUrl";
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Wand2, X,GripVertical } from 'lucide-react';
-import { rewriteDescription, addPointToDescription } from '../../Models/addInfoModels';
+import { rewriteDescription, addPointToDescription } from '../../../Models/addInfoModels';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import AIEnhancedEditor from "../../Custom Components/AIEnhancedEditor";
+import AIEnhancedEditor from "../../../Custom Components/AIEnhancedEditor";
 
 const ProjectForm = ({ projects_data, onChange }) => {
   const [projects, setProjects] = useState(() => {

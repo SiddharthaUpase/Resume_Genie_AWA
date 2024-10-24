@@ -1,40 +1,31 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from './Card';
-import PersonalInfo from './Cards/PersonalInfo';
-import WorkExperience from './Cards/WorkExperience';
-import Projects from './Cards/Projects';
-import Socials from './Cards/Socials';
-import Education from './Cards/Education';
-import MultiFieldSkillsForm from './Cards/Skills';
-import AchievementsForm from './Cards/Achievements';
-import Certifications from './Cards/Certifications';
-import Extracurriculars from './Cards/Extracurriculars';
-import Leadership from './Cards/Leadership';
-import Resume from './ResumeReview';
+import PersonalInfo from '../AddInfoPage/Cards/PersonalInfo';
+import WorkExperience from '../AddInfoPage/Cards/WorkExperience';
+import Projects from '../AddInfoPage/Cards/Projects';
+import Socials from '../AddInfoPage/Cards/Socials';
+import Education from '../AddInfoPage/Cards/Education';
+import MultiFieldSkillsForm from '../AddInfoPage/Cards/Skills';
+import Resume from '../ResumeReview';
 import { useLocation } from 'react-router-dom';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
-import resume from '../resume_data.json'
 import { useRef } from 'react';
-import {closestCorners, DndContext} from '@dnd-kit/core';
-import { useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Section from './SideBar Sections/Section';
-import ResumePreview from './ResumePreviewWrapper';
-import { storeResume } from '../Models/addInfoModels';
+import ResumePreview from '../ResumePreviewWrapper';
+import { storeResume } from '../../Models/addInfoModels';
 import KeywordsDialog from './KeywordsDialog';
-import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
-import { useResume } from '../Context/ResumeContext';
-import SummaryForm from './Cards/Summary';
-import CustomSectionForm from './Cards/CustomSection';
-import { i, section } from 'framer-motion/client';
+import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
+import { useResume } from '../../Context/ResumeContext';
+import CustomSectionForm from '../AddInfoPage/Cards/CustomSection';
+
+
 
 
 const AddInfoPage = ({ }) => {
-
     const navigate = useNavigate();
     const location = useLocation();
     const [currentSection, setCurrentSection] = useState(0);
-
     useEffect(() => {
         console.log('Current Section was changed', currentSection);
     }, [currentSection]);
@@ -72,7 +63,6 @@ const AddInfoPage = ({ }) => {
     const [extracurriculars, setExtracurriculars] = useState(['']); //list of strings
     const [summary, setSummary] = useState('');
     const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', '😎','🤩'];
-    const [leftWidth, setLeftWidth] = useState(300);
     const [middleWidth, setMiddleWidth] = useState(1000);
     const {progressInfo, setProgressInfo}= useContext(ProgressInfoContext);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);

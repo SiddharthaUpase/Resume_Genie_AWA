@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getResume } from '../../../Models/resumeModel';
+import { useContext } from 'react';
 import DOMPurify from 'dompurify';
-import { s } from 'framer-motion/client';
+import { KeywordContext } from '../../../Context/KeywordContext';
 
-const KeywordManagement = ({ setPart, resume_id, keywords_list, setFinalKeywords, jobDescription }) => {
+
+const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescription }) => {
   const [relevantKeywords, setRelevantKeywords] = useState([]);
   const [irrelevantKeywords, setIrrelevantKeywords] = useState([]);
   const [matchScore, setMatchScore] = useState(0);
   const [resume, setResume] = useState(null);
-  const [keywords, setKeywords] = useState([]);
   const [frequencyMap, setFrequencyMap] = useState({});
+  const {
+    resumeData,
+    setResumeData,
+    keywords,
+    setKeywords,
+    keywordOccurrences,
+    setKeywordOccurrences,
+  } = useContext(KeywordContext);
+  
+
+
+  
 
   useEffect(() => {
     const calculateKeywordFrequency = (keywords, jobDescription) => {
@@ -123,7 +135,6 @@ const KeywordManagement = ({ setPart, resume_id, keywords_list, setFinalKeywords
   useEffect(() => {
     const fetchResumeAndCategorize = async () => {
       try {
-        const resumeData = await getResume(resume_id);
         setResume(resumeData);
         let all_terms = [];
         let relevant = [];
@@ -185,7 +196,7 @@ const KeywordManagement = ({ setPart, resume_id, keywords_list, setFinalKeywords
     };
 
     fetchResumeAndCategorize();
-  }, [resume_id, keywords]);
+  }, [keywords]);
 
   const moveKeyword = (keyword, isMovingToRelevant) => {
     if (isMovingToRelevant) {

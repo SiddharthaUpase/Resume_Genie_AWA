@@ -20,11 +20,9 @@ const Resume = ({ previewMode = false, previewData = null }) => {
 
     const { personalInfo, socials, education, workExperience, projects, skills, sections, keywords,customSections,
         customSectionData, margins } = data;
-
-    //check if margins is empty
-
     let { margin_left, margin_right, margin_top } = margins || {};
-        console.log('margins', margins);
+
+
 
         const renderHTML = (html, keywords, isSingleLine) => {
             const allowedTags = isSingleLine 
@@ -93,7 +91,14 @@ const Resume = ({ previewMode = false, previewData = null }) => {
                         processedText = processedText.replace(regex, (match, group1) => {
                             // group1 is the actual keyword match within the boundary constraints
                             const originalMatch = group1 || match;
-                            return `<span class="bg-yellow-200 px-0.5 rounded">${originalMatch}</span>`;
+                            //create an object of highlighter html and the keyword
+                            const highlighter = `<span class="bg-yellow-200 px-0.5 rounded">${originalMatch}</span>`;
+                            //add the keyword to the matched keywords array
+                            const keyword = originalMatch.toLowerCase();
+                            //return the highlighter html and the keyword
+                            return highlighter;
+
+                            
                         });
                     });
                     
@@ -102,8 +107,10 @@ const Resume = ({ previewMode = false, previewData = null }) => {
             };
         
             // Apply highlighting to the sanitized HTML
+
             const highlightedHTML = highlightHTMLContent(sanitizedHTML);
-        
+
+
             if (isSingleLine) {
                 const strippedHTML = highlightedHTML.replace(
                     /<(?!\/?(?:b|i|em|strong|a|u|span)\b)[^>]+>/gi, 
@@ -272,8 +279,8 @@ const parseFormattedText = (text) => {
 
 // Update the highlightText function to handle both keywords and Tailwind formatting
 const highlightText = (text, keywords) => {
-    if (!keywords || keywords.length === 0) return parseFormattedText(text);
-    if (!previewMode) return parseFormattedText(text);
+    if (!keywords || keywords.length === 0) return text;
+    if (!previewMode) return text;
   
     const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
     const parts = text.split(pattern);
@@ -329,7 +336,7 @@ const highlightText = (text, keywords) => {
                 SKILLS
             </h2>
             <ul className="list-disc pl-4" style={descriptionStyle}>
-                {skills.map(([category, skillList], index) => (
+            {skills.map(([category, skillList], index) => (
                     <li key={index} className="mb">
                         <strong>{category}:</strong>{' '}
                         {highlightText(skillList.join(', '), keywords)}

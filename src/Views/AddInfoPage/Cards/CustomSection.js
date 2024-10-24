@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { ChevronDownIcon, ChevronUpIcon, GripVerticalIcon,AlignLeftIcon,AlignJustifyIcon, Minus, MinusIcon } from 'lucide-react';
 import { i } from 'framer-motion/client';
-import AIEnhancedEditor from '../../Custom Components/AIEnhancedEditor';
+import AIEnhancedEditor from '../../../Custom Components/AIEnhancedEditor';
 const CustomSectionForm = ({ sectionKey, sectionName, uniqueId, data, onChange, onChangeSectionName, handleIsSingleLine }) => {
     const [items, setItems] = useState(data || []);
     const [collapsed, setCollapsed] = useState({});

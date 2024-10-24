@@ -1,38 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getResume } from '../../../Models/resumeModel';
-import { injectKeywords } from '../../../Models/resumeModel';
 import { json, useNavigate } from 'react-router-dom';
-import { data } from 'autoprefixer';
+import { useContext } from 'react';
+import { KeywordContext } from '../../../Context/KeywordContext';
+import { injectKeywords } from '../../../Models/resumeModel';
 
 
 
-const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) => {
-  const [resume, setResume] = useState(null);
-  const [selectedSections, setSelectedSections] = useState([]);
+const SectionSelection = ({ setPart, resumeDataId, keywords, setSections,summary }) => {
+  
+  
   const [isloading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { resumeData, setResumeData,
+    selectedSections, setSelectedSections
+   } = useContext(KeywordContext);
 
-  useEffect(() => {
-    const fetchResume = async () => {
-      try {
-        const resumeData = await getResume(resumeId);
-        setResume(resumeData);
-      } catch (error) {
-        console.error('Error fetching resume:', error);
-      }
-    };
-
-    fetchResume();
-  }, [resumeId]);
+   const [enhanced_resume_data, setEnhancedResumeData] = useState(resumeData);
 
  
 
   const handleInjectKeywords = async () => {
     setIsLoading(true);
     try {
-      const response = await injectKeywords(resume, selectedSections, keywords, summary);
+      const response = await injectKeywords(resumeData, selectedSections, keywords, summary);
+      console.log('Response:', response);
       const enhancedResume = response.enhanced_resume;
+      console.log('Enhanced Resume:', enhancedResume);
       
       // Parse the JSON strings in the response
       const parsedData = {};
@@ -45,21 +39,21 @@ const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) 
         }
       }
   
-      // Update the resume data with the parsed content
+      // Update the resumeData data with the parsed content
       for (let section in parsedData) {
         // Handle main sections
-        if (resume[section]) {
-          resume[section].forEach((item, index) => {
+        if (enhanced_resume_data[section]) {
+          enhanced_resume_data[section].forEach((item, index) => {
             if (parsedData[section][index]) {
               item.description = parsedData[section][index].description;
             }
           });
         } 
         // Handle custom sections
-        else if (resume.customSectionData) {
-          for (let customSection in resume.customSectionData) {
+        else if (enhanced_resume_data.customSectionData) {
+          for (let customSection in enhanced_resume_data.customSectionData) {
             if (customSection === section) {
-              resume.customSectionData[customSection].forEach((item, index) => {
+              enhanced_resume_data.customSectionData[customSection].forEach((item, index) => {
                 if (parsedData[section][index]) {
                   item.description = parsedData[section][index].description;
                 }
@@ -68,10 +62,10 @@ const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) 
           }
         }
       }
-      resume.keywords = keywords;
-      resume.name = resume.name + ' Enhanced';
-      resume.id = null; // Clear the ID to create a new resume
-      setResume({...resume}); // Create a new object reference to trigger re-render
+      enhanced_resume_data.keywords = keywords;
+      enhanced_resume_data.name = enhanced_resume_data.name + ' Enhanced';
+      enhanced_resume_data.id = null; // Clear the ID to create a new resumeData
+      setEnhancedResumeData(enhanced_resume_data);
       setIsLoading(false);
 
       handleNavigate();
@@ -83,8 +77,9 @@ const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) 
 
   const handleNavigate = () => {
 
-    const data = resume;
-        //navigate to the add info page with the updated resume
+    const data = enhanced_resume_data;
+    console.log('Enhanced Resume Data:', data);
+        //navigate to the add info page with the updated resumeData
         navigate('/addInfo', { state: { data } });
     };
 
@@ -114,7 +109,7 @@ const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) 
     duration: 0.25
   };
 
-  if (!resume) {
+  if (!resumeData) {
     return <div>Loading...</div>;
   }
 
@@ -155,7 +150,7 @@ const SectionSelection = ({ setPart, resumeId, keywords, setSections,summary }) 
         </p>
         <div className="space-y-2">
 
-        {resume.sections.map((section) => (
+        {resumeData.sections.map((section) => (
             section.name !== 'Personal Info' && section.name !== 'Socials' && section.name !== 'Education' && (
                 <motion.div
                     key={section.id}

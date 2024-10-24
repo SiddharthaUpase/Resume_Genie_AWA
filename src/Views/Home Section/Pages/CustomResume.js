@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getKeywords, getAllResumes,injectKeywords } from '../../Models/resumeModel';
 import { motion, AnimatePresence  } from 'framer-motion';
 import { data } from 'autoprefixer';
 import { Key } from 'lucide-react';
-import KeywordManagement from './KeywordManagement/KeywordManagement';
-import SectionSelection from './KeywordManagement/SectionSelection';
+import KeywordManagement from '../KeywordManagement/KeywordManagement';
+import SectionSelection from '../KeywordManagement/SectionSelection';
+import { useContext } from 'react';
+import { KeywordContext } from '../../../Context/KeywordContext';
+import { getResume,getKeywords, getAllResumes } from '../../../Models/resumeModel';
 
 const CustomResume = () => {
     const [baseResume, setBaseResume] = useState({ id: '', name: '' });
     const [jobDescription, setJobDescription] = useState('');
-    const [resumeData, setResumeData] = useState([]);
+    const [resumes, setResumes] = useState([]);
     const [isFormValid, setIsFormValid] = useState(false);
     const [isloading, setIsLoading] = useState(false);
     const [resume, setResume] = useState(null);
@@ -21,6 +23,9 @@ const CustomResume = () => {
     const [selectedSections, setSections] = useState([]);
     const [matchPercent, setMatchPercent] = useState(0);
     const [summary, setSummary] = useState('');
+    const {
+        setResumeData,
+      } = useContext(KeywordContext);
 
     useEffect(() => {
         console.log(selectedSections)
@@ -41,7 +46,7 @@ const CustomResume = () => {
 
             try {
                 const resumes = await getAllResumes(user_id);
-                setResumeData(resumes);
+                setResumes(resumes);
             } catch (error) {
                 console.error('Error fetching resumes:', error);
             }
@@ -63,7 +68,7 @@ const CustomResume = () => {
 
     const handleResumeChange = (event) => {
         const selectedId = event.target.value;
-        const selectedResume = resumeData.find(resume => resume.id === selectedId);
+        const selectedResume = resumes.find(resume => resume.id === selectedId);
         setBaseResume(selectedResume || { id: '', name: '' });
     };
 
@@ -100,9 +105,21 @@ const CustomResume = () => {
         }
     }
 
-    const handleGetKeywords = () => {
+    const handleGetKeywords = async() => {
         setIsLoading(true);
         if (isFormValid) {
+            //first get the resume and set the context
+
+            try {
+                //call the getresume function
+
+                const data = await getResume(baseResume.id);
+                setResumeData(data);
+            } catch (error) {
+                console.error('Error fetching resume:', error);
+            }
+
+
             get_keywords();
         } else {
             alert("Please fill in all required fields before building the resume.");
@@ -157,7 +174,7 @@ const CustomResume = () => {
                                 className="block w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             >
                                 <option value="">Select a resume</option>
-                                {resumeData.map((resume) => (
+                                {resumes.map((resume) => (
                                     <option key={resume.id} value={resume.id}>{resume.name}</option>
                                 ))}
                             </select>
@@ -202,7 +219,6 @@ const CustomResume = () => {
                 return (
                     <KeywordManagement
                         setPart={setPart}
-                        resume_id={baseResume.id} // Pass the resume id
                         keywords_list={keywords} // Pass the array from your backend
                         setFinalKeywords={setFinalKeywords}
                         jobDescription={jobDescription}

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isAuthenticated, logout } from '../Models/authModel';
-import BaseResume from './HomePage/BaseResume';
-import CustomResume from './HomePage/CustomResume';
+import { isAuthenticated, logout } from '../../Models/authModel';
+import BaseResume from './Pages/BaseResume';
+import CustomResume from './Pages/CustomResume';
 import { Sidebar, SidebarItem } from './SideBar';
 import { Layout, FileText, LogOut, Brain } from 'lucide-react';
-import LogOutPage from './HomePage/LogOut';
-import FeedbackForm from './HomePage/FeedbackForm';
+import LogOutPage from './Pages/LogOut';
+import FeedbackForm from './Pages/FeedbackForm';
 
 
 const Home = () => {

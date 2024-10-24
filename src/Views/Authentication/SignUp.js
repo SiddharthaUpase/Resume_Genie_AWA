@@ -1,7 +1,7 @@
 import { useState, } from 'react';
 import { useNavigate } from 'react-router-dom';
 import React  from 'react';
-import { signUp } from '../Models/authModel';
+import { signUp } from '../../Models/authModel';
 import { nav } from 'framer-motion/client';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode'; // Updated import statement
