@@ -253,7 +253,7 @@ const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescri
         animate="animate"
         exit="exit"
         whileHover="hover"
-        whileTap="tap"
+        // whileTap="tap"
         className={`
           inline-flex items-center m-0.5 px-2 py-1 rounded-full
           shadow-md transition-colors duration-200
@@ -277,7 +277,7 @@ const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescri
             rotate: isRelevant ? 90 : 180,
             transition: { duration: 0.15 }
           }}
-          whileTap={{ scale: 0.9 }}
+          // whileTap={{ scale: 0.9 }}
           className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
         >
           {isRelevant ? (
