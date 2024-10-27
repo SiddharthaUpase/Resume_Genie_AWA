@@ -18,6 +18,7 @@ import KeywordsDialog from './KeywordsDialog';
 import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
 import { useResume } from '../../Context/ResumeContext';
 import CustomSectionForm from '../AddInfoPage/Cards/CustomSection';
+import { s } from 'framer-motion/client';
 
 
 
@@ -26,6 +27,7 @@ const AddInfoPage = ({ }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [currentSection, setCurrentSection] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {
         console.log('Current Section was changed', currentSection);
     }, [currentSection]);
@@ -240,20 +242,22 @@ const saveRetryCount = useRef(0);
     //create an endpoin to post the resume data
     const postResume = async (data) => {
         const storedSession = JSON.parse(localStorage.getItem("session"));
-        console.log(data);
         const newResume = {
             user_id: storedSession.user_id,
             resume_data: data,
             status: 'draft',
             name: name
         };
+
+        setIsLoading(true);
         
         try {
             const response = await storeResume(newResume,set_id);
             setSaved(true);
             //if saved in the first attempt reset the retry count
             saveRetryCount.current = 0;
-            console.log('Resume saved in the first attempt:', response);
+            
+            setIsLoading(false);
 
 
         } catch (error) {
@@ -494,6 +498,7 @@ const saveRetryCount = useRef(0);
         const data = {
             personalInfo, socials, education, workExperience, projects, skills,  name, sections, id, keywords, jobDescription, summary, customSections, customSectionData, margins
         };
+
         
 
 
@@ -628,7 +633,7 @@ const saveRetryCount = useRef(0);
                     }}
                     className={`px-4 py-2 rounded text-white ${saved ? 'bg-green-500' : 'bg-yellow-500 hover:bg-yellow-600'}`}
                 >
-                    {saved ? 'Saved ✅' : 'Save'}
+                    {isLoading ? <div className="spinner">Loading...</div> : saved ? 'Saved ✅' : 'Save'}
                 </button>
 
                 <div className="flex items-center space-x-2 ml-4">

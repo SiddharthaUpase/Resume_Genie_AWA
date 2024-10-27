@@ -11,6 +11,7 @@ const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescri
   const [matchScore, setMatchScore] = useState(0);
   const [resume, setResume] = useState(null);
   const [frequencyMap, setFrequencyMap] = useState({});
+  const [newKeyword, setNewKeyword] = useState('');
   const {
     resumeData,
     setResumeData,
@@ -241,6 +242,29 @@ const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescri
     tap: { scale: 0.95 }
   };
 
+  const handleKeywordSubmit = (e) => {
+    e.preventDefault();
+    if (newKeyword.trim()) {
+      // Check if keyword already exists in either list
+      const keywordExists = [...relevantKeywords, ...irrelevantKeywords].some(
+        k => k.toLowerCase() === newKeyword.trim().toLowerCase()
+      );
+
+      if (!keywordExists) {
+        setRelevantKeywords(prev => [...prev, newKeyword.trim()]);
+        // Add to frequency map with 0 frequency
+        setFrequencyMap(prev => [
+          ...prev,
+          { 
+            keyword: { keyword: newKeyword.trim() }, 
+            frequency: 0 
+          }
+        ]);
+      }
+      setNewKeyword('');
+    }
+  };
+
   const Chip = ({ keyword, onAction, isRelevant }) => {
     const frequency = frequencyMap.find(item => item.keyword.keyword === keyword)?.frequency || 0;
     const isTop10Percent = frequencyMap.findIndex(item => item.keyword.keyword === keyword) < Math.ceil(frequencyMap.length * 0.2);
@@ -322,42 +346,6 @@ const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescri
         </svg>
         <span>Back</span>
       </button>
-
-      {/* <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200 shadow-sm"
-      >
-        <div className="flex items-end justify-start space-x-2">
-          <div className="flex items-center space-x-2">
-            <span>Temp Feature
-
-            </span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span className="text-lg font-medium text-gray-700">Resume Match:</span>
-          </div>
-          <div className="flex items-center">
-            <motion.span 
-              className="text-2xl font-bold text-blue-600"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, delay: 0.2 }}
-            >
-              {matchScore}%
-            </motion.span>
-          </div>
-          <button
-            onClick={() => alert('The keyword match percent is based on the relevant keywords and your resume.')}
-            className="ml-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 00-1 1v2a1 1 0 102 0V7a1 1 0 00-1-1zm0 6a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
-            </svg>
-          </button>
-        </div>
-      </motion.div> */}
       
       <div className="w-full text-center mb-1">
         <p className="text-gray-600">
@@ -365,6 +353,25 @@ const KeywordManagement = ({ setPart, keywords_list, setFinalKeywords, jobDescri
         <strong> Pick</strong> keywords from the list below and add the relevant ones.
         </p>
       </div>
+      <form onSubmit={handleKeywordSubmit} className="w-full">
+        <div className="flex space-x-2 mb-4">
+          <input
+            type="text"
+            value={newKeyword}
+            onChange={(e) => setNewKeyword(e.target.value)}
+            placeholder="Type a new keyword and press Enter"
+            className="flex-1 px-4 py-2 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+          />
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Add
+          </motion.button>
+        </div>
+      </form>
       
       <div className="flex w-full space-x-6">
         <div className="w-3/5 space-y-4">

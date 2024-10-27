@@ -282,12 +282,86 @@ const highlightText = (text, keywords) => {
     if (!keywords || keywords.length === 0) return text;
     if (!previewMode) return text;
   
-    const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
+    // Function to get common variations of a keyword
+    const getKeywordVariations = (keyword) => {
+      const variations = new Set();
+      const base = keyword.toLowerCase();
+      
+      // Add the original keyword
+      variations.add(keyword);
+      
+      // Common tech-specific variations
+      const techVariations = {
+        'javascript': ['JavaScript', 'JS'],
+        'typescript': ['TypeScript', 'TS'],
+        'react': ['React.js', 'ReactJS'],
+        'node': ['Node.js', 'NodeJS'],
+        'express': ['Express.js', 'ExpressJS'],
+        'next': ['Next.js', 'NextJS'],
+        'vue': ['Vue.js', 'VueJS'],
+        'angular': ['AngularJS', 'Angular.js'],
+        'mongo': ['MongoDB', 'Mongo DB'],
+        'postgresql': ['PostgreSQL', 'Postgres'],
+        'mysql': ['MySQL', 'My SQL'],
+        'fullstack': ['Full Stack', 'Full-Stack'],
+        'frontend': ['Front End', 'Front-End'],
+        'backend': ['Back End', 'Back-End'],
+        'devops': ['DevOps', 'Dev Ops'],
+      };
+  
+      // Add tech-specific variations
+      if (techVariations[base]) {
+        techVariations[base].forEach(v => variations.add(v));
+      }
+  
+      // Handle hyphenated versions
+      if (keyword.includes(' ')) {
+        variations.add(keyword.replace(/\s+/g, '-'));
+      }
+      if (keyword.includes('-')) {
+        variations.add(keyword.replace(/-+/g, ' '));
+      }
+  
+      // Handle plurals
+      if (base.match(/[^s]$/)) {  // If doesn't end in 's'
+        if (base.match(/(?:s|sh|ch|x|z)$/)) {
+          variations.add(`${keyword}es`);
+        } else if (base.match(/[^aeiou]y$/)) {
+          variations.add(`${keyword.slice(0, -1)}ies`);
+        } else {
+          variations.add(`${keyword}s`);
+        }
+      }
+  
+      // Special cases for tech terms
+      if (base.match(/^[A-Z]+$/)) {  // Acronyms like API
+        variations.add(base + 's');
+        variations.add(base + "'s");
+      }
+  
+      return Array.from(variations);
+    };
+  
+    // Get all variations for all keywords
+    const allVariations = keywords.flatMap(getKeywordVariations);
+  
+    // Escape special regex characters and add word boundaries
+    const escapedKeywords = allVariations.map(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Handle word boundaries based on whether the term starts/ends with word characters
+      const startBoundary = /^\w/.test(keyword) ? '\\b' : '';
+      const endBoundary = /\w$/.test(keyword) ? '\\b' : '';
+      return `${startBoundary}${escaped}${endBoundary}`;
+    });
+  
+    // Create pattern with all variations
+    const pattern = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');
     const parts = text.split(pattern);
   
     return parts.map((part, index) => {
-      const isKeyword = keywords.some(keyword =>
-        part.toLowerCase() === keyword.toLowerCase()
+      // Check if this part matches any of our variations (case-insensitive)
+      const isKeyword = allVariations.some(variation =>
+        part.toLowerCase() === variation.toLowerCase()
       );
   
       if (isKeyword) {
@@ -301,7 +375,6 @@ const highlightText = (text, keywords) => {
       return parseFormattedText(part);
     });
   };
-
     const renderWorkExperience = (experience, keywords) => (
         <section className="mb-2">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
