@@ -1,39 +1,36 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from './Card';
-import PersonalInfo from './Cards/PersonalInfo';
-import WorkExperience from './Cards/WorkExperience';
-import Projects from './Cards/Projects';
-import Socials from './Cards/Socials';
-import Education from './Cards/Education';
-import MultiFieldSkillsForm from './Cards/Skills';
-import AchievementsForm from './Cards/Achievements';
-import Certifications from './Cards/Certifications';
-import Extracurriculars from './Cards/Extracurriculars';
-import Leadership from './Cards/Leadership';
-import Resume from './ResumeReview';
+import PersonalInfo from '../AddInfoPage/Cards/PersonalInfo';
+import WorkExperience from '../AddInfoPage/Cards/WorkExperience';
+import Projects from '../AddInfoPage/Cards/Projects';
+import Socials from '../AddInfoPage/Cards/Socials';
+import Education from '../AddInfoPage/Cards/Education';
+import MultiFieldSkillsForm from '../AddInfoPage/Cards/Skills';
+import Resume from '../ResumeReview';
 import { useLocation } from 'react-router-dom';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
-import resume from '../resume_data.json'
 import { useRef } from 'react';
-import {closestCorners, DndContext} from '@dnd-kit/core';
-import { useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Section from './SideBar Sections/Section';
-import ResumePreview from './ResumePreviewWrapper';
-import { storeResume } from '../Models/addInfoModels';
+import ResumePreview from '../ResumePreviewWrapper';
+import { storeResume } from '../../Models/addInfoModels';
 import KeywordsDialog from './KeywordsDialog';
-import { ProgressInfoContext} from '../Context/ProgressInfoContext'; 
-import { useResume } from '../Context/ResumeContext';
-import SummaryForm from './Cards/Summary';
-import CustomSectionForm from './Cards/CustomSection';
-import { i, section, use } from 'framer-motion/client';
+import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
+import { useResume } from '../../Context/ResumeContext';
+import CustomSectionForm from '../AddInfoPage/Cards/CustomSection';
+import { s } from 'framer-motion/client';
+
+
 
 
 const AddInfoPage = ({ }) => {
-
     const navigate = useNavigate();
     const location = useLocation();
     const [currentSection, setCurrentSection] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        console.log('Current Section was changed', currentSection);
+    }, [currentSection]);
 
 
 
@@ -68,7 +65,6 @@ const AddInfoPage = ({ }) => {
     const [extracurriculars, setExtracurriculars] = useState(['']); //list of strings
     const [summary, setSummary] = useState('');
     const emojis = ['😕', '🤨', '😐', ' 🙂', ' 😃', '😎','🤩'];
-    const [leftWidth, setLeftWidth] = useState(300);
     const [middleWidth, setMiddleWidth] = useState(1000);
     const {progressInfo, setProgressInfo}= useContext(ProgressInfoContext);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -96,6 +92,7 @@ const AddInfoPage = ({ }) => {
 
     const [customSections, setCustomSections] = useState([]);
     const [customSectionData, setCustomSectionData] = useState({});
+    const [margins, setMargins] = useState({ margin_left: 4, margin_right: 4, margin_top: 1 });
 
     const addCustomSection = (sectionName) => {
         const newSection = {
@@ -119,8 +116,6 @@ const handleCustomSectionChange = (sectionName, data) => {
         [sectionName]: data
     }));
 };
-
-
 
 
 
@@ -247,20 +242,22 @@ const saveRetryCount = useRef(0);
     //create an endpoin to post the resume data
     const postResume = async (data) => {
         const storedSession = JSON.parse(localStorage.getItem("session"));
-
         const newResume = {
             user_id: storedSession.user_id,
             resume_data: data,
             status: 'draft',
             name: name
         };
+
+        setIsLoading(true);
         
         try {
             const response = await storeResume(newResume,set_id);
             setSaved(true);
             //if saved in the first attempt reset the retry count
             saveRetryCount.current = 0;
-            console.log('Resume saved in the first attempt:', response);
+            
+            setIsLoading(false);
 
 
         } catch (error) {
@@ -281,94 +278,63 @@ const saveRetryCount = useRef(0);
 
     useEffect(() => {
         const currentData = localStorage.getItem('current_resume_data');
-
-        //use resume data from the json file and set the sections to the default sections
-        // if (resume) {
-        //     console.log('Resume data:', resume);
-        //     setKeywords(resume.keywords);
-        //     setJobDescription(resume.jobDescription);
-        //     setPersonalInfo(resume.personalInfo);
-        //     setSocials(Array.isArray(resume.socials) ? resume.socials : [
-        //         { platform: 'linkedin', url: '' },
-        //         { platform: 'github', url: '' },
-        //         { platform: 'portfolio', url: '' }
-        //     ]);
-        //     setEducation(resume.education);
-        //     setWorkExperience(resume.workExperience);
-        //     setProjects(resume.projects);
-        //     setSkills(resume.skills);
-        //     setAchievements(resume.achievements);
-        //     setName(resume.name);
-
-           
-            
-        // }
-
-        // else
-         if (currentData) {
+    
+        if (currentData) {
             const data = JSON.parse(currentData);
             console.log('Loading from Current Data:', data);
-            setKeywords(data.keywords);
-            setJobDescription(data.jobDescription);
-            setPersonalInfo(data.personalInfo);
+            setKeywords(data.keywords || []);
+            setJobDescription(data.jobDescription || '');
+            setPersonalInfo(data.personalInfo || { first_name: '', last_name: '', email: '', phone: '', location: '' });
             setSocials(Array.isArray(data.socials) ? data.socials : [
                 { platform: 'linkedin', url: '' },
                 { platform: 'github', url: '' },
                 { platform: 'portfolio', url: '' }
             ]);
-            setEducation(data.education);
-            setWorkExperience(data.workExperience);
-            setProjects(data.projects);
-            setSkills(data.skills);
-            setAchievements(data.achievements);
-            setName(data.name);
-            setSections(data.sections);
-            set_id(data.id);
-            setCertifications(data.certifications);
-            setLeadership(data.leadership);
-            setExtracurriculars(data.extracurriculars);
+            setEducation(data.education || []);
+            setWorkExperience(data.workExperience || []);
+            setProjects(data.projects || []);
+            setSkills(data.skills || []);
+            setAchievements(data.achievements || []);
+            setName(data.name || '');
+            setCertifications(data.certifications || []);
+            setLeadership(data.leadership || []);
+            setExtracurriculars(data.extracurriculars || []);
             setSummary(data.summary || '');
+            setMargins(data.margins || { margin_left: 4, margin_right: 4, margin_top: 1 });
+            
+            // Important: Load sections before custom sections
+            if (data.sections && Array.isArray(data.sections)) {
+                setSections(data.sections);
+            }
             
             if (data.customSections) {
                 setCustomSections(data.customSections);
                 setCustomSectionData(data.customSectionData || {});
-                setSections([...sections, ...data.customSections]);
             }
-            else {
-                setCustomSectionData({});
-                setCustomSections([]);
-            }
-
+            set_id(data.id || '');
+    
         } else if (location.state && location.state.data) {
-            
-            console.log('Loading from location state:', location.state.data);
             const data = location.state.data;
-            setKeywords(data.keywords);
-            setJobDescription(data.jobDescription);
-            setPersonalInfo(data.personalInfo);
+            setKeywords(data.keywords || []);
+            setJobDescription(data.jobDescription || '');
+            setPersonalInfo(data.personalInfo || { first_name: '', last_name: '', email: '', phone: '', location: '' });
             setSocials(Array.isArray(data.socials) ? data.socials : [
                 { platform: 'linkedin', url: '' },
                 { platform: 'github', url: '' },
                 { platform: 'portfolio', url: '' }
             ]);
-            setEducation(data.education);
-            setWorkExperience(data.workExperience||[]);
-            setProjects(data.projects);
-            setSkills(data.skills);
-            setCustomSections(data.customSections || []);
-            setCustomSectionData(data.customSectionData || {});
+            setEducation(data.education || []);
+            setWorkExperience(data.workExperience || []);
+            setProjects(data.projects || []);
+            setSkills(data.skills || []);
+            setName(data.name || '');
+            setSummary(data.summary || '');
+            setMargins(data.margins || { margin_left: 4, margin_right: 4, margin_top: 1 });
             
-            if(data.id === ''){
-                set_id('');
-            }
-            else{
-                set_id(data.id);
-            }
-            
-            if (data.sections) {
+            // Important: Load sections before custom sections
+            if (data.sections && Array.isArray(data.sections)) {
                 setSections(data.sections);
-            }
-            else {
+            } else {
                 setSections([
                     { id: 0, name: 'Personal Info', emoji: '🧞' },
                     { id: 1, name: 'Socials', emoji: '🧑‍💻' },
@@ -379,42 +345,18 @@ const saveRetryCount = useRef(0);
                 ]);
             }
             
-
-            //check if the name key exists in the data object
-            if (data.name) {
-                setName(data.name);
-            }
-            else {
-                //add the name key to the data object
-                data.name = '';
-                setName('');
-            }
-
-            if(data.certifications == null){
-                data.certifications = [];
-                setCertifications([]);
-            }
-
-            if(data.leadership == null){
-                data.leadership = [];
-                setLeadership([]);
-            }
-
-            if(data.extracurriculars == null){
-                data.extracurriculars = [];
-                setExtracurriculars([]);
-            }
-
-            if(data.customSections == null){
-                data.customSections = [];
+            if (data.customSections) {
+                setCustomSections(data.customSections);
+                setCustomSectionData(data.customSectionData || {});
+            } else {
                 setCustomSections([]);
                 setCustomSectionData({});
             }
-
-
-
+            
+            set_id(data.id || '');
         } else {
-            console.log('No data found');
+            // Initialize with default values
+            console.log('No data found, initializing with defaults');
             setJobDescription('');
             setKeywords([]);
             setPersonalInfo({ first_name: '', last_name: '', email: '', phone: '', location: '' });
@@ -429,9 +371,11 @@ const saveRetryCount = useRef(0);
             setSkills([]);
             setName('');
             setSummary('');
+            setCustomSectionData({});
+            setCustomSections([]);
+            setMargins({ margin_left: 4, margin_right: 4, margin_top: 1 });
             setSections([
-
-                { id: 0, name: 'Personal Info', emoji: '🧞' }, 
+                { id: 0, name: 'Personal Info', emoji: '🧞' },
                 { id: 1, name: 'Socials', emoji: '🧑‍💻' },
                 { id: 2, name: 'Education', emoji: '🎓' },
                 { id: 3, name: 'Work Exp.', emoji: '👔' },
@@ -439,8 +383,6 @@ const saveRetryCount = useRef(0);
                 { id: 5, name: 'Skills', emoji: '🔧' },
             ]);
             set_id('');
-            setCustomSectionData({});
-            setCustomSections([]);
         }
     }, []);
 
@@ -450,7 +392,7 @@ const saveRetryCount = useRef(0);
     useEffect(() => {
 
         setSaved(false);
-    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections, customSections, customSectionData]);
+    }, [personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, name, sections, customSections, customSectionData, margins]);
 
 
 
@@ -475,7 +417,7 @@ const saveRetryCount = useRef(0);
     useEffect(() => {
         const intervalId = setInterval(() => {
             const data = {
-                personalInfo, socials, education, workExperience, projects, skills, name, sections, id, customSections, customSectionData, keywords, jobDescription, summary, achievements, certifications, leadership, extracurriculars
+                personalInfo, socials, education, workExperience, projects, skills, name, sections, id, customSections, customSectionData, keywords, jobDescription, margins
             };
             localStorage.setItem('current_resume_data', JSON.stringify(data));
             console.log('Auto-saved resume data');
@@ -501,16 +443,15 @@ const saveRetryCount = useRef(0);
     }
 
 
+    //show alert dialog
     const checkIfSaved = () => {
-        const current_resume_data = localStorage.getItem('current_resume_data');
-    
-        if (current_resume_data) {
-            localStorage.removeItem('current_resume_data');
-        } 
-    
         if (saved) {
+            localStorage.removeItem('current_resume_data');
             navigate('/home');
-        } else {
+            
+        }
+        else {
+            //check if any content has been added
             const isContentAdded = () => {
                 return (
                     personalInfo.first_name !== '' ||
@@ -524,22 +465,25 @@ const saveRetryCount = useRef(0);
                     projects.some(project => project.title !== '' || project.description !== '' || project.link !== '') ||
                     skills.length > 0 ||
                     achievements.some(achievement => achievement.title !== '' || achievement.description !== '' || achievement.date !== '') ||
-                    certifications.some(certification => certification.name !== '' || certification.issuer !== '' || certification.dateObtained !== '' || certification.expirationDate !== '' || certification.credentialID !== '' || certification.credentialURL !== '' || certification.description !== '') ||
+                    certifications.some(certification => certification.name !== '' || certification.issuer !== '' || certification.dateObtained !== '' || certification.expirationDate !== '' || certification.credentialID !== '' || certification.credentialURL !== '' || certification.description !== '')   ||
                     leadership.some(leader => leader.position !== '' || leader.organization !== '' || leader.startDate !== '' || leader.endDate !== '' || leader.description !== '') ||
-                    extracurriculars.some(extra => extra !== '') ||
-                    name !== '' ||
-                    summary !== ''
+                    extracurriculars.some(extra => extra !== ''),
+                    name !== '' || summary !== ''
+                    
+
                 );
             };
-    
-    
+
+
             if (isContentAdded()) {
                 setShowConfirmDialog(true);
-            } else {
+
+            }
+            else {
                 navigate('/home');
             }
         }
-    };
+    }
 
     const saveData = () => {
 
@@ -552,8 +496,9 @@ const saveRetryCount = useRef(0);
 
 
         const data = {
-            personalInfo, socials, education, workExperience, projects, skills,  name, sections, id, keywords, jobDescription, summary, customSections, customSectionData
+            personalInfo, socials, education, workExperience, projects, skills,  name, sections, id, keywords, jobDescription, summary, customSections, customSectionData, margins
         };
+
         
 
 
@@ -688,7 +633,7 @@ const saveRetryCount = useRef(0);
                     }}
                     className={`px-4 py-2 rounded text-white ${saved ? 'bg-green-500' : 'bg-yellow-500 hover:bg-yellow-600'}`}
                 >
-                    {saved ? 'Saved ✅' : 'Save'}
+                    {isLoading ? <div className="spinner">Loading...</div> : saved ? 'Saved ✅' : 'Save'}
                 </button>
 
                 <div className="flex items-center space-x-2 ml-4">
@@ -816,7 +761,10 @@ const saveRetryCount = useRef(0);
                 </main>
 
                {/* Real-time preview */}
-                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} name={name} sections={sections} keywords={keywords} customSections={customSections} customSectionData={customSectionData} />
+                <ResumePreview setfullView = {setfullView} personalInfo={personalInfo} socials={socials} education={education} workExperience={workExperience} projects={projects} skills={skills} name={name} sections={sections} keywords={keywords} customSections={customSections} customSectionData={customSectionData} margins={margins}
+                setMargins={setMargins}
+
+                />
 
                 
             </div>
@@ -847,7 +795,10 @@ const saveRetryCount = useRef(0);
                             sections,
                             keywords,
                             customSectionData,
-                            customSections
+                            customSections,
+                            margins,
+                            setMargins
+                            
                         }
                        }
                        

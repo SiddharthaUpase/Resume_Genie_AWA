@@ -1,7 +1,7 @@
 import React ,{useContext,useState} from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ProgressInfoContext} from '../../Context/ProgressInfoContext'; 
+import { ProgressInfoContext} from '../../../Context/ProgressInfoContext'; 
 
 const SectionItem = ({ section, currentSection, setCurrentSection, handleDeleteSection }) => {
 

@@ -15,40 +15,112 @@ const Resume = ({ previewMode = false, previewData = null }) => {
     const resumeRef = useRef();
     const [isOverflowing, setIsOverflowing] = useState(false);
     const location = useLocation();
-
-
-   
-
     //check if previewData has key words
     const data = previewData || location.state.data;
 
-    const { personalInfo, socials, education, workExperience, projects, skills, achievements, certifications, leadership, extracurriculars,summary, sections, keywords,customSections,
-        customSectionData } = data;
+    const { personalInfo, socials, education, workExperience, projects, skills, sections, keywords,customSections,
+        customSectionData, margins } = data;
+    let { margin_left, margin_right, margin_top } = margins || {};
+
 
 
         const renderHTML = (html, keywords, isSingleLine) => {
             const allowedTags = isSingleLine 
                 ? ['b', 'i', 'em', 'strong', 'a', 'u'] 
                 : ['b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'u', 'p'];
-
+        
+            // First sanitize the HTML
             const sanitizedHTML = DOMPurify.sanitize(html, { 
                 ALLOWED_TAGS: allowedTags,
                 ALLOWED_ATTR: ['href', 'target', 'rel']
             });
-            
-            if (isSingleLine) {
-                // For single line, remove all HTML tags except for inline formatting
-                // This regex now properly handles both opening and closing tags
-                const strippedHTML = sanitizedHTML.replace(/<(?!\/?(?:b|i|em|strong|a|u)\b)[^>]+>/gi, '');
-                return <span dangerouslySetInnerHTML={{ __html: strippedHTML }} />;
-            } else {
+        
+            // If no keywords or not in preview mode, just render the sanitized HTML
+            if (!keywords || keywords.length === 0 || !previewMode) {
+                if (isSingleLine) {
+                    const strippedHTML = sanitizedHTML.replace(/<(?!\/?(?:b|i|em|strong|a|u)\b)[^>]+>/gi, '');
+                    return <span dangerouslySetInnerHTML={{ __html: strippedHTML }} />;
+                }
                 return <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />;
             }
+        
+            // Enhanced escape function for regex special characters
+            const escapeRegExp = (string) => {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                            .replace(/\+/g, '\\+')   // Explicitly escape plus signs
+                            .replace(/#/g, '\\#')    // Escape hash
+                            .replace(/\(/g, '\\(')   // Escape parentheses
+                            .replace(/\)/g, '\\)')
+                            .replace(/\[/g, '\\[')   // Escape brackets
+                            .replace(/\]/g, '\\]')
+                            .replace(/\//g, '\\/');  // Escape forward slashes
+            };
+        
+            // Function to create word boundary patterns for special programming terms
+            const createWordBoundaryPattern = (keyword) => {
+                // Special cases for programming language keywords
+                if (keyword.includes('+') || keyword.includes('#') || keyword.includes('.')) {
+                    // For terms like C++, C#, .NET, etc.
+                    return `(?:^|[^a-zA-Z0-9])(${escapeRegExp(keyword)})(?:$|[^a-zA-Z0-9])`;
+                }
+                // For regular words, use standard word boundaries
+                return `\\b(${escapeRegExp(keyword)})\\b`;
+            };
+        
+            // Function to highlight keywords in text content while preserving HTML tags
+            const highlightHTMLContent = (html) => {
+                // Create patterns for each keyword with appropriate word boundaries
+                const patterns = keywords.map(keyword => ({
+                    keyword,
+                    pattern: createWordBoundaryPattern(keyword)
+                }));
+        
+                // Split the HTML into tags and text content
+                const parts = html.split(/(<[^>]*>)/);
+                
+                return parts.map((part, index) => {
+                    // If this is an HTML tag, return it unchanged
+                    if (part.startsWith('<')) {
+                        return part;
+                    }
+                    
+                    // For text content, apply all keyword patterns
+                    let processedText = part;
+                    patterns.forEach(({ keyword, pattern }) => {
+                        const regex = new RegExp(pattern, 'gi');
+                        processedText = processedText.replace(regex, (match, group1) => {
+                            // group1 is the actual keyword match within the boundary constraints
+                            const originalMatch = group1 || match;
+                            //create an object of highlighter html and the keyword
+                            const highlighter = `<span class="bg-yellow-200 px-0.5 rounded">${originalMatch}</span>`;
+                            //add the keyword to the matched keywords array
+                            const keyword = originalMatch.toLowerCase();
+                            //return the highlighter html and the keyword
+                            return highlighter;
 
-            
+                            
+                        });
+                    });
+                    
+                    return processedText;
+                }).join('');
+            };
+        
+            // Apply highlighting to the sanitized HTML
 
+            const highlightedHTML = highlightHTMLContent(sanitizedHTML);
+
+
+            if (isSingleLine) {
+                const strippedHTML = highlightedHTML.replace(
+                    /<(?!\/?(?:b|i|em|strong|a|u|span)\b)[^>]+>/gi, 
+                    ''
+                );
+                return <span dangerouslySetInnerHTML={{ __html: strippedHTML }} />;
+            }
+        
+            return <div dangerouslySetInnerHTML={{ __html: highlightedHTML }} />;
         };
-    
   
 
     // Flexible sections
@@ -58,14 +130,58 @@ const Resume = ({ previewMode = false, previewData = null }) => {
         const checkOverflow = () => {
             if (resumeRef.current) {
                 const { scrollHeight, clientHeight } = resumeRef.current;
-                setIsOverflowing(scrollHeight > clientHeight);
+                
+                // Get computed styles to account for any scaling
+                const computedStyle = window.getComputedStyle(resumeRef.current);
+                const transform = computedStyle.transform;
+                
+                // Extract scale value if transform is present
+                let scale = 1;
+                if (transform !== 'none') {
+                    const matrix = new DOMMatrixReadOnly(transform);
+                    scale = matrix.a; // This gets the horizontal scale factor
+                }
+                
+                // Calculate actual heights considering scale
+                const actualScrollHeight = scrollHeight * scale;
+                const actualClientHeight = clientHeight * scale;
+                
+            // Add small buffer (10px) for preview mode only
+            const buffer =  10;
+                
+                // Compare heights with buffer
+                setIsOverflowing(Math.ceil(actualScrollHeight) > Math.ceil(actualClientHeight + buffer));
+                
+                // Debug logging
+                console.log({
+                    scrollHeight,
+                    clientHeight,
+                    scale,
+                    actualScrollHeight,
+                    actualClientHeight,
+                    isOverflowing: Math.ceil(actualScrollHeight) > Math.ceil(actualClientHeight + buffer)
+                });
             }
         };
-
+    
+        // Initial check
         checkOverflow();
-        window.addEventListener('resize', checkOverflow);
-        return () => window.removeEventListener('resize', checkOverflow);
-    }, [personalInfo, socials, education, workExperience, projects, skills,  sections]);
+    
+        // Add resize observer for more reliable overflow detection
+        const resizeObserver = new ResizeObserver(checkOverflow);
+        if (resumeRef.current) {
+            resizeObserver.observe(resumeRef.current);
+        }
+    
+        // Cleanup
+        return () => {
+            if (resumeRef.current) {
+                resizeObserver.unobserve(resumeRef.current);
+            }
+            resizeObserver.disconnect();
+        };
+    }, [personalInfo, socials, education, workExperience, projects, skills, sections, previewMode]);
+    
 
 
     // Helper function to format date
@@ -163,15 +279,89 @@ const parseFormattedText = (text) => {
 
 // Update the highlightText function to handle both keywords and Tailwind formatting
 const highlightText = (text, keywords) => {
-    if (!keywords || keywords.length === 0) return parseFormattedText(text);
-    if (!previewMode) return parseFormattedText(text);
+    if (!keywords || keywords.length === 0) return text;
+    if (!previewMode) return text;
   
-    const pattern = new RegExp(`(${keywords.join('|')})`, 'gi');
+    // Function to get common variations of a keyword
+    const getKeywordVariations = (keyword) => {
+      const variations = new Set();
+      const base = keyword.toLowerCase();
+      
+      // Add the original keyword
+      variations.add(keyword);
+      
+      // Common tech-specific variations
+      const techVariations = {
+        'javascript': ['JavaScript', 'JS'],
+        'typescript': ['TypeScript', 'TS'],
+        'react': ['React.js', 'ReactJS'],
+        'node': ['Node.js', 'NodeJS'],
+        'express': ['Express.js', 'ExpressJS'],
+        'next': ['Next.js', 'NextJS'],
+        'vue': ['Vue.js', 'VueJS'],
+        'angular': ['AngularJS', 'Angular.js'],
+        'mongo': ['MongoDB', 'Mongo DB'],
+        'postgresql': ['PostgreSQL', 'Postgres'],
+        'mysql': ['MySQL', 'My SQL'],
+        'fullstack': ['Full Stack', 'Full-Stack'],
+        'frontend': ['Front End', 'Front-End'],
+        'backend': ['Back End', 'Back-End'],
+        'devops': ['DevOps', 'Dev Ops'],
+      };
+  
+      // Add tech-specific variations
+      if (techVariations[base]) {
+        techVariations[base].forEach(v => variations.add(v));
+      }
+  
+      // Handle hyphenated versions
+      if (keyword.includes(' ')) {
+        variations.add(keyword.replace(/\s+/g, '-'));
+      }
+      if (keyword.includes('-')) {
+        variations.add(keyword.replace(/-+/g, ' '));
+      }
+  
+      // Handle plurals
+      if (base.match(/[^s]$/)) {  // If doesn't end in 's'
+        if (base.match(/(?:s|sh|ch|x|z)$/)) {
+          variations.add(`${keyword}es`);
+        } else if (base.match(/[^aeiou]y$/)) {
+          variations.add(`${keyword.slice(0, -1)}ies`);
+        } else {
+          variations.add(`${keyword}s`);
+        }
+      }
+  
+      // Special cases for tech terms
+      if (base.match(/^[A-Z]+$/)) {  // Acronyms like API
+        variations.add(base + 's');
+        variations.add(base + "'s");
+      }
+  
+      return Array.from(variations);
+    };
+  
+    // Get all variations for all keywords
+    const allVariations = keywords.flatMap(getKeywordVariations);
+  
+    // Escape special regex characters and add word boundaries
+    const escapedKeywords = allVariations.map(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Handle word boundaries based on whether the term starts/ends with word characters
+      const startBoundary = /^\w/.test(keyword) ? '\\b' : '';
+      const endBoundary = /\w$/.test(keyword) ? '\\b' : '';
+      return `${startBoundary}${escaped}${endBoundary}`;
+    });
+  
+    // Create pattern with all variations
+    const pattern = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');
     const parts = text.split(pattern);
   
     return parts.map((part, index) => {
-      const isKeyword = keywords.some(keyword =>
-        part.toLowerCase() === keyword.toLowerCase()
+      // Check if this part matches any of our variations (case-insensitive)
+      const isKeyword = allVariations.some(variation =>
+        part.toLowerCase() === variation.toLowerCase()
       );
   
       if (isKeyword) {
@@ -185,7 +375,6 @@ const highlightText = (text, keywords) => {
       return parseFormattedText(part);
     });
   };
-
     const renderWorkExperience = (experience, keywords) => (
         <section className="mb-2">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
@@ -220,7 +409,7 @@ const highlightText = (text, keywords) => {
                 SKILLS
             </h2>
             <ul className="list-disc pl-4" style={descriptionStyle}>
-                {skills.map(([category, skillList], index) => (
+            {skills.map(([category, skillList], index) => (
                     <li key={index} className="mb">
                         <strong>{category}:</strong>{' '}
                         {highlightText(skillList.join(', '), keywords)}
@@ -263,162 +452,55 @@ const highlightText = (text, keywords) => {
         </section>
     );
 
-    const renderAchievements = (achievements, keywords) => (
-        <section className="mb-1">
-            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>ACHIEVEMENTS</h2>
-            {achievements.map((achievement, index) => (
-                <div key={index} className="">
-                    <p style={{ fontSize: '12px' }}>
-                        <strong style={{ fontSize: '12.5px' }}>{achievement.title}</strong>
-                        {achievement.date && <span className="ml-2" >({formatDate(achievement.date)}) </span>}
-                        <span style={descriptionStyle}>  {highlightText(achievement.description, keywords)}</span>
-
-                    </p>
-                </div>
-            ))}
-        </section>
-
-    )
-
-
-const renderCertifications = (certifications, keywords) => (
-  <section className="mb-1">
-    <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
-      CERTIFICATIONS
-    </h2>
-    {certifications.map((certification, index) => (
-      <div key={index} className="mb-1">
-        <div className="flex flex-col">
-          <div className="flex justify-between">
-            <strong style={{ fontSize: '12.5px' }}>{certification.name}</strong>
-            <span style={{ fontSize: '12px' }}>
-              {formatDate(certification.dateObtained)}
-              {certification.expirationDate && ` - ${formatDate(certification.expirationDate)}`}
-            </span>
-          </div>
-          <div style={{ fontSize: '12px' }}>
-            <span>{certification.issuer}</span>
-            {certification.credentialID && (
-              <span className="ml-2">ID: {certification.credentialID}</span>
-            )}
-          </div>
-          {certification.credentialURL && (
-            <a 
-              href={certification.credentialURL} 
-              className="text-blue-600 hover:underline" 
-              style={{ fontSize: '11px' }}
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              Verify Credential
-            </a>
-          )}
-        </div>
-        {certification.description && (
-          <p style={{ fontSize: '12px', marginTop: '2px' }}>
-            {highlightText(certification.description, keywords)}
-          </p>
-        )}
-      </div>
-    ))}
-  </section>
-);
-
-const renderLeadership = (leadership, keywords) => (
-    <section className="mb-1">
-      <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
-        LEADERSHIP EXPERIENCE
-      </h2>
-      {leadership.map((experience, index) => (
-        <div key={index} className="mb-1">
-          <div className="flex justify-between items-baseline">
-            <strong style={{ fontSize: '12.5px' }}>{experience.position}</strong>
-            <span style={{ fontSize: '12px' }}>
-              {formatDate(experience.startDate)} - {experience.endDate ? formatDate(experience.endDate) : 'Present'}
-            </span>
-          </div>
-          <div style={{ fontSize: '12px' }}>
-            <span>{experience.organization}</span>
-          </div>
-          {experience.description && (
-            <p style={{ fontSize: '12px', marginTop: '2px' }}>
-              {highlightText(experience.description, keywords)}
-            </p>
-          )}
-        </div>
-      ))}
-    </section>
-  );
-
-    const renderSummary = (summary, keywords) => (
-        <section className="mb-1">
-            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>SUMMARY</h2>
-            <p style={{ fontSize: '12px' }}>
-                {renderHTML(summary, keywords, false)}
-            </p>
-        </section>
-    );
-  
-
-    const renderExtracurriculars = (extracurriculars, keywords) => (
-        <section className="mb-1">
-            <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>EXTRACURRICULAR ACTIVITIES</h2>
-            {extracurriculars.map((activity, index) => (
-                <div key={index} className="mb-1">
-                    <div className="flex justify-between items-baseline">
-                        <strong style={{ fontSize: '12.5px' }}>{activity.name}</strong>
-                        <span style= {dateStyle}>
-                            {formatDate(activity.startMonth)} - {activity.endMonth ? formatDate(activity.endMonth) : 'Present'}
-                        </span>
-                    </div>
-                    <div style={{ fontSize: '12px' }}>
-                        <span>{activity.organization}</span>
-                    </div>
-                    {activity.description && (
-                        <p style={{ fontSize: '12px', marginTop: '2px' }}>
-                            {highlightText(activity.description, keywords)}
-                        </p>
-                    )}
-                </div>
-            ))}
-        </section>
-    );
 
     const renderCustomSection = (sectionName, sectionData, keywords, isSingle) => (
         <section className="mb-1">
             <h2 className="font-bold border-b border-black mb-1" style={{ fontSize: '14px' }}>
                 {sectionName.toUpperCase()}
             </h2>
-            {sectionData.map((item, index) => (
-                <div key={index} className="mb-1">
-                    {isSingle ? (
-                        <div style={{ fontSize: '12.5px', display: 'flex', justifyContent: 'space-between' }}>
-                            <span>
-                            <strong style={subHeaderStyle}>{item.title}</strong>
-                                {item.startMonth && item.endMonth && (
-                                    <span> ({item.startMonth} - {item.endMonth}):</span>
-                                )}
-                                <span style={{ marginLeft: '4px' }}>
-                                    {renderHTML(item.description, keywords, true)}
+            <div>
+                {sectionData.map((item, index) => (
+                    <div key={index} style={{ 
+                        marginBottom: isSingle ? '0rem' : '0rem' // Only controls space between items
+                    }}>
+                        {isSingle ? (
+                            <div style={{ 
+                                fontSize: '12.5px', 
+                                display: 'flex', 
+                                justifyContent: 'space-between'
+                            }}>
+                                <span>
+                                    <strong style={subHeaderStyle}>{item.title}</strong>
+                                    {item.startMonth && item.endMonth && (
+                                        <span> ({item.startMonth} - {item.endMonth}):</span>
+                                    )}
+                                    <span style={{ marginLeft: '4px' }}>
+                                        {renderHTML(item.description, keywords, true)}
+                                    </span>
                                 </span>
-                            </span>
-                        </div>
-                    ) : (
-                        <div style={{ fontSize: '12.5px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                               <strong style={subHeaderStyle}>{item.title}</strong>
-                                {item.startMonth && item.endMonth && (
-                                    <DateComponent startMonth={item.startMonth} endMonth={item.endMonth} />
-                                )}
                             </div>
-                            <div className="custom-section-content">
-                                {renderHTML(item.description, keywords, false)}
+                        ) : (
+                            <div style={{ fontSize: '12.5px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <strong style={subHeaderStyle}>{item.title}</strong>
+                                    {item.startMonth && item.endMonth && (
+                                        <DateComponent startMonth={item.startMonth} endMonth={item.endMonth} />
+                                    )}
+                                </div>
+                                <div className="custom-section-content">
+                                    {renderHTML(item.description, keywords, false)}
+                                </div>
+                                {item.additionalInfo && <p>{highlightText(item.additionalInfo, keywords)}</p>}
                             </div>
-                            {item.additionalInfo && <p>{highlightText(item.additionalInfo, keywords)}</p>}
-                        </div>
-                    )}
-                </div>
-            ))}
+                        )}
+                    </div>
+                ))}
+            </div>
+            <style jsx>{`
+                div > div:last-child {
+                    margin-bottom: 0 !important;
+                }
+            `}</style>
         </section>
     );
 
@@ -472,17 +554,6 @@ const renderLeadership = (leadership, keywords) => (
                 return projects.length > 0 && renderProjects(projects, keywords);
             case 'Skills':
                 return skills.length > 0 && renderSkills(skills, keywords);
-            // case 'Achievements':
-            //     return achievements.length > 0 && renderAchievements(achievements, keywords);
-            // case 'Certifications':
-            //     return certifications.length > 0 && renderCertifications(certifications, keywords);
-            // case 'Leadership':
-            //     return leadership.length >0 && renderLeadership(leadership, keywords);
-            // case 'Summary':
-            //     return summary && renderSummary(summary, keywords);
-
-            // case 'Extracurriculars':
-            //     return extracurriculars.length > 0 && renderExtracurriculars(extracurriculars, keywords);
 
                 default:
                     // Check if it's a custom section
@@ -544,17 +615,27 @@ const renderLeadership = (leadership, keywords) => (
         }))
       ].filter(item => item.value);
 
+         // Instead of using the margins in className, we'll apply them via inline styles
+    const resumeStyles = {
+        width: '21.59cm',
+        height: '27.94cm',
+        fontFamily: '"Times New Roman", Times, serif',
+        overflow: 'hidden',
+        border: '1px solid black',
+        transformOrigin: 'top left',
+        paddingLeft: `${margin_left * 0.25}rem`,    // Convert to rem units
+        paddingRight: `${margin_right * 0.25}rem`,  // Convert to rem units
+        paddingTop: `${margin_top * 0.25}rem`,      // Convert to rem units
+        backgroundColor: 'white'
+    };
+
     return (
         <div className='flex flex-col justify-start items-center' style={{ margin: 0, padding: 8 }}>
             <div className="w-full h-full relative">
+
                 <div
-                    className="w-[21.59cm] mx-auto bg-white pl-4 pr-4 pt-1.5 shadow-lg relative"
-                    style={{
-                        height: '27.94cm',
-                        fontFamily: '"Times New Roman", Times, serif',
-                        overflow: 'hidden',
-                        border: '1px solid black',
-                    }}
+                    className="mx-auto shadow-lg relative"
+                    style={resumeStyles}
                     ref={resumeRef}
                 >
 
@@ -608,18 +689,18 @@ const renderLeadership = (leadership, keywords) => (
                     <style jsx>{`
         .custom-section-content ul, .work-experience ul {
             list-style-type: disc;
-            padding-left: 20px;
-            margin-top: 5px;
-            margin-bottom: 5px;
+            padding-left: 17px;
+            margin-top: 0px;
+            margin-bottom: 0px;
         }
         .custom-section-content ol, .work-experience ol {
             list-style-type: decimal;
             padding-left: 20px;
-            margin-top: 5px;
-            margin-bottom: 5px;
+            margin-top: 0px;
+            margin-bottom: 0px;
         }
         .custom-section-content li, .work-experience li {
-            margin-bottom: 2px;
+            margin-bottom: 0px;
         }
     a {
         color: #0000EE;

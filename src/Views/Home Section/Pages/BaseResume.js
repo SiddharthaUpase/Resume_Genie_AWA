@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PdfUploadDialog from '../UploadPopUp';
+import PdfUploadDialog from '../../../Views/UploadPopUp';
 import pdfToText from 'react-pdftotext';
-import { getResumes } from '../../Models/resumeModel';
+import { getResumes,deleteResume,getJsonResume } from '../../../Models/resumeModel';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { motion } from 'framer-motion';
 import { PlusCircle, Eye, Edit, Trash2, FileText, Cpu, Brain, FileArchive,Copy } from 'lucide-react';
-import { getJsonResume, deleteResume } from '../../Models/resumeModel';
-import { storeResume } from '../../Models/addInfoModels';
+
 const BaseResume = () => {
   const [resume_data, setResume_data] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -197,7 +196,7 @@ const data = {...orgData , id:''};
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Resumes</h1>
       
       {isGettingResumes && (
